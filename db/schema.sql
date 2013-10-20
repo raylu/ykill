@@ -10,7 +10,7 @@ CREATE TABLE `kills` (
 	`kill_time` datetime NOT NULL,
 	`moon_id` int unsigned NOT NULL,
 	PRIMARY KEY (`kill_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE TABLE `characters` (
 	`id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -31,7 +31,7 @@ CREATE TABLE `characters` (
 	`weapon_type_id` int DEFAULT NULL,
 	PRIMARY KEY (`id`),
 	CONSTRAINT `fk_char_km` FOREIGN KEY (`kill_id`) REFERENCES `kills` (`kill_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE TABLE `items` (
 	`id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -43,17 +43,17 @@ CREATE TABLE `items` (
 	`singleton` tinyint(4) NOT NULL,
 	PRIMARY KEY (`id`),
 	CONSTRAINT `fk_item_km` FOREIGN KEY (`kill_id`) REFERENCES `kills` (`kill_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE TABLE `item_costs` (
 	`type_id` int NOT NULL UNIQUE,
 	`cost` bigint unsigned NOT NULL,
 	PRIMARY KEY (`type_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE TABLE `kill_costs` (
 	`kill_id` int unsigned NOT NULL UNIQUE,
 	`cost` bigint unsigned NOT NULL,
 	PRIMARY KEY (`kill_id`),
 	CONSTRAINT `fk_kill_cost_km` FOREIGN KEY (`kill_id`) REFERENCES `kills` (`kill_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
