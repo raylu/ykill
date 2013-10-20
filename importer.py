@@ -3,13 +3,22 @@
 from http.client import HTTPSConnection
 import json
 import operator
-from pprint import pprint
+import time
+
+import oursql
 
 import db
 
 def insert_kill(c, kill):
-	db.execute(c, 'INSERT INTO kills (kill_id, solar_system_id, kill_time, moon_id) VALUES(?, ?, ?, ?)',
-			kill['killID'], kill['solarSystemID'], kill['killTime'], kill['moonID'])
+	print('inserting', kill['killID'], end=' ')
+	try:
+		db.execute(c, 'INSERT INTO kills (kill_id, solar_system_id, kill_time, moon_id) VALUES(?, ?, ?, ?)',
+				kill['killID'], kill['solarSystemID'], kill['killTime'], kill['moonID'])
+	except oursql.IntegrityError as e:
+		print('duplicate')
+		if e.args[0] == oursql.errnos['ER_DUP_ENTRY']:
+			return
+		raise
 
 	victim = kill['victim']
 	parambatch = [(
@@ -43,7 +52,7 @@ def insert_kill(c, kill):
 		''', parambatch
 	)
 
-	db.conn.commit()
+	print('done')
 
 def main():
 	conn = HTTPSConnection('zkillboard.com', timeout=10)
@@ -51,16 +60,29 @@ def main():
 		groups = db.query(c, 'SELECT groupID FROM eve.invGroups WHERE categoryID = ?', 6)
 		groups = list(map(operator.itemgetter('groupID'), groups))
 		for i in range(0, len(groups), 10):
-			query_groups = map(str, groups[i:i+10])
-			conn.request('GET', '/api/losses/api-only/groupID/{}'.format(','.join(query_groups)))
-			response = conn.getresponse()
-			if response.status != 200:
-				raise Exception('got {} {} from zkb'.format(response.status, response.reason))
-			kills = json.loads(response.read().decode('utf-8'))
-			response.close()
-			print('inserting', len(kills), 'kills')
-			for kill in kills:
-				insert_kill(c, kill)
+			query_groups = list(map(str, groups[i:i+10]))
+			last_kill_id = None
+			last_request_time = 0
+			while True:
+				path = '/api/losses/api-only/groupID/{}'.format(','.join(query_groups))
+				if last_kill_id is not None:
+					path += '/beforeKillID/' + str(last_kill_id)
+				now = time.time()
+				if now - last_request_time < 10:
+					print('sleeping', 10 - (now - last_request_time))
+					time.sleep(10 - (now - last_request_time))
+				conn.request('GET', path)
+				response = conn.getresponse()
+				if response.status != 200:
+					raise Exception('got {} {} from zkb'.format(response.status, response.reason))
+				kills = json.loads(response.read().decode('utf-8'))
+				response.close()
+				print('inserting', len(kills), 'kills')
+				for kill in kills:
+					insert_kill(c, kill)
+				db.conn.commit()
+				last_kill_id = kills[-1]['killID']
+				last_request_time = now
 
 if __name__ == '__main__':
 	main()
