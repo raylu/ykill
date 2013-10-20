@@ -1,7 +1,8 @@
 web:
     port: 8888
-    host: 'localhost:8888'
-    cookie_secret: 'dis is super sekrit'
+    host: 'http://localhost:8888'
+    api_port: 8887
+    api_host: 'http://localhost:8887'
     debug: true
 
 db:

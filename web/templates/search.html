@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 
+{% block js %}
+	<script src="/static/js/search.js"></script>
+{% end %}
+
 {% block main %}
 
 <h2>Corporations</h2>
-{% for corp in corps %}
-	<a href="/corporation/{{ corp['corporation_id'] }}">
-		{{ corp['corporation_name'] }}
-	</a>
-{% end %}
+<div id="corps"></div>
 
 {% end %}

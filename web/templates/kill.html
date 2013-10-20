@@ -1,21 +1,14 @@
 {% extends "base.html" %}
 
+{% block js %}
+	<script src="/static/js/kill.js"></script>
+{% end %}
+
 {% block main %}
 
-{{ kill['kill_time'] }}<br>
-{{ kill['solarSystemName'] }} ({{ round(kill['security'], 1) }})<br>
+<div id="kill_time"></div>
+<div id="solar_system"></div>
 
-{% for char in characters %}
-	<img src="//image.eveonline.com/Type/{{ char['ship_type_id'] }}_64.png" alt="{{ char ['typeName'] }}">
-	<img src="//image.eveonline.com/Character/{{ char['character_id'] }}_64.jpg" alt="{{ char['character_name'] }}">
-	{{ char['character_name'] }}
-	<img src="//image.eveonline.com/Corporation/{{ char['corporation_id'] }}_64.png" alt="{{ char['corporation_name'] }}">
-	{{ char['corporation_name'] }}
-	{% if char['alliance_id'] != 0 %}
-		<img src="//image.eveonline.com/Alliance/{{ char['alliance_id'] }}_64.png" alt="alliance">
-		{{ char['alliance_name'] }}
-	{% end %}
-	<br>
-{% end %}
+<div id="characters"></div>
 
 {% end %}

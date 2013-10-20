@@ -13,7 +13,8 @@ class WebConfig(Config):
 	attrs = frozenset([
 		'port',
 		'host',
-		'cookie_secret',
+		'api_port',
+		'api_host',
 		'debug',
 	])
 
