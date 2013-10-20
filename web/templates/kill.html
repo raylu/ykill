@@ -2,29 +2,20 @@
 
 {% block main %}
 
-<div class="kill_list">
-	{% for kill in kills %}
-		<a href="/kill/{{ kill['killID'] }}">
-			{{ kill['killTime'] }}
-			{{ kill['solarSystemID'] }}
-			<img src="//image.eveonline.com/Type/{{ kill['victim']['shipTypeID'] }}_64.png">
-			<img src="//image.eveonline.com/Character/{{ kill['victim']['characterID'] }}_64.jpg">
-			<img src="//image.eveonline.com/Corporation/{{ kill['victim']['corporationID'] }}_64.png">
-			<img src="//image.eveonline.com/Alliance/{{ kill['victim']['allianceID'] }}_64.png">
-			{{ kill['victim']['characterName'] }}
-			{{ kill['victim']['corporationName'] }}
-			{{ kill['victim']['allianceName'] }}
-			{% for attacker in kill['attackers'] %}
-				{% if attacker['finalBlow'] %}
-					{% set killer = attacker %}
-					{% break %}
-				{% end %}
-			{% end %}
-			{{ killer['characterName'] }}
-			{{ killer['corporationName'] }}
-			{{ killer['allianceName'] }}
-		</a>
+{{ kill['kill_time'] }}<br>
+{{ kill['solarSystemName'] }} ({{ round(kill['security'], 1) }})<br>
+
+{% for char in characters %}
+	<img src="//image.eveonline.com/Type/{{ char['ship_type_id'] }}_64.png" alt="{{ char ['typeName'] }}">
+	<img src="//image.eveonline.com/Character/{{ char['character_id'] }}_64.jpg" alt="{{ char['character_name'] }}">
+	{{ char['character_name'] }}
+	<img src="//image.eveonline.com/Corporation/{{ char['corporation_id'] }}_64.png" alt="{{ char['corporation_name'] }}">
+	{{ char['corporation_name'] }}
+	{% if char['alliance_id'] != 0 %}
+		<img src="//image.eveonline.com/Alliance/{{ char['alliance_id'] }}_64.png" alt="alliance">
+		{{ char['alliance_name'] }}
 	{% end %}
-</div>
+	<br>
+{% end %}
 
 {% end %}

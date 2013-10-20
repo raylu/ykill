@@ -13,3 +13,12 @@ def execute(cursor, sql, *values):
 def query(cursor, sql, *values):
 	execute(cursor, sql, *values)
 	return cursor.fetchall()
+
+def get(cursor, sql, *values):
+	execute(cursor, sql, *values)
+	result = cursor.fetchone()
+	if result is None:
+		raise Exception('no rows returned for query: {} with values {}'.format(sql, values))
+	if cursor.fetchone() is not None:
+		raise Exception('multiple results returned for query'.format(sql, values))
+	return result

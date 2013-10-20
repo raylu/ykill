@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block main %}
+
+{% for kill in kills %}
+	<a href="/kill/{{ kill['kill_id'] }}">
+		{{ kill['kill_time'] }}
+		<img src="//image.eveonline.com/Character/{{ kill['victim']['character_id'] }}_32.jpg" alt="{{ kill['victim']['character_name'] }}">
+		{{ kill['victim']['character_name'] }}
+		<img src="//image.eveonline.com/Corporation/{{ kill['victim']['corporation_id'] }}_32.png" alt="{{ kill['victim']['corporation_name'] }}">
+		{{ kill['victim']['corporation_name'] }}
+		{% if kill['victim']['alliance_id'] != 0 %}
+			<img src="//image.eveonline.com/Alliance/{{ kill['victim']['alliance_id'] }}_32.png" alt="{{ kill['victim']['alliance_name'] }}">
+			{{ kill['victim']['alliance_name'] }}
+		{% end %}
+		<img src="//image.eveonline.com/Character/{{ kill['final_blow']['character_id'] }}_32.jpg" alt="{{ kill['final_blow']['character_name'] }}">
+		{{ kill['final_blow']['character_name'] }}
+		<img src="//image.eveonline.com/Corporation/{{ kill['final_blow']['corporation_id'] }}_32.png" alt="{{ kill['final_blow']['corporation_name'] }}">
+		{{ kill['final_blow']['corporation_name'] }}
+		{% if kill['final_blow']['alliance_id'] != 0 %}
+			<img src="//image.eveonline.com/Alliance/{{ kill['final_blow']['alliance_id'] }}_32.png" alt="{{ kill['final_blow']['alliance_name'] }}">
+			{{ kill['final_blow']['alliance_name'] }}
+		{% end %}
+	</a><br>
+{% end %}
+
+{% end %}
