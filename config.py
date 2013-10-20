@@ -14,6 +14,7 @@ class WebConfig(Config):
 		'port',
 		'host',
 		'cookie_secret',
+		'debug',
 	])
 
 class DBConfig(Config):
