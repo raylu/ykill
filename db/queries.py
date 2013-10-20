@@ -14,7 +14,7 @@ def corporation(corp_id):
 	with db.cursor() as c:
 		kills = db.query(c, '''
 			SELECT DISTINCT(kills.kill_id), kill_time FROM kills
-			JOIN characters on characters.kill_id = kills.kill_id
+			JOIN characters ON characters.kill_id = kills.kill_id
 			WHERE corporation_id = ?
 			''', corp_id)
 		kill_ids = list(map(operator.itemgetter('kill_id'), kills))
@@ -42,15 +42,24 @@ def kill(kill_id):
 	with db.cursor() as c:
 		kill = db.get(c, '''
 			SELECT kill_time, solarSystemName, security FROM kills
-			JOIN eve.mapSolarSystems on solar_system_id = solarSystemID
+			JOIN eve.mapSolarSystems ON solar_system_id = solarSystemID
 			WHERE kill_id = ?
 			''', kill_id)
 		characters = db.query(c, '''
-			SELECT ship_type_id, character_id, character_name,
-				corporation_id, corporation_name, alliance_id, alliance_name, faction_id, faction_name
-				typeName
+			SELECT character_id, character_name, damage, victim, final_blow,
+				corporation_id, corporation_name, alliance_id, alliance_name, faction_id, faction_name,
+				ship_type_id, weapon_type_id,
+				ship.typeName AS ship_name, weapon.typeName AS weapon_name
 			FROM characters
-			JOIN eve.invTypes on ship_type_id = typeID
+			JOIN eve.invTypes AS ship ON ship_type_id = ship.typeID
+			LEFT JOIN eve.invTypes AS weapon ON weapon_type_id = weapon.typeID
 			WHERE kill_id = ?
 			''', kill_id)
-	return {'kill': kill, 'characters': characters}
+		items = db.query(c, '''
+			SELECT type_id, flag, dropped, destroyed, singleton,
+				typeName AS item_name
+			FROM items
+			JOIN eve.invTypes ON type_id = typeID
+			WHERE kill_id = ? ORDER BY flag ASC
+			''', kill_id)
+	return {'kill': kill, 'characters': characters, 'items': items}

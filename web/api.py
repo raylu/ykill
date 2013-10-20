@@ -22,7 +22,7 @@ class APIHandler(tornado.web.RequestHandler):
 
 	def respond_json(self, data):
 		self.set_header('Content-Type', 'application/json; charset=UTF-8')
-		for chunk in JSONDateEncoder().iterencode(data):
+		for chunk in JSONDateEncoder(indent='\t').iterencode(data):
 			self.write(chunk)
 		self.finish()
 

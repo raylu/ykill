@@ -24,6 +24,27 @@ window.addEvent('domready', function() {
 				}));
 				div.appendText(char['alliance_name']);
 			}
+			div.adopt(new Element('img', {
+				'src': '//image.eveonline.com/Type/' + char['ship_type_id'] + '_32.png',
+				'alt': char['ship_name'],
+			}));
+			if (!char['victim']) {
+				div.adopt(new Element('img', {
+					'src': '//image.eveonline.com/Type/' + char['weapon_type_id'] + '_32.png',
+					'alt': char['weapon_name'],
+				}));
+			}
+			div.appendText(char['damage']);
+			div.adopt(new Element('br'));
+		});
+
+		div = $('items');
+		data.items.each(function(item) {
+			div.adopt(new Element('img', {
+				'src': '//image.eveonline.com/Type/' + item['type_id'] + '_32.png',
+				'alt': item['item_name'],
+			}));
+			div.appendText(item['item_name'] + ' (' + item['dropped'] + ',' + item['destroyed'] + ')');
 			div.adopt(new Element('br'));
 		});
 	});
