@@ -13,14 +13,13 @@ body:
 
 a:
 	text-decoration: none;
-	color: #dde;
+	color: #38c;
 
 form:
 	input:
 		background: #fff;
 		border: 1px solid #cdd;
 		padding: 5px 10px;
-	}
 
 .clear:
 	clear: both;

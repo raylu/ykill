@@ -5,12 +5,12 @@ import operator
 import os
 
 import cleancss
-import tornado.gen
 import tornado.httpclient
 import tornado.ioloop
 import tornado.web
 
 from config import web as config
+import db
 
 class BaseHandler(tornado.web.RequestHandler):
 	def render(self, *args, **kwargs):
@@ -22,18 +22,18 @@ class BaseHandler(tornado.web.RequestHandler):
 		return s.replace(b'\n', b'') # this is like Django's {% spaceless %}
 
 class MainHandler(BaseHandler):
-	@tornado.web.asynchronous
-	@tornado.gen.coroutine
 	def get(self):
-		http_client = tornado.httpclient.AsyncHTTPClient()
-		kills_url = 'https://zkillboard.com/api/kills/corporationID/98182803/limit/1'
-		losses_url = 'https://zkillboard.com/api/losses/corporationID/98182803/limit/1'
-		kills_res, losses_res = yield [http_client.fetch(kills_url), http_client.fetch(losses_url)]
-		kills = json.loads(kills_res.body.decode('utf-8'))
-		losses = json.loads(losses_res.body.decode('utf-8'))
-		kills = sorted(kills + losses, key=operator.itemgetter('killTime'), reverse=True)
-		self.render('home.html', kills=kills)
+		self.render('home.html')
 
+class SearchHandler(BaseHandler):
+	def get(self):
+		q = self.get_argument('q')
+		with db.cursor() as c:
+			corps = db.query(c, '''
+				SELECT DISTINCT corporation_id, corporation_name FROM characters
+				WHERE corporation_name LIKE ?
+				''', '%{}%'.format(q))
+		self.render('search.html', corps=corps)
 
 class CSSHandler(tornado.web.RequestHandler):
 	def get(self, css_path):
@@ -47,10 +47,10 @@ if __name__ == '__main__':
 	tornado.web.Application(
 		handlers=[
 			(r'/', MainHandler),
+			(r'/search', SearchHandler),
 			(r"/(css/.+)\.css", CSSHandler),
 		],
-		template_path=os.path.join(os.path.dirname(__file__), 'templates'),
-		static_path=os.path.join(os.path.dirname(__file__), 'static'),
+		template_path=os.path.join(os.path.dirname(__file__), 'web/templates'),
 		cookie_secret=config.cookie_secret,
 		debug=config.debug,
 	).listen(config.port)

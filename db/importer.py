@@ -5,7 +5,7 @@ from pprint import pprint
 
 import __init__ as db
 
-with db.ykill_cursor() as c:
+with db.cursor() as c:
 	db.execute(c, 'INSERT INTO kills (kill_id, solar_system_id, kill_time, moon_id) VALUES(?, ?, ?, ?)',
 			kill['killID'], kill['solarSystemID'], kill['killTime'], kill['moonID'])
 
