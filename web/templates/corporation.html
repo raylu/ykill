@@ -4,8 +4,21 @@
 	<script src="/static/js/corporation.js"></script>
 {% end %}
 
+{% block css %}
+	<link rel="stylesheet" type="text/css" href="/css/corporation.css" />
+{% end %}
+
 {% block main %}
 
-<div id="kills"></div>
+<table id="kills">
+	<tr>
+		<th class="time">time</th>
+		<th class="system">system</th>
+		<th class="victim_portrait"></th>
+		<th class="victim">victim</th>
+		<th class="killer_portrait"></th>
+		<th class="killer">killer(s)</th>
+	</tr>
+</table>
 
 {% end %}

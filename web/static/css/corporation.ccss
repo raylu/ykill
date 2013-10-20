@@ -1,0 +1,24 @@
+table#kills:
+	table-layout: fixed
+	width: 900px
+
+	tr:nth-child(odd):
+		background-color: #1a1a1a
+
+	th, td:
+		white-space: nowrap
+		overflow: hidden
+		text-overflow: ellipsis
+
+	th.time:
+		width: 90px
+	th.system:
+		width: 120px
+	th.victim_portrait:
+		width: 64px
+	th.victim:
+		width: 250px
+	th.killer_portrait:
+		width: 64px
+	th.killer:
+		width: 250px

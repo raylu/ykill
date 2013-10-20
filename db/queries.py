@@ -13,29 +13,40 @@ def search(q):
 def corporation(corp_id):
 	with db.cursor() as c:
 		kills = db.query(c, '''
-			SELECT DISTINCT(kills.kill_id), kill_time FROM kills
+			SELECT DISTINCT(kills.kill_id), kill_time,
+				solarSystemName as system_name, security, regionName as region
+			FROM kills
 			JOIN characters ON characters.kill_id = kills.kill_id
+			JOIN eve.mapSolarSystems ON solar_system_id = solarSystemID
+			JOIN eve.mapRegions ON mapSolarSystems.regionID = mapRegions.regionID
 			WHERE corporation_id = ?
 			''', corp_id)
 		kill_ids = list(map(operator.itemgetter('kill_id'), kills))
 		char_rows = db.query(c, '''
 			SELECT
 				kill_id, victim, final_blow,
-				character_id, character_name, corporation_id, corporation_name, alliance_id, alliance_name, faction_id, faction_name
+				character_id, character_name, corporation_id, corporation_name, alliance_id, alliance_name, faction_id, faction_name,
+				ship_type_id, typeName AS ship_name
 			FROM characters
+			JOIN eve.invTypes ON ship_type_id = typeID
 			WHERE kill_id IN ({})
 			'''.format(','.join(map(str, kill_ids))))
 		characters = defaultdict(dict)
+		for kill_id in kill_ids:
+			characters[kill_id]['attackers'] = 1 # count final_blow now
 		for char in char_rows:
 			kill_id = char['kill_id']
 			if char['victim']:
 				characters[kill_id]['victim'] = char
 			elif char['final_blow']:
 				characters[kill_id]['final_blow'] = char
+			else:
+				characters[kill_id]['attackers'] += 1
 		for kill in kills:
 			chars = characters[kill['kill_id']]
 			kill['victim'] = chars['victim']
 			kill['final_blow'] = chars['final_blow']
+			kill['attackers'] = chars['attackers']
 	return kills
 
 def kill(kill_id):
