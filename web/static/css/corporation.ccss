@@ -5,11 +5,6 @@ table#kills:
 	tr:nth-child(odd):
 		background-color: #1a1a1a
 
-	th, td:
-		white-space: nowrap
-		overflow: hidden
-		text-overflow: ellipsis
-
 	th.time:
 		width: 90px
 	th.system:

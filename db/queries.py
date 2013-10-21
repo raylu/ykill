@@ -56,6 +56,7 @@ def kill(kill_id):
 			JOIN eve.mapSolarSystems ON solar_system_id = solarSystemID
 			WHERE kill_id = ?
 			''', kill_id)
+
 		characters = db.query(c, '''
 			SELECT character_id, character_name, damage, victim, final_blow,
 				corporation_id, corporation_name, alliance_id, alliance_name, faction_id, faction_name,
@@ -66,6 +67,15 @@ def kill(kill_id):
 			LEFT JOIN eve.invTypes AS weapon ON weapon_type_id = weapon.typeID
 			WHERE kill_id = ?
 			''', kill_id)
+		attackers = []
+		for char in characters:
+			if char['victim']:
+				victim = char
+			elif char['final_blow']:
+				final_blow = char
+			else:
+				attackers.append(char)
+
 		items = db.query(c, '''
 			SELECT type_id, flag, dropped, destroyed, singleton,
 				typeName AS item_name
@@ -73,4 +83,10 @@ def kill(kill_id):
 			JOIN eve.invTypes ON type_id = typeID
 			WHERE kill_id = ? ORDER BY flag ASC
 			''', kill_id)
-	return {'kill': kill, 'characters': characters, 'items': items}
+	return {
+		'kill': kill,
+		'victim': victim,
+		'final_blow': final_blow,
+		'attackers': attackers,
+		'items': items,
+	}

@@ -1,0 +1,27 @@
+#ship:
+	float: left
+	width: 256px
+	height: 256px
+
+table#victim:
+	float: right
+	table-layout: fixed
+	width: 388px
+
+table#attackers:
+	float: right
+	table-layout: fixed
+	width: 388px
+
+	td:
+		height: 64px
+		&:nth-child(1):
+			width: 66px
+			white-space: normal
+		&:nth-child(2):
+			width: 200px
+		&:nth-child(3):
+			width: 32px
+			white-space: normal
+		&:nth-child(3):
+			width: 50px

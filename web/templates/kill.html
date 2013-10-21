@@ -4,13 +4,18 @@
 	<script src="/static/js/kill.js"></script>
 {% end %}
 
+{% block css %}
+	<link rel="stylesheet" type="text/css" href="/css/kill.css" />
+{% end %}
+
 {% block main %}
 
-<div id="kill_time"></div>
-<div id="solar_system"></div>
+<div id="ship"></div>
+<table id="victim"></table>
+<div class="clear"></div>
 
-<div id="characters"></div>
+<table id="attackers"></table>
 
-<div id="items"></div>
+<table id="items"></table>
 
 {% end %}
