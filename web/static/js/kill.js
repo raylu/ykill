@@ -57,17 +57,32 @@ window.addEvent('domready', function() {
 		});
 
 		table = $('items');
-		data['items'].each(function(item) {
-			table.grab(new Element('tr').adopt(
-				new Element('td').grab(
-					new Element('img', {
-						'src': '//image.eveonline.com/Type/' + item['type_id'] + '_32.png',
-						'alt': item['item_name'],
-					})
-				),
-				new Element('td', {'html': item['item_name']}),
-				new Element('td', {'html': item['dropped'] || item['destroyed']})
+		var items = data['items'];
+		var slots = ['subsystem', 'high', 'medium', 'low', 'rig', 'drone bay', 'cargo', 'special hold', 'implant', '???'];
+		slots.each(function(slot) {
+			if (!items[slot])
+				return;
+			table.grab(new Element('tr').grab(
+				new Element('td', {'html': slot, 'colspan': 3, 'class': 'slot'})
 			));
+			var slot_items = items[slot];
+			['dropped', 'destroyed'].each(function(item_class) {
+				Object.each(slot_items[item_class], function(item, item_ids) {
+					var type_id = item_ids.split(',', 2)[0]
+					var item_name = item[1];
+					var count = item[0];
+					table.grab(new Element('tr').adopt(
+						new Element('td').grab(
+							new Element('img', {
+								'src': '//image.eveonline.com/Type/' + type_id + '_32.png',
+								'alt': item_name,
+							})
+						),
+						new Element('td', {'html': item_name}),
+						new Element('td', {'html': count, 'class': item_class})
+					));
+				});
+			});
 		});
 	});
 

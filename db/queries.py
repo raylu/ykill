@@ -76,13 +76,47 @@ def kill(kill_id):
 			else:
 				attackers.append(char)
 
-		items = db.query(c, '''
+		item_rows = db.query(c, '''
 			SELECT type_id, flag, dropped, destroyed, singleton,
 				typeName AS item_name
 			FROM items
 			JOIN eve.invTypes ON type_id = typeID
 			WHERE kill_id = ? ORDER BY flag ASC
 			''', kill_id)
+		items = {}
+		for item in item_rows:
+			flag = item['flag']
+			if 125 <= flag <= 132:
+				slot = 'subsystem'
+			elif 27 <= flag <= 34:
+				slot = 'high'
+			elif 19 <= flag <= 26:
+				slot = 'medium'
+			elif 11 <= flag <= 18:
+				slot = 'low'
+			elif 92 <= flag <= 99:
+				slot = 'rig'
+			elif flag == 87:
+				slot = 'drone bay'
+			elif flag == 5:
+				slot = 'cargo'
+			elif 133 <= flag <= 143:
+				slot = 'special hold'
+			elif flag == 89:
+				slot = 'implant'
+			else:
+				slot = '???'
+
+			if slot not in items:
+				items[slot] = {'dropped': {}, 'destroyed': {}}
+			if item['dropped']:
+				d = 'dropped'
+			else:
+				d = 'destroyed'
+			item_key = '{},{}'.format(item['type_id'], item['singleton'])
+			if item_key not in items[slot][d]:
+				items[slot][d][item_key] = [0, item['item_name']]
+			items[slot][d][item_key][0] += item[d]
 	return {
 		'kill': kill,
 		'victim': victim,

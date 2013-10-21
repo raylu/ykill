@@ -25,3 +25,15 @@ table#attackers:
 			white-space: normal
 		&:nth-child(3):
 			width: 50px
+
+table#items:
+	.slot:
+		background-color: #222
+	tr:nth-child(odd):
+		background-color: #181818
+	td:nth-child(3):
+		text-align: right
+	.dropped:
+		background-color: #050
+	.destroyed:
+		color: #a00
