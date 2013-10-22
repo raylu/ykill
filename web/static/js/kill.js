@@ -64,14 +64,15 @@ window.addEvent('domready', function() {
 				var div = $('slot_' + item['flag']);
 				var bg_img = div.getStyle('background-image');
 				if (bg_img == 'none')
-					set_bg_item(div, item['type_id']);
+					set_item(div, item);
 				else {
 					var charge_div = $('charge_' + item['flag']);
 					if (item['capacity']) {
-						set_bg_item(div, item['type_id']);
 						charge_div.setStyle('background-image', bg_img);
+						charge_div.grab(div.getChildren()[0]);
+						set_item(div, item);
 					} else {
-						set_bg_item(charge_div, item['type_id']);
+						set_item(charge_div, item);
 					}
 				}
 			});
@@ -126,8 +127,9 @@ window.addEvent('domready', function() {
 		});
 	});
 
-	function set_bg_item(div, type_id) {
-		div.setStyle('background-image', 'url(//image.eveonline.com/type/' + type_id + '_32.png)');
+	function set_item(div, item) {
+		div.setStyle('background-image', 'url(//image.eveonline.com/type/' + item['type_id'] + '_32.png)');
+		div.grab(new Element('div', {'class': 'tooltip', 'html': item['item_name']}));
 	}
 
 	function show_attacker(table, char) {
