@@ -130,14 +130,14 @@ window.addEvent('domready', function() {
 	function show_attacker(table, char) {
 		var tr = new Element('tr');
 
-		var td = new Element('td').adopt(
-			ykill.portrait(char['character_id'], char['character_name'], 'character', '_32.jpg'),
-			ykill.portrait(char['corporation_id'], char['corporation_name'], 'corporation', '_32.png')
-		);
+		var td = new Element('td');
+		td.grab(ykill.portrait(char['character_id'], char['character_name'], 'character', '_32.jpg'));
 		if (char['alliance_id'])
 			td.grab(ykill.portrait(char['alliance_id'], char['alliance_name'], 'alliance', '_32.png'));
-		if (char['faction_id'])
+		else if (char['faction_id'])
 			td.grab(ykill.portrait(char['faction_id'], char['faction_name'], 'alliance', '_32.png'));
+		else
+			td.grab(ykill.portrait(char['corporation_id'], char['corporation_name'], 'corporation', '_32.png'));
 		tr.grab(td);
 
 		td = new Element('td');

@@ -22,10 +22,13 @@ form:
 		border: 1px solid #cdd
 		padding: 5px 10px
 
-td:
-	white-space: nowrap
-	overflow: hidden
-	text-overflow: ellipsis
+table:
+	border-collapse: collapse
+
+	td:
+		white-space: nowrap
+		overflow: hidden
+		text-overflow: ellipsis
 
 .clear:
 	clear: both
