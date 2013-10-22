@@ -55,6 +55,8 @@ window.addEvent('domready', function() {
 			for (var i = 0; i < num; i++)
 				divs[i].addClass('avail');
 
+			if (!items[slot])
+				return;
 			items[slot].each(function(item) {
 				var div = $('slot_' + item['flag']);
 				var bg_img = div.getStyle('background-image');
@@ -86,18 +88,27 @@ window.addEvent('domready', function() {
 			table.grab(new Element('tr').grab(
 				new Element('td', {'html': slot, 'colspan': 3, 'class': 'slot'})
 			));
+			if (slot == 'high') {
+				var highs = {'dropped': {}, 'destroyed': {}};
+				items[slot].each(function(item) {
+					var d = item['dropped'] ? 'dropped' : 'destroyed';
+					var count = item[d];
+					if (highs[d][item['type_id']])
+						highs[d][item['type_id']][d] += item[d];
+					else
+						highs[d][item['type_id']] = item;
+				});
+				items[slot] = [];
+				Object.each(highs, function(item_class) {
+					Object.each(item_class, function(item) {
+						items[slot].push(item);
+					});
+				});
+			}
 			items[slot].each(function(item) {
 				var type_id = item['type_id'];
-				if (type_id instanceof String)
-					type_id = type_id.split(',', 2)[0];
-				var count, item_class;
-				if (item['dropped']) {
-					count = item['dropped'];
-					item_class = 'dropped';
-				} else {
-					count = item['destroyed'];
-					item_class = 'destroyed';
-				}
+				var item_class = item['dropped'] ? 'dropped' : 'destroyed';
+				var count = item[item_class];
 				table.grab(new Element('tr').adopt(
 					new Element('td').grab(
 						new Element('img', {

@@ -65,13 +65,25 @@ table#attackers:
 			width: 50px
 
 table#items:
+	table-layout: fixed
+	width: 460px
+
+	th:nth-child(1):
+		width: 32px
+	th:nth-child(2):
+		width: 300px
+	th:nth-child(3):
+		width: 50px
+
 	.slot:
 		background-color: #222
 	tr:nth-child(odd):
 		background-color: #181818
 	td:nth-child(3):
 		text-align: right
+		font-weight: bold
+		padding-right: 8px
 	.dropped:
 		background-color: #050
 	.destroyed:
-		color: #a00
+		color: #a22
