@@ -43,6 +43,7 @@ def corporation(corp_id):
 			else:
 				characters[kill_id]['attackers'] += 1
 		for kill in kills:
+			kill['kill_time'] = _format_kill_time(kill['kill_time'])
 			chars = characters[kill['kill_id']]
 			kill['victim'] = chars['victim']
 			kill['final_blow'] = chars['final_blow']
@@ -56,6 +57,7 @@ def kill(kill_id):
 			JOIN eve.mapSolarSystems ON solar_system_id = solarSystemID
 			WHERE kill_id = ?
 			''', kill_id)
+		kill['kill_time'] = _format_kill_time(kill['kill_time'])
 
 		characters = db.query(c, '''
 			SELECT character_id, character_name, damage, victim, final_blow,
@@ -136,3 +138,6 @@ def kill(kill_id):
 		'items': items,
 		'slots': slots,
 	}
+
+def _format_kill_time(kill_time):
+	return kill_time.strftime('%Y-%m-%d %H:%m')

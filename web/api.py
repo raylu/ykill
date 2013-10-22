@@ -6,12 +6,6 @@ import tornado.web
 from config import web as config
 import db.queries
 
-class JSONDateEncoder(json.JSONEncoder):
-	def default(self, data):
-		if isinstance(data, datetime.datetime):
-			return str(data)
-		return super(JSONDateEncoder, self).default(data)
-
 class APIHandler(tornado.web.RequestHandler):
 	def set_default_headers(self):
 		self.set_header('Access-Control-Allow-Origin', '*')
@@ -22,7 +16,7 @@ class APIHandler(tornado.web.RequestHandler):
 
 	def respond_json(self, data):
 		self.set_header('Content-Type', 'application/json; charset=UTF-8')
-		for chunk in JSONDateEncoder(indent='\t').iterencode(data):
+		for chunk in json.JSONEncoder(indent='\t').iterencode(data):
 			self.write(chunk)
 		self.finish()
 
