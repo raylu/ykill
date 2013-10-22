@@ -76,23 +76,35 @@ table#attackers:
 	width: 336px
 	margin-top: 10px
 
+	th:
+		&:nth-child(1):
+			width: 33px
+		&:nth-child(2):
+			width: 200px
+		&:nth-child(3):
+			width: 33px
+		&:nth-child(4):
+			width: 70px
+
 	td:
 		height: 64px
 		&:nth-child(1):
-			width: 33px
 			white-space: normal
 			line-height: 0
 		&:nth-child(2):
-			width: 200px
 			padding-left: 5px
 		&:nth-child(3):
-			width: 33px
 			white-space: normal
 			line-height: 0
 		&:nth-child(4):
-			width: 70px
 			text-align: right
 			padding-right: 8px
+
+	td.attacker_type:
+		height: auto
+		line-height: normal
+		background-color: #222
+		padding: 2px 8px
 
 	tr:nth-child(even):
 		background-color: #181818
@@ -113,7 +125,7 @@ table#items:
 		background-color: #222
 		padding: 2px 8px
 
-	tr:nth-child(odd):
+	tr:nth-child(even):
 		background-color: #181818
 
 	td:nth-child(1):not(.slot):
@@ -123,6 +135,6 @@ table#items:
 		font-weight: bold
 		padding-right: 8px
 	.dropped:
-		background-color: #050
+		background-color: #041
 	.destroyed:
 		color: #a22

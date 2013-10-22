@@ -79,10 +79,18 @@ window.addEvent('domready', function() {
 		});
 
 		table = $('attackers');
+		table.grab(new Element('tr').grab(
+			new Element('td', {'class': 'attacker_type', 'colspan': 4, 'html': 'final blow'})
+		));
 		show_attacker(table, data['final_blow']);
-		data['attackers'].each(function(char) {
-			show_attacker(table, char);
-		});
+		if (data['attackers'].length) {
+			table.grab(new Element('tr').grab(
+					new Element('td', {'class': 'attacker_type', 'colspan': 4, 'html': 'attackers'})
+			));
+			data['attackers'].each(function(char) {
+				show_attacker(table, char);
+			});
+		}
 
 		table = $('items');
 		var slots = ['subsystem', 'high', 'medium', 'low', 'rig', 'drone bay', 'cargo', 'special hold', 'implant', '???'];
