@@ -1,9 +1,12 @@
 window.addEvent('domready', function() {
 	var kill_id = document.location.pathname.split('/').getLast();
 	ykill.api('/kill/' + kill_id, function(data) {
-		var table = $('victim');
+
 		var kill = data['kill'];
 		var victim = data['victim'];
+		document.title += ' - ' + victim['character_name'] + ' - ' + victim['ship_name'];
+
+		var table = $('victim');
 		table.adopt(
 			new Element('tr').adopt(
 				new Element('td', {'html': 'time'}),

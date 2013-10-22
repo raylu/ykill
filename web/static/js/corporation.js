@@ -1,8 +1,11 @@
 window.addEvent('domready', function() {
 	var corp_id = document.location.pathname.split('/').getLast();
-	ykill.api('/corporation/' + corp_id, function(kills) {
+	ykill.api('/corporation/' + corp_id, function(data) {
+		if (data['corporation_name'])
+			document.title += ' - ' + data['corporation_name'];
+
 		var table = $('kills').getChildren('tbody')[0];
-		kills.each(function(kill) {
+		data['kills'].each(function(kill) {
 			var tr = new Element('tr');
 
 			var kill_time = kill['kill_time'].split(' ', 2);

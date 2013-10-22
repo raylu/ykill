@@ -32,6 +32,7 @@ def corporation(corp_id):
 			WHERE kill_id IN ({})
 			'''.format(','.join(map(str, kill_ids))))
 		characters = defaultdict(dict)
+		corp_name = None
 		for kill_id in kill_ids:
 			characters[kill_id]['attackers'] = 1 # count final_blow now
 		for char in char_rows:
@@ -42,13 +43,15 @@ def corporation(corp_id):
 				characters[kill_id]['final_blow'] = char
 			else:
 				characters[kill_id]['attackers'] += 1
+			if corp_name is None and char['corporation_id'] == corp_id:
+				corp_name = char['corporation_name']
 		for kill in kills:
 			kill['kill_time'] = _format_kill_time(kill['kill_time'])
 			chars = characters[kill['kill_id']]
 			kill['victim'] = chars['victim']
 			kill['final_blow'] = chars['final_blow']
 			kill['attackers'] = chars['attackers']
-	return kills
+	return {'corporation_name': corp_name, 'kills': kills}
 
 def kill(kill_id):
 	with db.cursor() as c:

@@ -31,7 +31,7 @@ class SearchHandler(APIHandler):
 
 class CorporationHandler(APIHandler):
 	def get(self, corp_id):
-		kills = db.queries.corporation(corp_id)
+		kills = db.queries.corporation(int(corp_id))
 		self.respond_json(kills)
 
 class KillHandler(APIHandler):
