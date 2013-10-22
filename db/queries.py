@@ -13,10 +13,11 @@ def search(q):
 def corporation(corp_id):
 	with db.cursor() as c:
 		kills = db.query(c, '''
-			SELECT DISTINCT(kills.kill_id), kill_time,
+			SELECT DISTINCT(kills.kill_id), kill_time, cost,
 				solarSystemName as system_name, security, regionName as region
 			FROM kills
 			JOIN characters ON characters.kill_id = kills.kill_id
+			JOIN kill_costs ON kill_costs.kill_id = kills.kill_id
 			JOIN eve.mapSolarSystems ON solar_system_id = solarSystemID
 			JOIN eve.mapRegions ON mapSolarSystems.regionID = mapRegions.regionID
 			WHERE corporation_id = ?
@@ -56,9 +57,10 @@ def corporation(corp_id):
 def kill(kill_id):
 	with db.cursor() as c:
 		kill = db.get(c, '''
-			SELECT kill_time, solarSystemName, security FROM kills
+			SELECT kill_time, cost, solarSystemName, security FROM kills
+			JOIN kill_costs ON kill_costs.kill_id = kills.kill_id
 			JOIN eve.mapSolarSystems ON solar_system_id = solarSystemID
-			WHERE kill_id = ?
+			WHERE kills.kill_id = ?
 			''', kill_id)
 		kill['kill_time'] = _format_kill_time(kill['kill_time'])
 
@@ -82,10 +84,11 @@ def kill(kill_id):
 				attackers.append(char)
 
 		item_rows = db.query(c, '''
-			SELECT type_id, flag, dropped, destroyed, singleton,
-				typeName AS item_name, capacity
+			SELECT items.type_id, flag, dropped, destroyed, singleton,
+				cost, typeName AS item_name, capacity
 			FROM items
-			JOIN eve.invTypes ON type_id = typeID
+			JOIN item_costs ON item_costs.type_id = items.type_id
+			JOIN eve.invTypes ON items.type_id = typeID
 			WHERE kill_id = ? ORDER BY flag ASC
 			''', kill_id)
 		items = defaultdict(list)

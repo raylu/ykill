@@ -59,6 +59,11 @@ window.addEvent('domready', function() {
 				td.appendText(' / ' + final_blow['faction_name']);
 			tr.grab(td);
 
+			td = new Element('td');
+			var millions = kill['cost'] / (100 * 1000000);
+			td.appendText(ykill.format_isk(millions));
+			tr.grab(td);
+
 			table.grab(tr);
 		});
 	});

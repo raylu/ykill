@@ -17,3 +17,8 @@ table#kills:
 		width: 64px
 	th.killer:
 		width: 250px
+	th.value:
+		width: 62px
+
+	td:nth-child(7):
+		text-align: right

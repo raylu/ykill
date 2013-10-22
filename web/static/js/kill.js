@@ -1,7 +1,6 @@
 window.addEvent('domready', function() {
 	var kill_id = document.location.pathname.split('/').getLast();
 	ykill.api('/kill/' + kill_id, function(data) {
-
 		var kill = data['kill'];
 		var victim = data['victim'];
 		document.title += ' - ' + victim['character_name'] + ' - ' + victim['ship_name'];
@@ -43,12 +42,18 @@ window.addEvent('domready', function() {
 				),
 				new Element('td', {'html': victim['faction_name']})
 			));
-		table.grab(new Element('tr').adopt(
-			new Element('td').grab(
-				ykill.portrait(victim['ship_type_id'], victim['ship_name'], 'type', '_64.png')
+		table.adopt(
+			new Element('tr').adopt(
+				new Element('td').grab(
+					ykill.portrait(victim['ship_type_id'], victim['ship_name'], 'type', '_64.png')
+				),
+				new Element('td', {'html': victim['ship_name']})
 			),
-			new Element('td', {'html': victim['ship_name']})
-		));
+			new Element('tr').adopt(
+				new Element('td', {'html': 'cost'}),
+				new Element('td', {'html': ykill.format_isk(kill['cost'] / 100)})
+			)
+		);
 
 		var items = data['items'];
 		var div = $('ship');
@@ -98,7 +103,7 @@ window.addEvent('domready', function() {
 			if (!items[slot])
 				return;
 			table.grab(new Element('tr').grab(
-				new Element('td', {'html': slot, 'colspan': 3, 'class': 'slot'})
+				new Element('td', {'html': slot, 'colspan': 4, 'class': 'slot'})
 			));
 			if (slot == 'high') {
 				var highs = {'dropped': {}, 'destroyed': {}};
@@ -129,7 +134,8 @@ window.addEvent('domready', function() {
 						})
 					),
 					new Element('td', {'html': item['item_name']}),
-					new Element('td', {'html': count, 'class': item_class})
+					new Element('td', {'html': count, 'class': item_class}),
+					new Element('td', {'html': ykill.format_isk(item['cost'] / 100)})
 				));
 			});
 		});

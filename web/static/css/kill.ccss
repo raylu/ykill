@@ -117,9 +117,11 @@ table#items:
 	th:nth-child(1):
 		width: 33px
 	th:nth-child(2):
-		width: 417px
+		width: 300px
 	th:nth-child(3):
 		width: 50px
+	th:nth-child(4):
+		width: 117px
 
 	.slot:
 		background-color: #222
@@ -133,6 +135,9 @@ table#items:
 	td:nth-child(3):
 		text-align: right
 		font-weight: bold
+		padding-right: 8px
+	td:nth-child(4):
+		text-align: right
 		padding-right: 8px
 	.dropped:
 		background-color: #041
