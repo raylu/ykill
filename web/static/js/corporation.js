@@ -26,9 +26,6 @@ window.addEvent('domready', function() {
 				ykill.portrait(victim['ship_type_id'], victim['ship_name'], 'type', '_32.png'),
 				ykill.portrait(victim['character_id'], victim['character_name'], 'character', '_32.jpg')
 			);
-			if (victim['faction_id']) {
-				td.grab(ykill.portrait(victim['faction_id'], victim['faction_name'], 'faction', '_32.png'));
-			}
 			tr.grab(td);
 
 			td = new Element('td');
@@ -47,9 +44,6 @@ window.addEvent('domready', function() {
 				ykill.portrait(final_blow['ship_type_id'], final_blow['ship_name'], 'type', '_32.png'),
 				ykill.portrait(final_blow['character_id'], final_blow['character_name'], 'character', '_32.jpg')
 			);
-			if (final_blow['faction_id']) {
-				td.grab(ykill.portrait(final_blow['faction_id'], final_blow['faction_name'], 'faction', '_32.png'));
-			}
 			tr.grab(td);
 
 			td = new Element('td');

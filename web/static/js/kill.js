@@ -36,7 +36,7 @@ window.addEvent('domready', function() {
 		if (victim['faction_id'])
 			table.grab(new Element('tr').adopt(
 				new Element('td').grab(
-					ykill.portrait(victim['faction_id'], victim['faction_name'], 'faction', '_64.png')
+					ykill.portrait(victim['faction_id'], victim['faction_name'], 'alliance', '_64.png')
 				),
 				new Element('td', {'html': victim['faction_name']})
 			));
@@ -47,8 +47,30 @@ window.addEvent('domready', function() {
 			new Element('td', {'html': victim['ship_name']})
 		));
 
+		var items = data['items'];
 		var div = $('ship');
 		div.setStyle('background-image', 'url(//image.eveonline.com/render/' + victim['ship_type_id'] + '_256.png)');
+		Object.each(data['slots'], function(num, slot) {
+			var divs = $(slot).getChildren();
+			for (var i = 0; i < num; i++)
+				divs[i].addClass('avail');
+
+			items[slot].each(function(item) {
+				var div = $('slot_' + item['flag']);
+				var bg_img = div.getStyle('background-image');
+				if (bg_img == 'none')
+					set_bg_item(div, item['type_id']);
+				else {
+					var charge_div = $('charge_' + item['flag']);
+					if (item['capacity']) {
+						set_bg_item(div, item['type_id']);
+						charge_div.setStyle('background-image', bg_img);
+					} else {
+						set_bg_item(charge_div, item['type_id']);
+					}
+				}
+			});
+		});
 
 		table = $('attackers');
 		show_attacker(table, data['final_blow']);
@@ -57,7 +79,6 @@ window.addEvent('domready', function() {
 		});
 
 		table = $('items');
-		var items = data['items'];
 		var slots = ['subsystem', 'high', 'medium', 'low', 'rig', 'drone bay', 'cargo', 'special hold', 'implant', '???'];
 		slots.each(function(slot) {
 			if (!items[slot])
@@ -65,26 +86,35 @@ window.addEvent('domready', function() {
 			table.grab(new Element('tr').grab(
 				new Element('td', {'html': slot, 'colspan': 3, 'class': 'slot'})
 			));
-			var slot_items = items[slot];
-			['dropped', 'destroyed'].each(function(item_class) {
-				Object.each(slot_items[item_class], function(item, item_ids) {
-					var type_id = item_ids.split(',', 2)[0]
-					var item_name = item[1];
-					var count = item[0];
-					table.grab(new Element('tr').adopt(
-						new Element('td').grab(
-							new Element('img', {
-								'src': '//image.eveonline.com/Type/' + type_id + '_32.png',
-								'alt': item_name,
-							})
-						),
-						new Element('td', {'html': item_name}),
-						new Element('td', {'html': count, 'class': item_class})
-					));
-				});
+			items[slot].each(function(item) {
+				var type_id = item['type_id'];
+				if (type_id instanceof String)
+					type_id = type_id.split(',', 2)[0];
+				var count, item_class;
+				if (item['dropped']) {
+					count = item['dropped'];
+					item_class = 'dropped';
+				} else {
+					count = item['destroyed'];
+					item_class = 'destroyed';
+				}
+				table.grab(new Element('tr').adopt(
+					new Element('td').grab(
+						new Element('img', {
+							'src': '//image.eveonline.com/Type/' + type_id + '_32.png',
+							'alt': item['item_name'],
+						})
+					),
+					new Element('td', {'html': item['item_name']}),
+					new Element('td', {'html': count, 'class': item_class})
+				));
 			});
 		});
 	});
+
+	function set_bg_item(div, type_id) {
+		div.setStyle('background-image', 'url(//image.eveonline.com/type/' + type_id + '_32.png)');
+	}
 
 	function show_attacker(table, char) {
 		var tr = new Element('tr');
@@ -96,7 +126,7 @@ window.addEvent('domready', function() {
 		if (char['alliance_id'])
 			td.grab(ykill.portrait(char['alliance_id'], char['alliance_name'], 'alliance', '_32.png'));
 		if (char['faction_id'])
-			td.grab(ykill.portrait(char['faction_id'], char['faction_name'], 'faction', '_32.png'));
+			td.grab(ykill.portrait(char['faction_id'], char['faction_name'], 'alliance', '_32.png'));
 		tr.grab(td);
 
 		td = new Element('td');

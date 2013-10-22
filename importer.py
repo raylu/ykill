@@ -10,7 +10,6 @@ import oursql
 import db
 
 def insert_kill(c, kill):
-	print('inserting', kill['killID'], end=' ')
 	try:
 		db.execute(c, 'INSERT INTO kills (kill_id, solar_system_id, kill_time, moon_id) VALUES(?, ?, ?, ?)',
 				kill['killID'], kill['solarSystemID'], kill['killTime'], kill['moonID'])
@@ -52,15 +51,13 @@ def insert_kill(c, kill):
 		''', parambatch
 	)
 
-	print('done')
-
 def main():
-	conn = HTTPSConnection('zkillboard.com', timeout=10)
 	with db.cursor() as c:
 		groups = db.query(c, 'SELECT groupID FROM eve.invGroups WHERE categoryID = ?', 6)
 		groups = list(map(operator.itemgetter('groupID'), groups))
 		for i in range(0, len(groups), 10):
 			query_groups = list(map(str, groups[i:i+10]))
+			conn = HTTPSConnection('zkillboard.com', timeout=10)
 			last_kill_id = None
 			last_request_time = 0
 			while True:
@@ -71,11 +68,15 @@ def main():
 				if now - last_request_time < 10:
 					print('sleeping', 10 - (now - last_request_time))
 					time.sleep(10 - (now - last_request_time))
-				conn.request('GET', path)
-				response = conn.getresponse()
-				if response.status != 200:
-					raise Exception('got {} {} from zkb'.format(response.status, response.reason))
-				kills = json.loads(response.read().decode('utf-8'))
+				try:
+					conn.request('GET', path)
+					response = conn.getresponse()
+					if response.status != 200:
+						raise Exception('got {} {} from zkb'.format(response.status, response.reason))
+					kills = json.loads(response.read().decode('utf-8'))
+				except Exception as e:
+					print(repr(e))
+					break
 				response.close()
 				print('inserting', len(kills), 'kills')
 				for kill in kills:

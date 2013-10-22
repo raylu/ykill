@@ -1,7 +1,45 @@
+#wrapper:
+	padding: 20px
+
 #ship:
 	float: left
-	width: 256px
-	height: 256px
+	width: 356px // 256 + 32 * 2 + 32 (last 32 is for medium charges)
+	height: 320px
+	line-height: 0
+	background-position: 32px 32px
+	background-repeat: no-repeat
+
+	#high:
+		margin-left: 32px
+	#high_charges:
+		display: inline-block;
+		margin-left: 32px
+	#medium:
+		width: 32px
+		float: right
+	#medium_charges:
+		width: 32px
+		float: right
+	#rig:
+		width: 32px
+		float: left
+		margin-top: 48px
+	#subsystem:
+		width: 32px
+		float: left
+		margin-top: 16px
+	#low:
+		margin-left: 32px
+	#low_charges:
+		display: inline-block
+		margin: 16px 0 0 32px
+
+	.slot:
+		display: inline-block
+		width: 32px
+		height: 32px
+	.avail:
+		border: 1px solid #888
 
 table#victim:
 	float: right

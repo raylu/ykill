@@ -78,12 +78,12 @@ def kill(kill_id):
 
 		item_rows = db.query(c, '''
 			SELECT type_id, flag, dropped, destroyed, singleton,
-				typeName AS item_name
+				typeName AS item_name, capacity
 			FROM items
 			JOIN eve.invTypes ON type_id = typeID
 			WHERE kill_id = ? ORDER BY flag ASC
 			''', kill_id)
-		items = {}
+		items = defaultdict(list)
 		for item in item_rows:
 			flag = item['flag']
 			if 125 <= flag <= 132:
@@ -106,21 +106,32 @@ def kill(kill_id):
 				slot = 'implant'
 			else:
 				slot = '???'
+			items[slot].append(item)
 
-			if slot not in items:
-				items[slot] = {'dropped': {}, 'destroyed': {}}
-			if item['dropped']:
-				d = 'dropped'
-			else:
-				d = 'destroyed'
-			item_key = '{},{}'.format(item['type_id'], item['singleton'])
-			if item_key not in items[slot][d]:
-				items[slot][d][item_key] = [0, item['item_name']]
-			items[slot][d][item_key][0] += item[d]
+		slot_rows = db.query(c, '''
+			SELECT attributeID, valueFloat FROM eve.dgmTypeAttributes
+			WHERE typeID = ? AND attributeID in (12, 13, 14, 1137, 1367) and valueFloat != 0.0
+			''', victim['ship_type_id'])
+		slot_mapping = {12: 'low', 13: 'medium', 14: 'high', 1137: 'rig', 1367: 'subsystem'}
+		slots = dict.fromkeys(slot_mapping.values(), 0)
+		for attr in slot_rows:
+			slot = slot_mapping[attr['attributeID']]
+			slots[slot] = int(attr['valueFloat']) # wtf CCP
+		if slots['subsystem']:
+			sub_ids = map(lambda s: str(s['type_id']), items['subsystem'])
+			modifier_rows = db.query(c, '''
+				SELECT attributeID, valueFloat FROM eve.dgmTypeAttributes
+				WHERE typeID IN ({}) AND attributeID in (1374, 1375, 1376) and valueFloat != 0.0
+				'''.format(','.join(sub_ids)))
+			slot_mapping = {1374: 'high', 1375: 'medium', 1376: 'low'} # that's right, it's backwards for subs!
+			for modifier in modifier_rows:
+				slot = slot_mapping[modifier['attributeID']]
+				slots[slot] += int(modifier['valueFloat']) # you may be wondering why i'm still not using valueInt. i am too
 	return {
 		'kill': kill,
 		'victim': victim,
 		'final_blow': final_blow,
 		'attackers': attackers,
 		'items': items,
+		'slots': slots,
 	}

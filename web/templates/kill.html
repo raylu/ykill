@@ -10,12 +10,55 @@
 
 {% block main %}
 
-<div id="ship"></div>
+<div id="ship">
+	<div id="high">
+		{% for i in range(27, 35) %}
+			<div id="slot_{{ i }}" class="slot"></div>
+		{% end %}
+	</div>
+	<div id="high_charges">
+		{% for i in range(27, 35) %}
+			<div id="charge_{{ i }}" class="slot"></div>
+		{% end %}
+	</div>
+	<div id="medium_charges">
+		{% for i in range(19, 27) %}
+			<div id="charge_{{ i }}" class="slot"></div>
+		{% end %}
+	</div>
+	<div id="medium">
+		{% for i in range(19, 27) %}
+			<div id="slot_{{ i }}" class="slot"></div>
+		{% end %}
+	</div>
+	<div id="rig">
+		{% for i in range(92, 95) %}
+			<div id="slot_{{ i }}" class="slot"></div>
+		{% end %}
+	</div>
+	<div id="subsystem">
+		{% for i in range(125, 130) %}
+			<div id="slot_{{ i }}" class="slot"></div>
+		{% end %}
+	</div>
+	<div id="low_charges">
+		{% for i in range(11, 19) %}
+			<div id="charge_{{ i }}" class="slot"></div>
+		{% end %}
+	</div>
+	<div id="low">
+		{% for i in range(11, 19) %}
+			<div id="slot_{{ i }}" class="slot"></div>
+		{% end %}
+	</div>
+</div>
 <table id="victim"></table>
 <div class="clear"></div>
 
 <table id="attackers"></table>
 
 <table id="items"></table>
+
+<div class="clear"></div>
 
 {% end %}
