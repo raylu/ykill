@@ -109,14 +109,15 @@ def kill(kill_id):
 			items[slot].append(item)
 
 		slot_rows = db.query(c, '''
-			SELECT attributeID, valueFloat FROM eve.dgmTypeAttributes
-			WHERE typeID = ? AND attributeID in (12, 13, 14, 1137, 1367) and valueFloat != 0.0
+			SELECT attributeID, valueInt, valueFloat FROM eve.dgmTypeAttributes
+			WHERE typeID = ? AND attributeID IN (12, 13, 14, 1137, 1367)
+				AND (valueInt != 0 OR valueFloat != 0.0)
 			''', victim['ship_type_id'])
 		slot_mapping = {12: 'low', 13: 'medium', 14: 'high', 1137: 'rig', 1367: 'subsystem'}
 		slots = dict.fromkeys(slot_mapping.values(), 0)
 		for attr in slot_rows:
 			slot = slot_mapping[attr['attributeID']]
-			slots[slot] = int(attr['valueFloat']) # wtf CCP
+			slots[slot] = attr['valueInt'] or int(attr['valueFloat']) # wtf CCP
 		if slots['subsystem']:
 			sub_ids = map(lambda s: str(s['type_id']), items['subsystem'])
 			modifier_rows = db.query(c, '''
@@ -126,7 +127,7 @@ def kill(kill_id):
 			slot_mapping = {1374: 'high', 1375: 'medium', 1376: 'low'} # that's right, it's backwards for subs!
 			for modifier in modifier_rows:
 				slot = slot_mapping[modifier['attributeID']]
-				slots[slot] += int(modifier['valueFloat']) # you may be wondering why i'm still not using valueInt. i am too
+				slots[slot] += int(modifier['valueFloat']) # strangely, an improvement
 	return {
 		'kill': kill,
 		'victim': victim,
