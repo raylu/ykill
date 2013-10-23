@@ -62,8 +62,7 @@ window.addEvent('domready', function() {
 			tr.grab(td);
 
 			td = new Element('td');
-			var millions = kill['cost'] / (100 * 1000000);
-			td.appendText(ykill.format_isk(millions));
+			td.appendText(ykill.format_millions(kill['cost']));
 			if (victim[entity_type + '_id'] == entity_id)
 				td.addClass('loss');
 			tr.grab(td);

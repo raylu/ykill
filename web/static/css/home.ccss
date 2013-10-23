@@ -4,7 +4,7 @@
 #expensive:
 	margin: 0 auto
 
-	td:nth-child(3):
+	td:nth-child(4):
 		text-align: right
 		padding-right: 3px
 

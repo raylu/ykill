@@ -42,16 +42,10 @@ window.addEvent('domready', function() {
 				),
 				new Element('td', {'html': victim['faction_name']})
 			));
-		table.adopt(
-			new Element('tr').adopt(
-				new Element('td').grab(
-					ykill.portrait(victim['ship_type_id'], victim['ship_name'], 'type', '_64.png')
-				),
-				new Element('td', {'html': victim['ship_name']})
-			),
+		table.grab(
 			new Element('tr').adopt(
 				new Element('td', {'html': 'cost'}),
-				new Element('td', {'html': ykill.format_isk(kill['cost'] / 100)})
+				new Element('td', {'html': ykill.format_isk(kill['cost'])})
 			)
 		);
 
@@ -98,6 +92,19 @@ window.addEvent('domready', function() {
 		}
 
 		table = $('items');
+		table.adopt(
+			new Element('tr').grab(
+				new Element('td', {'html': 'ship', 'colspan': 4, 'class': 'slot'})
+			),
+			new Element('tr').adopt(
+				new Element('td').grab(
+					ykill.portrait(victim['ship_type_id'], victim['ship_name'], 'type', '_32.png')
+				),
+				new Element('td', {'html': victim['ship_name']}),
+				new Element('td'),
+				new Element('td', {'html': ykill.format_isk(victim['ship_cost'])})
+			)
+		);
 		var slots = ['subsystem', 'high', 'medium', 'low', 'rig', 'drone bay', 'cargo', 'special hold', 'implant', '???'];
 		slots.each(function(slot) {
 			if (!items[slot])
@@ -135,7 +142,7 @@ window.addEvent('domready', function() {
 					),
 					new Element('td', {'html': item['item_name']}),
 					new Element('td', {'html': count, 'class': item_class}),
-					new Element('td', {'html': ykill.format_isk(item['cost'] / 100)})
+					new Element('td', {'html': ykill.format_isk(item['cost'])})
 				));
 			});
 		});

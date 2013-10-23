@@ -10,13 +10,13 @@ table#kills:
 	th.system:
 		width: 120px
 	th.victim_portrait:
-		width: 64px
+		width: 66px
 	th.victim:
-		width: 250px
+		width: 248px
 	th.killer_portrait:
-		width: 64px
+		width: 66px
 	th.killer:
-		width: 250px
+		width: 248px
 	th.value:
 		width: 62px
 

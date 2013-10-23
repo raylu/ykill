@@ -87,7 +87,7 @@ table#attackers:
 			width: 70px
 
 	td:
-		height: 64px
+		height: 66px
 		&:nth-child(1):
 			white-space: normal
 			line-height: 0
@@ -132,6 +132,7 @@ table#items:
 
 	td:nth-child(1):not(.slot):
 		line-height: 0
+		height: 34px
 	td:nth-child(3):
 		text-align: right
 		font-weight: bold

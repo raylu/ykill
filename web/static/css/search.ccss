@@ -1,5 +1,5 @@
 #wrapper:
-	padding: 20px
+	padding: 2px 20px 20px
 
 h2:
-	margin-top: 0
+	margin: 1em 0 0.4em

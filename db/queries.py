@@ -92,6 +92,13 @@ def kill(kill_id):
 			else:
 				attackers.append(char)
 
+		try:
+			ship_cost = db.get(c, 'SELECT cost FROM item_costs WHERE type_id = ?',
+					victim['ship_type_id'])
+			victim['ship_cost'] = ship_cost['cost']
+		except db.NoRowsException:
+			victim['ship_cost'] = 0
+
 		item_rows = db.query(c, '''
 			SELECT items.type_id, flag, dropped, destroyed, singleton,
 				cost, typeName AS item_name, capacity
@@ -169,8 +176,6 @@ def top_cost():
 			ORDER BY cost DESC
 			LIMIT 25
 			''')
-	#for kill in kills:
-	#	kill['kill_time'] = _format_kill_time(kill['kill_time'])
 	return kills
 
 def _format_kill_time(kill_time):

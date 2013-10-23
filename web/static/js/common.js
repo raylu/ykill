@@ -22,9 +22,19 @@
 		},
 
 		'format_isk': function(isk) {
+			isk /= 100;
+			if (!locale_options)
+				return parseFloat(isk.toFixed(0)).toLocaleString();
+			return isk.toLocaleString('en-US', {'maximumFractionDigits': 0});
+		},
+		'format_millions': function(isk) {
+			isk /= 100 * 1000 * 1000;
 			if (!locale_options)
 				return parseFloat(isk.toFixed(2)).toLocaleString();
 			return isk.toLocaleString('en-US', {'minimumFractionDigits': 2, 'maximumFractionDigits': 2});
 		},
+		'format_billions': function(isk) {
+			return ykill.format_millions(isk / 1000);
+		}
 	});
 })();
