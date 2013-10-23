@@ -80,9 +80,11 @@ def main():
 				if last_kill_id is not None:
 					path += '/beforeKillID/' + str(last_kill_id)
 				now = time.time()
-				if now - last_request_time < 10:
-					print('sleeping', 10 - (now - last_request_time))
-					time.sleep(10 - (now - last_request_time))
+				if now - last_request_time < 12:
+					sleep_secs = 12 - (now - last_request_time)
+					print('sleeping', sleep_secs)
+					time.sleep(sleep_secs)
+				last_request_time = time.time()
 				try:
 					r = rs.get('https://zkillboard.com' + path)
 					kills = r.json()
@@ -98,7 +100,6 @@ def main():
 					break
 				db.conn.commit()
 				last_kill_id = kills[-1]['killID']
-				last_request_time = now
 
 if __name__ == '__main__':
 	main()
