@@ -35,6 +35,14 @@
 		},
 		'format_billions': function(isk) {
 			return ykill.format_millions(isk / 1000);
+		},
+
+		'format_system': function(system, security, security_status) {
+			if (security_status == '?') // placeholder for w-space
+				security = '?';
+			else
+				security = security.toFixed(1);
+			return system + ' <span class="' + security_status + '">' + security + '</span>';
 		}
 	});
 })();

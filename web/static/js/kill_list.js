@@ -18,9 +18,7 @@ window.addEvent('domready', function() {
 			var td = new Element('td').grab(a);
 			tr.grab(td);
 
-			td = new Element('td');
-			td.appendText(kill['system_name'] + ' ');
-			td.grab(new Element('span', {'html': kill['security'].toFixed(1)}));
+			td = new Element('td', {'html': ykill.format_system(kill['system_name'], kill['security'], kill['security_status'])});
 			td.grab(new Element('br'));
 			td.appendText(kill['region']);
 			tr.grab(td);

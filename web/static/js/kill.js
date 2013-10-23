@@ -13,7 +13,7 @@ window.addEvent('domready', function() {
 			),
 			new Element('tr').adopt(
 				new Element('td', {'html': 'system'}),
-				new Element('td', {'html': kill['solarSystemName'] + ' (' + kill['security'].toFixed(1) + ')'})
+				new Element('td', {'html': ykill.format_system(kill['system_name'], kill['security'], kill['security_status'])})
 			),
 			new Element('tr').adopt(
 				new Element('td').grab(

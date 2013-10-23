@@ -57,6 +57,7 @@ def kill_list(entity_type, entity_id):
 				entity_name = char[entity_type + '_name']
 		for kill in kills:
 			kill['kill_time'] = _format_kill_time(kill['kill_time'])
+			kill['security_status'] = _security_status(kill['system_name'], kill['security'])
 			chars = characters[kill['kill_id']]
 			kill['victim'] = chars['victim']
 			kill['final_blow'] = chars['final_blow']
@@ -66,12 +67,13 @@ def kill_list(entity_type, entity_id):
 def kill(kill_id):
 	with db.cursor() as c:
 		kill = db.get(c, '''
-			SELECT kill_time, cost, solarSystemName, security FROM kills
+			SELECT kill_time, cost, solarSystemName AS system_name, security FROM kills
 			JOIN kill_costs ON kill_costs.kill_id = kills.kill_id
 			JOIN eve.mapSolarSystems ON solar_system_id = solarSystemID
 			WHERE kills.kill_id = ?
 			''', kill_id)
 		kill['kill_time'] = _format_kill_time(kill['kill_time'])
+		kill['security_status'] = _security_status(kill['system_name'], kill['security'])
 
 		characters = db.query(c, '''
 			SELECT character_id, character_name, damage, victim, final_blow,
@@ -176,7 +178,27 @@ def top_cost():
 			ORDER BY cost DESC
 			LIMIT 25
 			''')
+	for kill in kills:
+		kill['security_status'] = _security_status(kill['system_name'], kill['security'])
 	return kills
 
 def _format_kill_time(kill_time):
 	return kill_time.strftime('%Y-%m-%d %H:%m')
+
+def _security_status(system_name, security):
+		wspace = False
+		if system_name[0] == 'J':
+			try:
+				int(system_name[1:])
+				wspace = True
+			except ValueError:
+				pass
+		if wspace:
+			security_status = '?'
+		elif security >= 0.5:
+			security_status = 'high'
+		elif security > 0.0:
+			security_status = 'low'
+		else:
+			security_status = 'null'
+		return security_status

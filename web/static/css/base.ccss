@@ -36,6 +36,13 @@ table:
 .clear:
 	clear: both
 
+.high:
+	color: #182
+.low:
+	color: #a60
+.null:
+	color: #a11
+
 #topbar:
 	width: 900px
 	margin: 50px auto 2px
