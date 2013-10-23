@@ -18,6 +18,9 @@ def insert_kill(c, kill):
 			print('duplicate:', kill['killID'])
 			return
 		raise
+	except TypeError:
+		print(kill)
+		raise
 
 	victim = kill['victim']
 	parambatch = [(

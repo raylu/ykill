@@ -178,7 +178,7 @@ window.addEvent('domready', function() {
 			ykill.portrait(char['weapon_type_id'], char['weapon_name'], 'type', '_32.png')
 		);
 		tr.grab(td);
-		tr.grab(new Element('td').appendText(char['damage']));
+		tr.grab(new Element('td').appendText(char['damage'].toLocaleString()));
 
 		table.grab(tr);
 	}

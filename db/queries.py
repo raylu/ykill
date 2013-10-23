@@ -3,12 +3,21 @@ import operator
 import db
 
 def search(q):
+	like_str = '{}%'.format(q)
 	with db.cursor() as c:
+		alliances = db.query(c, '''
+			SELECT DISTINCT alliance_id, alliance_name FROM characters
+			WHERE alliance_name LIKE ? LIMIT 25
+			''', like_str)
 		corps = db.query(c, '''
 			SELECT DISTINCT corporation_id, corporation_name FROM characters
-			WHERE corporation_name LIKE ?
-			''', '%{}%'.format(q))
-	return {'corporations': corps}
+			WHERE corporation_name LIKE ? LIMIT 25
+			''', like_str)
+		chars = db.query(c, '''
+			SELECT DISTINCT character_id, character_name FROM characters
+			WHERE character_name LIKE ? LIMIT 25
+			''', like_str)
+	return {'alliances': alliances, 'corporations': corps, 'characters': chars}
 
 def corporation(corp_id):
 	with db.cursor() as c:
@@ -20,7 +29,7 @@ def corporation(corp_id):
 			JOIN kill_costs ON kill_costs.kill_id = kills.kill_id
 			JOIN eve.mapSolarSystems ON solar_system_id = solarSystemID
 			JOIN eve.mapRegions ON mapSolarSystems.regionID = mapRegions.regionID
-			WHERE corporation_id = ?
+			WHERE corporation_id = ? LIMIT 100
 			''', corp_id)
 		kill_ids = list(map(operator.itemgetter('kill_id'), kills))
 		char_rows = db.query(c, '''

@@ -30,7 +30,13 @@ CREATE TABLE `characters` (
 	`security_status` float DEFAULT NULL,
 	`weapon_type_id` int DEFAULT NULL,
 	PRIMARY KEY (`id`),
-	CONSTRAINT `fk_char_km` FOREIGN KEY (`kill_id`) REFERENCES `kills` (`kill_id`)
+	CONSTRAINT `fk_char_km` FOREIGN KEY (`kill_id`) REFERENCES `kills` (`kill_id`),
+	INDEX `character_id` (`character_id`),
+	INDEX `character_name` (`character_name`),
+	INDEX `alliance_id` (`alliance_id`),
+	INDEX `alliance_name` (`alliance_name`),
+	INDEX `corporation_id` (`corporation_id`),
+	INDEX `corporation_name` (`corporation_name`),
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE TABLE `items` (
