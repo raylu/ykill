@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
-from http.client import HTTPSConnection
 import json
 import operator
 import time
 
 import oursql
+import requests
 
 import db
 
@@ -14,8 +14,8 @@ def insert_kill(c, kill):
 		db.execute(c, 'INSERT INTO kills (kill_id, solar_system_id, kill_time, moon_id) VALUES(?, ?, ?, ?)',
 				kill['killID'], kill['solarSystemID'], kill['killTime'], kill['moonID'])
 	except oursql.IntegrityError as e:
-		print('duplicate')
 		if e.args[0] == oursql.errnos['ER_DUP_ENTRY']:
+			print('duplicate:', kill['killID'])
 			return
 		raise
 
@@ -51,13 +51,28 @@ def insert_kill(c, kill):
 		''', parambatch
 	)
 
+	try:
+		result = db.get(c, 'SELECT cost FROM item_costs WHERE type_id = ?', (victim['shipTypeID']))
+		cost = result['cost']
+	except db.NoRowsException:
+		cost = 0
+	result = db.get(c, '''
+		SELECT SUM(cost * (dropped + destroyed)) AS item_cost
+		FROM items
+		JOIN item_costs ON items.type_id = item_costs.type_id
+		WHERE kill_id = ?
+		''', kill['killID'])
+	if result['item_cost'] is not None:
+		cost += result['item_cost']
+	db.execute(c, 'INSERT INTO kill_costs (kill_id, cost) VALUES(?, ?)', kill['killID'], cost)
+
 def main():
+	rs = requests.session()
 	with db.cursor() as c:
 		groups = db.query(c, 'SELECT groupID FROM eve.invGroups WHERE categoryID = ?', 6)
 		groups = list(map(operator.itemgetter('groupID'), groups))
 		for i in range(0, len(groups), 10):
 			query_groups = list(map(str, groups[i:i+10]))
-			conn = HTTPSConnection('zkillboard.com', timeout=10)
 			last_kill_id = None
 			last_request_time = 0
 			while True:
@@ -69,15 +84,11 @@ def main():
 					print('sleeping', 10 - (now - last_request_time))
 					time.sleep(10 - (now - last_request_time))
 				try:
-					conn.request('GET', path)
-					response = conn.getresponse()
-					if response.status != 200:
-						raise Exception('got {} {} from zkb'.format(response.status, response.reason))
-					kills = json.loads(response.read().decode('utf-8'))
+					r = rs.get('https://zkillboard.com' + path)
+					kills = r.json()
 				except Exception as e:
 					print(repr(e))
 					break
-				response.close()
 				print('inserting', len(kills), 'kills')
 				for kill in kills:
 					insert_kill(c, kill)

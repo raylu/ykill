@@ -14,11 +14,14 @@ def query(cursor, sql, *values):
 	execute(cursor, sql, *values)
 	return cursor.fetchall()
 
+class NoRowsException(Exception): pass
+class MultipleRowsException(Exception): pass
+
 def get(cursor, sql, *values):
 	execute(cursor, sql, *values)
 	result = cursor.fetchone()
 	if result is None:
-		raise Exception('no rows returned for query: {} with values {}'.format(sql, values))
+		raise NoRowsException('no rows returned', sql, values)
 	if cursor.fetchone() is not None:
-		raise Exception('multiple results returned for query'.format(sql, values))
+		raise MultipleRowsException('multiple results returned', sql, values)
 	return result
