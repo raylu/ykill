@@ -29,9 +29,9 @@ class SearchHandler(APIHandler):
 		data = db.queries.search(q)
 		self.respond_json(data)
 
-class CorporationHandler(APIHandler):
-	def get(self, corp_id):
-		kills = db.queries.corporation(int(corp_id))
+class KillListHandler(APIHandler):
+	def get(self, entity_type, entity_id):
+		kills = db.queries.kill_list(entity_type, int(entity_id))
 		self.respond_json(kills)
 
 class KillHandler(APIHandler):
@@ -43,7 +43,7 @@ def start():
 	tornado.web.Application(
 		handlers=[
 			(r'/search', SearchHandler),
-			(r'/corporation/(.+)', CorporationHandler),
+			(r'/(alliance|corporation|character)/(.+)', KillListHandler),
 			(r'/kill/(.+)', KillHandler),
 		],
 		debug=config.debug,

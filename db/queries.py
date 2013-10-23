@@ -19,7 +19,7 @@ def search(q):
 			''', like_str)
 	return {'alliances': alliances, 'corporations': corps, 'characters': chars}
 
-def corporation(corp_id):
+def kill_list(entity_type, entity_id):
 	with db.cursor() as c:
 		kills = db.query(c, '''
 			SELECT DISTINCT(kills.kill_id), kill_time, cost,
@@ -29,8 +29,8 @@ def corporation(corp_id):
 			JOIN kill_costs ON kill_costs.kill_id = kills.kill_id
 			JOIN eve.mapSolarSystems ON solar_system_id = solarSystemID
 			JOIN eve.mapRegions ON mapSolarSystems.regionID = mapRegions.regionID
-			WHERE corporation_id = ? LIMIT 100
-			''', corp_id)
+			WHERE {}_id = ? LIMIT 100
+			'''.format(entity_type), entity_id)
 		kill_ids = list(map(operator.itemgetter('kill_id'), kills))
 		char_rows = db.query(c, '''
 			SELECT
@@ -42,7 +42,7 @@ def corporation(corp_id):
 			WHERE kill_id IN ({})
 			'''.format(','.join(map(str, kill_ids))))
 		characters = defaultdict(dict)
-		corp_name = None
+		entity_name = None
 		for kill_id in kill_ids:
 			characters[kill_id]['attackers'] = 1 # count final_blow now
 		for char in char_rows:
@@ -53,15 +53,15 @@ def corporation(corp_id):
 				characters[kill_id]['final_blow'] = char
 			else:
 				characters[kill_id]['attackers'] += 1
-			if corp_name is None and char['corporation_id'] == corp_id:
-				corp_name = char['corporation_name']
+			if entity_name is None and char[entity_type + '_id'] == entity_id:
+				entity_name = char[entity_type + '_name']
 		for kill in kills:
 			kill['kill_time'] = _format_kill_time(kill['kill_time'])
 			chars = characters[kill['kill_id']]
 			kill['victim'] = chars['victim']
 			kill['final_blow'] = chars['final_blow']
 			kill['attackers'] = chars['attackers']
-	return {'corporation_name': corp_name, 'kills': kills}
+	return {'entity_name': entity_name, 'kills': kills}
 
 def kill(kill_id):
 	with db.cursor() as c:

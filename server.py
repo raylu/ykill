@@ -27,9 +27,9 @@ class SearchHandler(BaseHandler):
 	def get(self):
 		self.render('search.html')
 
-class CorporationHandler(BaseHandler):
-	def get(self):
-		self.render('corporation.html')
+class KillListHandler(BaseHandler):
+	def get(self, entity_type):
+		self.render('kill_list.html')
 
 class KillHandler(BaseHandler):
 	def get(self):
@@ -47,7 +47,7 @@ if __name__ == '__main__':
 		handlers=[
 			(r'/', MainHandler),
 			(r'/search', SearchHandler),
-			(r'/corporation/.+', CorporationHandler),
+			(r'/(alliance|corporation|character)/.+', KillListHandler),
 			(r'/kill/.+', KillHandler),
 			(r'/(css/.+)\.css', CSSHandler),
 		],

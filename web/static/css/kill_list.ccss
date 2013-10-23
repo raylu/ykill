@@ -22,3 +22,6 @@ table#kills:
 
 	td:nth-child(7):
 		text-align: right
+
+	.loss:
+		color: #a44

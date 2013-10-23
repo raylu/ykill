@@ -1,8 +1,10 @@
 window.addEvent('domready', function() {
-	var corp_id = document.location.pathname.split('/').getLast();
-	ykill.api('/corporation/' + corp_id, function(data) {
-		if (data['corporation_name'])
-			document.title += ' - ' + data['corporation_name'];
+	var split = document.location.pathname.split('/');
+	var entity_type = split[1];
+	var entity_id = split[2];
+	ykill.api(document.location.pathname, function(data) {
+		if (data['entity_name'])
+			document.title += ' - ' + data['entity_name'];
 
 		var table = $('kills').getChildren('tbody')[0];
 		data['kills'].each(function(kill) {
@@ -62,6 +64,8 @@ window.addEvent('domready', function() {
 			td = new Element('td');
 			var millions = kill['cost'] / (100 * 1000000);
 			td.appendText(ykill.format_isk(millions));
+			if (victim[entity_type + '_id'] == entity_id)
+				td.addClass('loss');
 			tr.grab(td);
 
 			table.grab(tr);

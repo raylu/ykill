@@ -18,9 +18,6 @@ def insert_kill(c, kill):
 			print('duplicate:', kill['killID'])
 			return
 		raise
-	except TypeError:
-		print(kill)
-		raise
 
 	victim = kill['victim']
 	parambatch = [(
@@ -93,8 +90,12 @@ def main():
 					print(repr(e))
 					break
 				print('inserting', len(kills), 'kills')
-				for kill in kills:
-					insert_kill(c, kill)
+				try:
+					for kill in kills:
+						insert_kill(c, kill)
+				except TypeError as e:
+					print(repr(e), kills)
+					break
 				db.conn.commit()
 				last_kill_id = kills[-1]['killID']
 				last_request_time = now
