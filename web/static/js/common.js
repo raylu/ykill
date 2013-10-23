@@ -1,20 +1,30 @@
-Object.append(window.ykill, {
-	'api': function(path, cb) {
-		new Request.JSON({
-			'url': ykill.api_host + path,
-			'onSuccess': cb,
-		}).get();
-	},
+(function() {
+	var locale_options = false;
+	try {
+		(0).toLocaleString('i');
+	} catch (e) { // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/toLocaleString#Example:_Checking_for_support_for_locales_and_options_arguments
+		locale_options = e.name == 'RangeError';
+	}
+	Object.append(window.ykill, {
+		'api': function(path, cb) {
+			new Request.JSON({
+				'url': ykill.api_host + path,
+				'onSuccess': cb,
+			}).get();
+		},
 
-	'portrait': function(id, text, img_dir, img_suffix) {
-		var img = new Element('img', {
-			'src': '//image.eveonline.com/' + img_dir + '/' + id + img_suffix,
-			'alt': text,
-		});
-		return img;
-	},
+		'portrait': function(id, text, img_dir, img_suffix) {
+			var img = new Element('img', {
+				'src': '//image.eveonline.com/' + img_dir + '/' + id + img_suffix,
+				'alt': text,
+			});
+			return img;
+		},
 
-	'format_isk': function(isk) {
-		return isk.toLocaleString('en-US', {'minimumFractionDigits': 2, 'maximumFractionDigits': 2});
-	},
-});
+		'format_isk': function(isk) {
+			if (!locale_options)
+				return parseFloat(isk.toFixed(2)).toLocaleString();
+			return isk.toLocaleString('en-US', {'minimumFractionDigits': 2, 'maximumFractionDigits': 2});
+		},
+	});
+})();

@@ -4,5 +4,9 @@
 #expensive:
 	margin: 0 auto
 
+	td:nth-child(3):
+		text-align: right
+		padding-right: 3px
+
 	caption, tr:nth-child(odd):
 		background-color: #181818
