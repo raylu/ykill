@@ -1,8 +1,15 @@
 {% extends "base.html" %}
 
+{% block js %}
+	<script src="/static/js/home.js"></script>
+{% end %}
+
+{% block css %}
+	<link rel="stylesheet" type="text/css" href="/css/home.css" />
+{% end %}
+
 {% block main %}
-<form method="get" action="/search">
-	<input type="text" name="q">
-	<input type="submit">
-</form>
+<table id="expensive">
+	<caption>most expensive kills</caption>
+</table>
 {% end %}

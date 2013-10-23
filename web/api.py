@@ -39,12 +39,18 @@ class KillHandler(APIHandler):
 		kill = db.queries.kill(kill_id)
 		self.respond_json(kill)
 
+class TopCostHandler(APIHandler):
+	def get(self):
+		kills = db.queries.top_cost()
+		self.respond_json(kills)
+
 def start():
 	tornado.web.Application(
 		handlers=[
 			(r'/search', SearchHandler),
 			(r'/(alliance|corporation|character)/(.+)', KillListHandler),
 			(r'/kill/(.+)', KillHandler),
+			(r'/top/cost', TopCostHandler),
 		],
 		debug=config.debug,
 	).listen(config.api_port)

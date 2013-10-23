@@ -1,0 +1,8 @@
+#wrapper:
+	padding: 20px
+
+#expensive:
+	margin: 0 auto
+
+	caption, tr:nth-child(odd):
+		background-color: #181818

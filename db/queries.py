@@ -23,7 +23,7 @@ def kill_list(entity_type, entity_id):
 	with db.cursor() as c:
 		kills = db.query(c, '''
 			SELECT DISTINCT(kills.kill_id), kill_time, cost,
-				solarSystemName as system_name, security, regionName as region
+				solarSystemName AS system_name, security, regionName AS region
 			FROM kills
 			JOIN characters ON characters.kill_id = kills.kill_id
 			JOIN kill_costs ON kill_costs.kill_id = kills.kill_id
@@ -153,6 +153,25 @@ def kill(kill_id):
 		'items': items,
 		'slots': slots,
 	}
+
+def top_cost():
+	with db.cursor() as c:
+		kills = db.query(c, '''
+			SELECT kills.kill_id, cost,
+				ship_type_id, typeName as ship_name,
+				solarSystemName AS system_name, security
+			FROM kills
+			JOIN kill_costs ON kill_costs.kill_id = kills.kill_id
+			JOIN characters ON characters.kill_id = kills.kill_id
+			JOIN eve.invTypes ON typeID = ship_type_id
+			JOIN eve.mapSolarSystems ON solar_system_id = solarSystemID
+			WHERE victim = 1
+			ORDER BY cost DESC
+			LIMIT 25
+			''')
+	#for kill in kills:
+	#	kill['kill_time'] = _format_kill_time(kill['kill_time'])
+	return kills
 
 def _format_kill_time(kill_time):
 	return kill_time.strftime('%Y-%m-%d %H:%m')

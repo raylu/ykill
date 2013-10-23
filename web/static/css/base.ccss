@@ -16,11 +16,14 @@ a:
 	text-decoration: none
 	color: #38c
 
-form:
-	input:
-		background: #fff
-		border: 1px solid #cdd
-		padding: 5px 10px
+form input:
+	background: #111
+	border: 1px solid #444
+	padding: 3px 10px
+	color: #ccc
+	height: 2em
+	vertical-align: middle
+	margin: 0
 
 table:
 	border-collapse: collapse
@@ -33,7 +36,31 @@ table:
 .clear:
 	clear: both
 
+#topbar:
+	width: 900px
+	margin: 50px auto 2px
+
+	h1:
+		display: inline-block
+		margin: 0 40px 0 10px
+
+	#nav:
+		display: inline-block
+
+		a:
+			display: inline-block
+			background-color: #111
+			margin: 0 2px
+			padding: 4px
+
+	form:
+		display: inline-block
+		float: right
+
+		input[type="search"]:
+			margin-right: 5px
+
 #wrapper:
 	width: 900px
-	margin: 50px auto
+	margin: 0 auto 50px
 	background: #111

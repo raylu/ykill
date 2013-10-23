@@ -15,13 +15,16 @@
 	{% block js %}{% end %}
 </head>
 <body>
-	<div id="wrapper">
-		<div id="topbar">
-			<div id="title"></div>
-			<div id="nav">
-			</div>
+	<div id="topbar">
+		<h1><a href="/">u r ded</a></h1>
+		<div id="nav">
 		</div>
-
+		<form method="get" action="/search">
+			<input type="search" name="q">
+			<input type="submit" value="search">
+		</form>
+	</div>
+	<div id="wrapper">
 		{% block main %}{% end %}
 	</div>
 </body>
