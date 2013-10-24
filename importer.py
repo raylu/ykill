@@ -2,6 +2,7 @@
 
 import json
 import operator
+import sys
 import time
 
 import oursql
@@ -15,8 +16,7 @@ def insert_kill(c, kill):
 				kill['killID'], kill['solarSystemID'], kill['killTime'], kill['moonID'])
 	except oursql.IntegrityError as e:
 		if e.args[0] == oursql.errnos['ER_DUP_ENTRY']:
-			print('duplicate:', kill['killID'])
-			return
+			return False
 		raise
 
 	victim = kill['victim']
@@ -66,17 +66,22 @@ def insert_kill(c, kill):
 		cost += result['item_cost']
 	db.execute(c, 'INSERT INTO kill_costs (kill_id, cost) VALUES(?, ?)', kill['killID'], cost)
 
+	return True
+
 def main():
 	rs = requests.session()
 	with db.cursor() as c:
 		groups = db.query(c, 'SELECT groupID FROM eve.invGroups WHERE categoryID = ?', 6)
 		groups = list(map(operator.itemgetter('groupID'), groups))
+		last_kill_ids = {}
 		for i in range(0, len(groups), 10):
-			query_groups = list(map(str, groups[i:i+10]))
-			last_kill_id = None
-			last_request_time = 0
-			while True:
-				path = '/api/losses/api-only/groupID/{}'.format(','.join(query_groups))
+			query_groups = ','.join(map(str, groups[i:i+10]))
+			last_kill_ids[query_groups] = None
+		last_request_time = 0
+		while True:
+			for query_group in last_kill_ids:
+				path = '/api/losses/api-only/groupID/' + query_group
+				last_kill_id = last_kill_ids[query_group]
 				if last_kill_id is not None:
 					path += '/beforeKillID/' + str(last_kill_id)
 				now = time.time()
@@ -91,15 +96,20 @@ def main():
 				except Exception as e:
 					print(repr(e))
 					break
-				print('inserting', len(kills), 'kills')
+				print('inserting', len(kills), 'kills', end='... ')
+				sys.stdout.flush()
+				inserted = 0
 				try:
 					for kill in kills:
-						insert_kill(c, kill)
+						if insert_kill(c, kill):
+							inserted += 1
 				except TypeError as e:
 					print(repr(e), kills)
 					break
 				db.conn.commit()
+				print(len(kills) - inserted, 'dupes')
 				last_kill_id = kills[-1]['killID']
+				last_kill_ids[query_group] = last_kill_id
 
 if __name__ == '__main__':
 	main()
