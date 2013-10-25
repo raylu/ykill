@@ -19,13 +19,17 @@ window.addEvent('domready', function() {
 				new Element('td').grab(
 					ykill.portrait(victim['character_id'], victim['character_name'], 'character', '_64.jpg')
 				),
-				new Element('td', {'html': victim['character_name']})
+				new Element('td').grab(new Element('a', {
+					'html': victim['character_name'], 'href': '/character/' + victim['character_id']
+				}))
 			),
 			new Element('tr').adopt(
 				new Element('td').grab(
 					ykill.portrait(victim['corporation_id'], victim['corporation_name'], 'corporation', '_64.png')
 				),
-				new Element('td', {'html': victim['corporation_name']})
+				new Element('td').grab(new Element('a', {
+					'html': victim['corporation_name'], 'href': '/corporation/' + victim['corporation_id']
+				}))
 			)
 		);
 		if (victim['alliance_id'])
@@ -33,7 +37,9 @@ window.addEvent('domready', function() {
 				new Element('td').grab(
 					ykill.portrait(victim['alliance_id'], victim['alliance_name'], 'alliance', '_64.png')
 				),
-				new Element('td', {'html': victim['alliance_name']})
+				new Element('td').grab(new Element('a', {
+					'html': victim['alliance_name'], 'href': '/alliance/' + victim['alliance_id']
+				}))
 			));
 		if (victim['faction_id'])
 			table.grab(new Element('tr').adopt(
