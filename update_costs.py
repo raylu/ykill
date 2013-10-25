@@ -49,8 +49,11 @@ def update_kill(kill_id):
 			c.nextset()
 		else:
 			cost = 0
+		# singleton is 0 normally and for BPOs and 2 for BPCs
+		# we want to divide by 1 for BPOs and by 1000 for BPCs
 		c.execute('''
-			SELECT SUM(cost * (dropped + destroyed)) FROM items AS i
+			SELECT SUM(cost * (dropped + destroyed) / (singleton * 499.5 + 1))
+			FROM items AS i
 			JOIN item_costs AS ic ON i.type_id = ic.type_id WHERE kill_id = ?
 			''', (kill_id,))
 		r = c.fetchone()

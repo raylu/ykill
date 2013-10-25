@@ -134,8 +134,14 @@ window.addEvent('domready', function() {
 			}
 			items[slot].each(function(item) {
 				var type_id = item['type_id'];
+				var item_name = item['item_name'];
 				var item_class = item['dropped'] ? 'dropped' : 'destroyed';
 				var count = item[item_class];
+				var cost = item['cost'] * count;
+				if (item['singleton'] == 2) {
+					item_name += ' (copy)';
+					cost /= 1000;
+				}
 				table.grab(new Element('tr').adopt(
 					new Element('td').grab(
 						new Element('img', {
@@ -143,9 +149,9 @@ window.addEvent('domready', function() {
 							'alt': item['item_name'],
 						})
 					),
-					new Element('td', {'html': item['item_name']}),
+					new Element('td', {'html': item_name}),
 					new Element('td', {'html': count, 'class': item_class}),
-					new Element('td', {'html': ykill.format_isk(item['cost'])})
+					new Element('td', {'html': ykill.format_isk(cost)})
 				));
 			});
 		});

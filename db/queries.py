@@ -112,13 +112,15 @@ def kill(kill_id):
 		except db.NoRowsException:
 			victim['ship_cost'] = 0
 
+		# see update_costs for an explanation of the ORDER BY
 		item_rows = db.query(c, '''
 			SELECT items.type_id, flag, dropped, destroyed, singleton,
 				cost, typeName AS item_name, capacity
 			FROM items
 			JOIN item_costs ON item_costs.type_id = items.type_id
 			JOIN eve.invTypes ON items.type_id = typeID
-			WHERE kill_id = ? ORDER BY flag ASC
+			WHERE kill_id = ?
+			ORDER BY (cost * (dropped + destroyed) / (singleton * 499.5 + 1)) DESC
 			''', kill_id)
 		items = defaultdict(list)
 		for item in item_rows:
