@@ -105,7 +105,10 @@ window.addEvent('domready', function() {
 				new Element('td', {'html': ykill.format_isk(victim['ship_cost'])})
 			)
 		);
-		var slots = ['subsystem', 'high', 'medium', 'low', 'rig', 'drone bay', 'cargo', 'special hold', 'implant', '???'];
+		var slots = [
+			'subsystem', 'high', 'medium', 'low', 'rig', 'drone bay',
+			'cargo', 'special hold', 'ship hangar', 'fleet hangar', 'implant', '???'
+		];
 		slots.each(function(slot) {
 			if (!items[slot])
 				return;

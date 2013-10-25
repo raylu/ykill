@@ -128,6 +128,10 @@ def kill(kill_id):
 				slot = 'cargo'
 			elif 133 <= flag <= 143:
 				slot = 'special hold'
+			elif flag == 90:
+				slot = 'ship hangar'
+			elif flag == 155:
+				slot = 'fleet hangar'
 			elif flag == 89:
 				slot = 'implant'
 			else:
@@ -183,7 +187,7 @@ def top_cost():
 	return kills
 
 def _format_kill_time(kill_time):
-	return kill_time.strftime('%Y-%m-%d %H:%m')
+	return kill_time.strftime('%Y-%m-%d %H:%M')
 
 def _security_status(system_name, security):
 		wspace = False
