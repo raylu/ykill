@@ -142,6 +142,10 @@ window.addEvent('domready', function() {
 					item_name += ' (copy)';
 					cost /= 1000;
 				}
+				if (item['type_id'] == 33329 && item['flag'] == 89) // Genolution 'Auroral' AU-79 in implant slot
+					cost = 'n/a';
+				else
+					cost = ykill.format_isk(cost);
 				table.grab(new Element('tr').adopt(
 					new Element('td').grab(
 						new Element('img', {
@@ -151,7 +155,7 @@ window.addEvent('domready', function() {
 					),
 					new Element('td', {'html': item_name}),
 					new Element('td', {'html': count, 'class': item_class}),
-					new Element('td', {'html': ykill.format_isk(cost)})
+					new Element('td', {'html': cost})
 				));
 			});
 		});

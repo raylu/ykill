@@ -36,19 +36,22 @@ def query(type_id):
 	value = tree.getroot().find('marketstat').find('type').find('sell').find('percentile').text
 	return int(Decimal(value) * 100)
 
+au79_cost = None
 def update_kill(kill_id):
 	with db.conn.cursor() as c:
 		c.execute('''
-			SELECT cost FROM characters
-			JOIN item_costs ON ship_type_id = item_costs.type_id
+			SELECT ship_type_id, cost FROM characters
+			LEFT JOIN item_costs ON ship_type_id = item_costs.type_id
 			WHERE kill_id = ? AND victim
 			''', (kill_id,))
 		r = c.fetchone()
-		if r:
-			cost = r[0]
-			c.nextset()
+		if r[1] is not None:
+			cost = r[1]
 		else:
 			cost = 0
+		c.nextset()
+		if r[0] == 33328: # Capsule - Genolution 'Auroral' 197-variant
+			cost -= au79_cost
 		# singleton is 0 normally and for BPOs and 2 for BPCs
 		# we want to divide by 1 for BPOs and by 1000 for BPCs
 		c.execute('''
@@ -59,7 +62,10 @@ def update_kill(kill_id):
 		r = c.fetchone()
 		c.nextset()
 		if r[0]:
-			cost += r[0]
+			cost += int(r[0])
+		if cost < 0:
+			cost += au79_cost
+			print('goddamnit CCP', kill_id)
 		c.execute('UPDATE kill_costs SET cost = ? WHERE kill_id = ?', (cost, kill_id))
 
 def main():
@@ -77,8 +83,13 @@ def main():
 			ON DUPLICATE KEY UPDATE cost = ?
 			''', parambatch)
 
+		c.execute('SELECT cost FROM item_costs WHERE type_id = 33329') # Genolution 'Auroral' AU-79
+		global au79_cost
+		au79_cost = c.fetchone()[0]
+		c.nextset()
+
 		print('getting kills')
-		c.execute('SELECT kill_id from kills')
+		c.execute('SELECT kill_id FROM kills')
 
 		print('updating kills')
 		while True:
