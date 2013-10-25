@@ -39,21 +39,9 @@
 		width: 32px
 		height: 32px
 		position: relative // for .tooltip
-
-		.tooltip:
-			display: none
-			position: absolute
-			top: 32px
-			left: 8px
-			line-height: 1em
-			padding: 8px 10px
-			background-color: rgba(40, 40, 40, 0.9)
-			white-space: nowrap
-			text-align: center
-			z-index: 1
-			pointer-events: none
 		&:hover .tooltip:
 			display: block
+
 	.avail:
 		border: 1px solid #888
 
@@ -96,6 +84,11 @@ table#attackers:
 		&:nth-child(3):
 			white-space: normal
 			line-height: 0
+			overflow: visible
+			> div:
+				position: relative // for .tooltip
+				&:hover .tooltip:
+					display: block
 		&:nth-child(4):
 			text-align: right
 			padding-right: 8px
@@ -144,3 +137,16 @@ table#items:
 		background-color: #041
 	.destroyed:
 		color: #a22
+
+.tooltip:
+	display: none
+	position: absolute
+	top: 32px
+	left: 8px
+	line-height: 1em
+	padding: 8px 10px
+	background-color: rgba(40, 40, 40, 0.9)
+	white-space: nowrap
+	text-align: center
+	z-index: 1
+	pointer-events: none

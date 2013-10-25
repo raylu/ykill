@@ -194,8 +194,14 @@ window.addEvent('domready', function() {
 		tr.grab(td);
 
 		td = new Element('td').adopt(
-			ykill.portrait(char['ship_type_id'], char['ship_name'], 'type', '_32.png'),
-			ykill.portrait(char['weapon_type_id'], char['weapon_name'], 'type', '_32.png')
+			new Element('div').adopt(
+				ykill.portrait(char['ship_type_id'], char['ship_name'], 'type', '_32.png'),
+				new Element('div', {'class': 'tooltip', 'html': char['ship_name']})
+			),
+			new Element('div').adopt(
+				ykill.portrait(char['weapon_type_id'], char['weapon_name'], 'type', '_32.png'),
+				new Element('div', {'class': 'tooltip', 'html': char['weapon_name']})
+			)
 		);
 		tr.grab(td);
 		tr.grab(new Element('td').appendText(char['damage'].toLocaleString()));
