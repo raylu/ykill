@@ -76,3 +76,10 @@ footer:
 	width: 900px
 	margin: 50px auto
 	text-align: center
+
+.error:
+	padding: 50px
+	text-align: center
+	font-size: 14pt
+	font-weight: bold
+	color: #e42

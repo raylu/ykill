@@ -27,6 +27,8 @@ def kill_list(entity_type, entity_id):
 			SELECT DISTINCT kill_id FROM characters
 			WHERE {}_id = ? ORDER BY kill_id DESC LIMIT 50
 			'''.format(entity_type), entity_id)
+		if len(kills) == 0:
+			return None
 		kill_ids = list(map(operator.itemgetter('kill_id'), kills))
 		kills = db.query(c, '''
 			SELECT kills.kill_id, kill_time, cost,
@@ -72,12 +74,15 @@ def kill_list(entity_type, entity_id):
 
 def kill(kill_id):
 	with db.cursor() as c:
-		kill = db.get(c, '''
-			SELECT kill_time, cost, solarSystemName AS system_name, security FROM kills
-			JOIN kill_costs ON kill_costs.kill_id = kills.kill_id
-			JOIN eve.mapSolarSystems ON solar_system_id = solarSystemID
-			WHERE kills.kill_id = ?
-			''', kill_id)
+		try:
+			kill = db.get(c, '''
+				SELECT kill_time, cost, solarSystemName AS system_name, security FROM kills
+				JOIN kill_costs ON kill_costs.kill_id = kills.kill_id
+				JOIN eve.mapSolarSystems ON solar_system_id = solarSystemID
+				WHERE kills.kill_id = ?
+				''', kill_id)
+		except db.NoRowsException:
+			return None
 		kill['kill_time'] = _format_kill_time(kill['kill_time'])
 		kill['security_status'] = _security_status(kill['system_name'], kill['security'])
 

@@ -6,7 +6,7 @@ import tornado.web
 from config import web as config
 import db.queries
 
-class APIHandler(tornado.web.RequestHandler):
+class APIBaseHandler(tornado.web.RequestHandler):
 	def set_default_headers(self):
 		self.set_header('Access-Control-Allow-Origin', '*')
 		self.set_header('Access-Control-Allow-Headers', 'X-Requested-With, X-Request')
@@ -23,23 +23,31 @@ class APIHandler(tornado.web.RequestHandler):
 	def options(self, *args):
 		return
 
-class SearchHandler(APIHandler):
+class SearchHandler(APIBaseHandler):
 	def get(self):
 		q = self.get_argument('q')
 		data = db.queries.search(q)
 		self.respond_json(data)
 
-class KillListHandler(APIHandler):
+class KillListHandler(APIBaseHandler):
 	def get(self, entity_type, entity_id):
-		kills = db.queries.kill_list(entity_type, int(entity_id))
+		try:
+			entity_id = int(entity_id)
+		except ValueError:
+			raise tornado.web.HTTPError(404)
+		kills = db.queries.kill_list(entity_type, entity_id)
+		if kills is None:
+			raise tornado.web.HTTPError(404)
 		self.respond_json(kills)
 
-class KillHandler(APIHandler):
+class KillHandler(APIBaseHandler):
 	def get(self, kill_id):
 		kill = db.queries.kill(kill_id)
+		if kill is None:
+			raise tornado.web.HTTPError(404)
 		self.respond_json(kill)
 
-class TopCostHandler(APIHandler):
+class TopCostHandler(APIBaseHandler):
 	def get(self):
 		kills = db.queries.top_cost()
 		self.respond_json(kills)

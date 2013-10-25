@@ -10,6 +10,13 @@
 			new Request.JSON({
 				'url': ykill.api_host + path,
 				'onSuccess': cb,
+				'onFailure': function(xhr) {
+					$('wrapper').empty().grab(new Element('div', {
+						'class': 'error',
+						'html': 'as you pass through the wormhole you realize that it collapses behind you.' +
+							'<br>have you become trapped?'
+					}));
+				},
 			}).get();
 		},
 
