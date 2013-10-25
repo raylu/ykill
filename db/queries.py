@@ -115,7 +115,7 @@ def kill(kill_id):
 		# see update_costs for an explanation of the ORDER BY
 		item_rows = db.query(c, '''
 			SELECT items.type_id, flag, dropped, destroyed, singleton,
-				cost, typeName AS item_name, capacity
+				cost, typeName AS item_name
 			FROM items
 			JOIN item_costs ON item_costs.type_id = items.type_id
 			JOIN eve.invTypes ON items.type_id = typeID
@@ -150,6 +150,21 @@ def kill(kill_id):
 			else:
 				slot = '???'
 			items[slot].append(item)
+
+		module_slots = ['high', 'medium', 'low']
+		fitting_items = set()
+		for slot in module_slots:
+			fitting_items.update(map(operator.itemgetter('type_id'), items[slot]))
+		# 11: requires low, 12: requires high, 13: requires medium; :CCP:
+		modules = db.query(c, '''
+			SELECT DISTINCT typeID AS type_id FROM eve.dgmTypeEffects
+			WHERE typeID IN ({}) and effectID IN (11, 12, 13)
+			'''.format(','.join(map(str, fitting_items))))
+		module_ids = set(map(operator.itemgetter('type_id'), modules))
+		for slot in module_slots:
+			for item in items[slot]:
+				if item['type_id'] not in module_ids:
+					item['charge'] = True
 
 		slot_rows = db.query(c, '''
 			SELECT attributeID, valueInt, valueFloat FROM eve.dgmTypeAttributes

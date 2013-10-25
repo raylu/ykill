@@ -65,21 +65,15 @@ window.addEvent('domready', function() {
 
 			if (!items[slot])
 				return;
+			var has_charges = (['high', 'medium', 'low'].indexOf(slot) > -1);
 			items[slot].each(function(item) {
-				var div = $('slot_' + item['flag']);
-				var bg_img = div.getStyle('background-image');
-				if (bg_img == 'none')
-					set_item(div, item);
-				else {
-					var charge_div = $('charge_' + item['flag']);
-					if (item['capacity']) {
-						charge_div.setStyle('background-image', bg_img);
-						charge_div.grab(div.getChildren()[0]);
-						set_item(div, item);
-					} else {
-						set_item(charge_div, item);
-					}
-				}
+				var div;
+				if (has_charges && item['charge'])
+					div = $('charge_' + item['flag']);
+				else
+					div = $('slot_' + item['flag']);
+				div.setStyle('background-image', 'url(//image.eveonline.com/type/' + item['type_id'] + '_32.png)');
+				div.grab(new Element('div', {'class': 'tooltip', 'html': item['item_name']}));
 			});
 		});
 
@@ -166,11 +160,6 @@ window.addEvent('domready', function() {
 			});
 		});
 	});
-
-	function set_item(div, item) {
-		div.setStyle('background-image', 'url(//image.eveonline.com/type/' + item['type_id'] + '_32.png)');
-		div.grab(new Element('div', {'class': 'tooltip', 'html': item['item_name']}));
-	}
 
 	function show_attacker(table, char) {
 		var tr = new Element('tr');
