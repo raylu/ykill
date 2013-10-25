@@ -71,6 +71,21 @@ def insert_kill(c, kill):
 def main():
 	rs = requests.session()
 	with db.cursor() as c:
+		if len(sys.argv) == 2:
+			kill_id = sys.argv[1]
+			response = rs.get('http://api.whelp.gg/kill/' + kill_id)
+			character_id = response.json()['victim']['character_id']
+			url = 'https://zkillboard.com/api/losses/characterID/{}/beforeKillID/{}/limit/1'
+			response = rs.get(url.format(character_id, int(kill_id) + 1))
+			data = response.json()
+			if len(data) != 1:
+				raise Exception('got {} kills'.format(len(data)))
+			if insert_kill(c, data[0]):
+				print('inserted!')
+			else:
+				print('duplicate')
+			return
+
 		groups = db.query(c, 'SELECT groupID FROM eve.invGroups WHERE categoryID = ?', 6)
 		groups = list(map(operator.itemgetter('groupID'), groups))
 		last_kill_ids = {}
