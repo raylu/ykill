@@ -21,17 +21,22 @@ def search(q):
 
 def kill_list(entity_type, entity_id):
 	with db.cursor() as c:
+		# the combination of DISTINCT and and ORDER BY means we can't join kills or we get filesort
+		# get kill_ids from chars, then get kill data on those ids
 		kills = db.query(c, '''
-			SELECT DISTINCT(kills.kill_id), kill_time, cost,
+			SELECT DISTINCT kill_id FROM characters
+			WHERE {}_id = ? ORDER BY kill_id DESC LIMIT 50
+			'''.format(entity_type), entity_id)
+		kill_ids = list(map(operator.itemgetter('kill_id'), kills))
+		kills = db.query(c, '''
+			SELECT kills.kill_id, kill_time, cost,
 				solarSystemName AS system_name, security, regionName AS region
 			FROM kills
-			JOIN characters ON characters.kill_id = kills.kill_id
 			JOIN kill_costs ON kill_costs.kill_id = kills.kill_id
 			JOIN eve.mapSolarSystems ON solar_system_id = solarSystemID
 			JOIN eve.mapRegions ON mapSolarSystems.regionID = mapRegions.regionID
-			WHERE {}_id = ? LIMIT 100
-			'''.format(entity_type), entity_id)
-		kill_ids = list(map(operator.itemgetter('kill_id'), kills))
+			WHERE kills.kill_id IN ({})
+			'''.format(','.join(map(str, kill_ids))))
 		char_rows = db.query(c, '''
 			SELECT
 				kill_id, victim, final_blow,
@@ -55,6 +60,7 @@ def kill_list(entity_type, entity_id):
 				characters[kill_id]['attackers'] += 1
 			if entity_name is None and char[entity_type + '_id'] == entity_id:
 				entity_name = char[entity_type + '_name']
+		kills.sort(key=operator.itemgetter('kill_id'), reverse=True)
 		for kill in kills:
 			kill['kill_time'] = _format_kill_time(kill['kill_time'])
 			kill['security_status'] = _security_status(kill['system_name'], kill['security'])

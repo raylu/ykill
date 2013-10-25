@@ -31,11 +31,11 @@ CREATE TABLE `characters` (
 	`weapon_type_id` int DEFAULT NULL,
 	PRIMARY KEY (`id`),
 	CONSTRAINT `fk_char_km` FOREIGN KEY (`kill_id`) REFERENCES `kills` (`kill_id`),
-	INDEX `character_id` (`character_id`),
+	INDEX `character_id_kill_id` (`character_id`, `kill_id`),
+	INDEX `alliance_id_kill_id` (`alliance_id`, `kill_id`),
+	INDEX `corporation_id_kill_id` (`corporation_id`, `kill_id`),
 	INDEX `character_name` (`character_name`),
-	INDEX `alliance_id` (`alliance_id`),
 	INDEX `alliance_name` (`alliance_name`),
-	INDEX `corporation_id` (`corporation_id`),
 	INDEX `corporation_name` (`corporation_name`),
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
@@ -61,5 +61,6 @@ CREATE TABLE `kill_costs` (
 	`kill_id` int unsigned NOT NULL UNIQUE,
 	`cost` bigint unsigned NOT NULL,
 	PRIMARY KEY (`kill_id`),
+	INDEX `cost_kill_id` (`cost`, `kill_id`),
 	CONSTRAINT `fk_kill_cost_km` FOREIGN KEY (`kill_id`) REFERENCES `kills` (`kill_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
