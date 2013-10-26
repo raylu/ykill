@@ -75,15 +75,18 @@ def main():
 			kill_id = sys.argv[1]
 			response = rs.get('http://api.whelp.gg/kill/' + kill_id)
 			character_id = response.json()['victim']['character_id']
-			url = 'https://zkillboard.com/api/losses/characterID/{}/beforeKillID/{}/limit/1'
-			response = rs.get(url.format(character_id, int(kill_id) + 1))
+			kill_id = int(kill_id)
+			url = 'https://zkillboard.com/api/losses/characterID/{}/beforeKillID/{}/limit/10'
+			response = rs.get(url.format(character_id, kill_id + 10))
 			data = response.json()
-			if len(data) != 1:
-				raise Exception('got {} kills'.format(len(data)))
-			if insert_kill(c, data[0]):
-				print('inserted!')
-			else:
-				print('duplicate')
+			print('got {} kills'.format(len(data)))
+			for kill in data:
+				if kill['killID'] != kill_id:
+					continue
+				if insert_kill(c, kill):
+					print('inserted!')
+				else:
+					print('duplicate')
 			return
 
 		groups = db.query(c, 'SELECT groupID FROM eve.invGroups WHERE categoryID = ?', 6)
