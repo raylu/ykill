@@ -76,8 +76,8 @@ def main():
 			response = rs.get('http://api.whelp.gg/kill/' + kill_id)
 			character_id = response.json()['victim']['character_id']
 			kill_id = int(kill_id)
-			url = 'https://zkillboard.com/api/losses/characterID/{}/beforeKillID/{}/limit/10'
-			response = rs.get(url.format(character_id, kill_id + 10))
+			url = 'https://zkillboard.com/api/losses/characterID/{}/beforeKillID/{}/limit/200'
+			response = rs.get(url.format(character_id, kill_id + 200))
 			data = response.json()
 			print('got {} kills'.format(len(data)))
 			for kill in data:
