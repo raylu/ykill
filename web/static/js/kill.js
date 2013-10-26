@@ -172,17 +172,28 @@ window.addEvent('domready', function() {
 		tr.grab(td);
 
 		td = new Element('td');
-		td.appendText(char['character_name']);
+		td.grab(new Element('a', {
+			'html': char['character_name'], 'href': '/character/' + char['character_id']
+		}));
+
 		td.grab(new Element('br'));
-		td.appendText(char['corporation_name']);
+		td.grab(new Element('a', {
+			'html': char['corporation_name'], 'href': '/corporation/' + char['corporation_id']
+		}));
+
 		if (char['alliance_id']) {
 			td.grab(new Element('br'));
-			td.appendText(char['alliance_name']);
+			td.grab(new Element('a', {
+				'html': char['alliance_name'], 'href': '/alliance/' + char['alliance_id']
+			}));
 		}
 		if (char['faction_id']) {
 			td.grab(new Element('br'));
-			td.appendText(char['faction_name']);
+			td.grab(new Element('a', {
+				'html': char['faction_name'], 'href': '/faction/' + char['faction_id']
+			}));
 		}
+
 		tr.grab(td);
 
 		td = new Element('td').adopt(
