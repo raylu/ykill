@@ -133,30 +133,26 @@ window.addEvent('domready', function() {
 				});
 			}
 			items[slot].each(function(item) {
-				var type_id = item['type_id'];
 				var item_name = item['item_name'];
-				var item_class = item['dropped'] ? 'dropped' : 'destroyed';
-				var count = item[item_class];
-				var cost = item['cost'] * count;
+				var cost = item['cost'];
 				if (item['singleton'] == 2) {
 					item_name += ' (copy)';
 					cost /= 1000;
-				}
-				if (item['type_id'] == 33329 && item['flag'] == 89) // Genolution 'Auroral' AU-79 in implant slot
-					cost = 'n/a';
-				else
-					cost = ykill.format_isk(cost);
-				table.grab(new Element('tr').adopt(
-					new Element('td').grab(
-						new Element('img', {
-							'src': '//image.eveonline.com/Type/' + type_id + '_32.png',
-							'alt': item['item_name'],
-						})
-					),
-					new Element('td', {'html': item_name}),
-					new Element('td', {'html': count, 'class': item_class}),
-					new Element('td', {'html': cost})
-				));
+				} else if (item['type_id'] == 33329 && item['flag'] == 89)
+					cost = 0; // Genolution 'Auroral' AU-79 in implant slot
+
+				['dropped', 'destroyed'].each(function(key) {
+					if (!item[key])
+						return;
+					table.grab(new Element('tr').adopt(
+						new Element('td').grab(
+							ykill.portrait(item['type_id'], item['item_name'], 'type', '_32.png')
+						),
+						new Element('td', {'html': item_name}),
+						new Element('td', {'html': item[key], 'class': key}),
+						new Element('td', {'html': ykill.format_isk(item[key] * cost)})
+					));
+				});
 			});
 		});
 	});
