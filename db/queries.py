@@ -145,6 +145,10 @@ def kill(kill_id):
 				slot = 'ship hangar'
 			elif flag == 155:
 				slot = 'fleet hangar'
+			elif flag == 148:
+				slot = 'command center hold'
+			elif flag == 149:
+				slot = 'planetary commodities hold'
 			elif flag == 89:
 				slot = 'implant'
 			else:

@@ -107,7 +107,8 @@ window.addEvent('domready', function() {
 		);
 		var slots = [
 			'subsystem', 'high', 'medium', 'low', 'rig', 'drone bay',
-			'cargo', 'special hold', 'ship hangar', 'fleet hangar', 'implant', '???'
+			'cargo', 'special hold', 'ship hangar', 'fleet hangar',
+			'command center hold', 'planetary commodities hold', 'implant', '???'
 		];
 		slots.each(function(slot) {
 			if (!items[slot])
