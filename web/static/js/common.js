@@ -44,9 +44,9 @@
 			return ykill.format_millions(isk / 1000);
 		},
 
-		'format_system': function(system, security, security_status) {
-			if (security_status == '?') // placeholder for w-space
-				security = '?';
+		'format_system': function(system, security, wh_class, security_status) {
+			if (security_status == 'wspace')
+				security = 'C' + wh_class;
 			else
 				security = security.toFixed(1);
 			return system + ' <span class="' + security_status + '">' + security + '</span>';

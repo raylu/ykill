@@ -42,6 +42,8 @@ table:
 	color: #a60
 .null:
 	color: #a11
+.wspace:
+	color: #a3a
 
 #topbar:
 	width: 900px

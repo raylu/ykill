@@ -18,9 +18,16 @@ window.addEvent('domready', function() {
 			var td = new Element('td').grab(a);
 			tr.grab(td);
 
-			td = new Element('td', {'html': ykill.format_system(kill['system_name'], kill['security'], kill['security_status'])});
+			td = new Element('td', {
+				'html': ykill.format_system(kill['system_name'], kill['security'], kill['wh_class'], kill['security_status'])
+			});
 			td.grab(new Element('br'));
-			td.appendText(kill['region']);
+			if (kill['wh_class']) {
+				td.appendText('static ' + kill['static1']);
+				if (kill['static2'])
+					td.appendText('/' + kill['static2']);
+			} else
+				td.appendText(kill['region']);
 			tr.grab(td);
 
 			td = new Element('td');

@@ -32,9 +32,11 @@ def kill_list(entity_type, entity_id):
 		kill_ids = list(map(operator.itemgetter('kill_id'), kills))
 		kills = db.query(c, '''
 			SELECT kills.kill_id, kill_time, cost,
-				solarSystemName AS system_name, security, regionName AS region
+				solarSystemName AS system_name, security, regionName AS region,
+				class AS wh_class, static1, static2
 			FROM kills
 			JOIN kill_costs ON kill_costs.kill_id = kills.kill_id
+			LEFT JOIN wh_systems ON solar_system_id = id
 			JOIN eve.mapSolarSystems ON solar_system_id = solarSystemID
 			JOIN eve.mapRegions ON mapSolarSystems.regionID = mapRegions.regionID
 			WHERE kills.kill_id IN ({})
@@ -65,7 +67,7 @@ def kill_list(entity_type, entity_id):
 		kills.sort(key=operator.itemgetter('kill_id'), reverse=True)
 		for kill in kills:
 			kill['kill_time'] = _format_kill_time(kill['kill_time'])
-			kill['security_status'] = _security_status(kill['system_name'], kill['security'])
+			kill['security_status'] = _security_status(kill['system_name'], kill['security'], kill['wh_class'])
 			chars = characters[kill['kill_id']]
 			kill['victim'] = chars['victim']
 			kill['final_blow'] = chars['final_blow']
@@ -76,15 +78,18 @@ def kill(kill_id):
 	with db.cursor() as c:
 		try:
 			kill = db.get(c, '''
-				SELECT kill_time, cost, solarSystemName AS system_name, security FROM kills
+				SELECT kill_time, cost, solarSystemName AS system_name, security,
+					class AS wh_class, static1, static2, effect AS wh_effect
+				FROM kills
 				JOIN kill_costs ON kill_costs.kill_id = kills.kill_id
+				LEFT JOIN wh_systems ON solar_system_id = id
 				JOIN eve.mapSolarSystems ON solar_system_id = solarSystemID
 				WHERE kills.kill_id = ?
 				''', kill_id)
 		except db.NoRowsException:
 			return None
 		kill['kill_time'] = _format_kill_time(kill['kill_time'])
-		kill['security_status'] = _security_status(kill['system_name'], kill['security'])
+		kill['security_status'] = _security_status(kill['system_name'], kill['security'], kill['wh_class'])
 
 		characters = db.query(c, '''
 			SELECT character_id, character_name, damage, victim, final_blow,
@@ -205,10 +210,11 @@ def top_cost():
 		kills = db.query(c, '''
 			SELECT kills.kill_id, cost,
 				ship_type_id, typeName as ship_name,
-				solarSystemName AS system_name, security
+				solarSystemName AS system_name, security, class AS wh_class
 			FROM kills
 			JOIN kill_costs ON kill_costs.kill_id = kills.kill_id
 			JOIN characters ON characters.kill_id = kills.kill_id
+			LEFT JOIN wh_systems ON solar_system_id = wh_systems.id
 			JOIN eve.invTypes ON typeID = ship_type_id
 			JOIN eve.mapSolarSystems ON solar_system_id = solarSystemID
 			WHERE victim = 1
@@ -216,22 +222,15 @@ def top_cost():
 			LIMIT 25
 			''')
 	for kill in kills:
-		kill['security_status'] = _security_status(kill['system_name'], kill['security'])
+		kill['security_status'] = _security_status(kill['system_name'], kill['security'], kill['wh_class'])
 	return kills
 
 def _format_kill_time(kill_time):
 	return kill_time.strftime('%Y-%m-%d %H:%M')
 
-def _security_status(system_name, security):
-		wspace = False
-		if system_name[0] == 'J':
-			try:
-				int(system_name[1:])
-				wspace = True
-			except ValueError:
-				pass
-		if wspace:
-			security_status = '?'
+def _security_status(system_name, security, wh_class):
+		if wh_class:
+			security_status = 'wspace'
 		elif security >= 0.5:
 			security_status = 'high'
 		elif security > 0.0:
