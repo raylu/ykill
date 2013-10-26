@@ -1,40 +1,22 @@
 #!/usr/bin/env python3
 
 from decimal import Decimal
-from io import StringIO
-import operator
-import sys
 from xml.etree import ElementTree
 
 import requests
 
 import db
 
-def fetch_type_ids(c):
-	if len(sys.argv) > 1 and sys.argv[1] in ['-q', '--quick']:
-		type_ids = c.execute('''
-			SELECT i.type_id FROM items AS i
-				JOIN eve.invTypes AS t ON i.type_id = t.typeID
-				WHERE marketGroupID is NOT NULL
-			UNION SELECT ship_type_id FROM characters
-				JOIN eve.invTypes ON ship_type_id = typeID
-				WHERE victim AND marketGroupID is NOT NULL
-			''')
-	else:
-		type_ids = c.execute('SELECT typeID FROM eve.invTypes WHERE marketGroupID IS NOT NULL')
-	return set(map(operator.itemgetter(0), c.fetchall()))
-
 rs = requests.session()
-jita_system = 30000142
-def query(type_id):
-	params = {'typeid': type_id, 'usesystem': jita_system}
-	r = rs.get('http://api.eve-central.com/api/marketstat', params=params)
-	try:
-		tree = ElementTree.parse(StringIO(r.text))
-	except ElementTree.ParseError:
-		return 0
-	value = tree.getroot().find('marketstat').find('type').find('sell').find('percentile').text
-	return int(Decimal(value) * 100)
+def get_prices():
+	r = rs.get('http://eve.no-ip.de/prices/30d/prices-all.xml', stream=True)
+	tree = ElementTree.parse(r.raw)
+	rowset = tree.getroot().find('result').find('rowset').findall('row')
+	parambatch = []
+	for row in rowset:
+		price = int(Decimal(row.attrib['median']) * 100)
+		parambatch.append((row.attrib['typeID'], price, price))
+	return parambatch
 
 au79_cost = None
 def update_kill(kill_id):
@@ -70,14 +52,10 @@ def update_kill(kill_id):
 
 def main():
 	with db.conn.cursor() as c:
-		print('getting items')
-		type_ids = fetch_type_ids(c)
+		print('downloading prices')
+		parambatch = get_prices()
 
 		print('updating items')
-		parambatch = []
-		for type_id in type_ids:
-			value = query(type_id)
-			parambatch.append((type_id, value, value))
 		c.executemany('''
 			INSERT INTO item_costs (type_id, cost) VALUES(?, ?)
 			ON DUPLICATE KEY UPDATE cost = ?
