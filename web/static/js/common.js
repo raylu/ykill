@@ -20,9 +20,12 @@
 			}).get();
 		},
 
-		'portrait': function(id, text, img_dir, img_suffix) {
+		'portrait': function(id, text, img_dir, size) {
+			var extension = 'png';
+			if (img_dir == 'Character')
+				extension = 'jpg';
 			var img = new Element('img', {
-				'src': '//image.eveonline.com/' + img_dir + '/' + id + img_suffix,
+				'src': 'https://image.zkillboard.com/' + img_dir + '/' + id + '_' + size + '.' + extension,
 				'alt': text,
 			});
 			return img;

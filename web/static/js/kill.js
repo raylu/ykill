@@ -27,7 +27,7 @@ window.addEvent('domready', function() {
 			),
 			new Element('tr').adopt(
 				new Element('td').grab(
-					ykill.portrait(victim['character_id'], victim['character_name'], 'character', '_64.jpg')
+					ykill.portrait(victim['character_id'], victim['character_name'], 'Character', 64)
 				),
 				new Element('td').grab(new Element('a', {
 					'html': victim['character_name'], 'href': '/character/' + victim['character_id']
@@ -35,7 +35,7 @@ window.addEvent('domready', function() {
 			),
 			new Element('tr').adopt(
 				new Element('td').grab(
-					ykill.portrait(victim['corporation_id'], victim['corporation_name'], 'corporation', '_64.png')
+					ykill.portrait(victim['corporation_id'], victim['corporation_name'], 'Corporation', 64)
 				),
 				new Element('td').grab(new Element('a', {
 					'html': victim['corporation_name'], 'href': '/corporation/' + victim['corporation_id']
@@ -45,7 +45,7 @@ window.addEvent('domready', function() {
 		if (victim['alliance_id'])
 			table.grab(new Element('tr').adopt(
 				new Element('td').grab(
-					ykill.portrait(victim['alliance_id'], victim['alliance_name'], 'alliance', '_64.png')
+					ykill.portrait(victim['alliance_id'], victim['alliance_name'], 'Alliance', 64)
 				),
 				new Element('td').grab(new Element('a', {
 					'html': victim['alliance_name'], 'href': '/alliance/' + victim['alliance_id']
@@ -54,7 +54,7 @@ window.addEvent('domready', function() {
 		if (victim['faction_id'])
 			table.grab(new Element('tr').adopt(
 				new Element('td').grab(
-					ykill.portrait(victim['faction_id'], victim['faction_name'], 'alliance', '_64.png')
+					ykill.portrait(victim['faction_id'], victim['faction_name'], 'Alliance', 64)
 				),
 				new Element('td', {'html': victim['faction_name']})
 			));
@@ -67,7 +67,7 @@ window.addEvent('domready', function() {
 
 		var items = data['items'];
 		var div = $('ship');
-		div.setStyle('background-image', 'url(//image.eveonline.com/render/' + victim['ship_type_id'] + '_256.png)');
+		div.setStyle('background-image', 'url(https://image.zkillboard.com/Render/' + victim['ship_type_id'] + '_256.png)');
 		Object.each(data['slots'], function(num, slot) {
 			var divs = $(slot).getChildren();
 			for (var i = 0; i < num; i++)
@@ -82,7 +82,7 @@ window.addEvent('domready', function() {
 					div = $('charge_' + item['flag']);
 				else
 					div = $('slot_' + item['flag']);
-				div.setStyle('background-image', 'url(//image.eveonline.com/type/' + item['type_id'] + '_32.png)');
+				div.setStyle('background-image', 'url(https://image.zkillboard.com/Type/' + item['type_id'] + '_32.png)');
 				div.grab(new Element('div', {'class': 'tooltip', 'html': item['item_name']}));
 			});
 		});
@@ -108,7 +108,7 @@ window.addEvent('domready', function() {
 			),
 			new Element('tr').adopt(
 				new Element('td').grab(
-					ykill.portrait(victim['ship_type_id'], victim['ship_name'], 'type', '_32.png')
+					ykill.portrait(victim['ship_type_id'], victim['ship_name'], 'Type', 32)
 				),
 				new Element('td', {'html': victim['ship_name']}),
 				new Element('td'),
@@ -157,7 +157,7 @@ window.addEvent('domready', function() {
 						return;
 					table.grab(new Element('tr').adopt(
 						new Element('td').grab(
-							ykill.portrait(item['type_id'], item['item_name'], 'type', '_32.png')
+							ykill.portrait(item['type_id'], item['item_name'], 'Type', 32)
 						),
 						new Element('td', {'html': item_name}),
 						new Element('td', {'html': item[key], 'class': key}),
@@ -172,13 +172,13 @@ window.addEvent('domready', function() {
 		var tr = new Element('tr');
 
 		var td = new Element('td');
-		td.grab(ykill.portrait(char['character_id'], char['character_name'], 'character', '_32.jpg'));
+		td.grab(ykill.portrait(char['character_id'], char['character_name'], 'Character', 32));
 		if (char['alliance_id'])
-			td.grab(ykill.portrait(char['alliance_id'], char['alliance_name'], 'alliance', '_32.png'));
+			td.grab(ykill.portrait(char['alliance_id'], char['alliance_name'], 'Alliance', 32));
 		else if (char['faction_id'])
-			td.grab(ykill.portrait(char['faction_id'], char['faction_name'], 'alliance', '_32.png'));
+			td.grab(ykill.portrait(char['faction_id'], char['faction_name'], 'Alliance', 32));
 		else
-			td.grab(ykill.portrait(char['corporation_id'], char['corporation_name'], 'corporation', '_32.png'));
+			td.grab(ykill.portrait(char['corporation_id'], char['corporation_name'], 'Corporation', 32));
 		tr.grab(td);
 
 		td = new Element('td');
@@ -208,11 +208,11 @@ window.addEvent('domready', function() {
 
 		td = new Element('td').adopt(
 			new Element('div').adopt(
-				ykill.portrait(char['ship_type_id'], char['ship_name'], 'type', '_32.png'),
+				ykill.portrait(char['ship_type_id'], char['ship_name'], 'Type', 32),
 				new Element('div', {'class': 'tooltip', 'html': char['ship_name']})
 			),
 			new Element('div').adopt(
-				ykill.portrait(char['weapon_type_id'], char['weapon_name'], 'type', '_32.png'),
+				ykill.portrait(char['weapon_type_id'], char['weapon_name'], 'Type', 32),
 				new Element('div', {'class': 'tooltip', 'html': char['weapon_name']})
 			)
 		);

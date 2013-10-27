@@ -33,8 +33,8 @@ window.addEvent('domready', function() {
 			td = new Element('td');
 			var victim = kill['victim'];
 			td.adopt(
-				ykill.portrait(victim['ship_type_id'], victim['ship_name'], 'type', '_32.png'),
-				ykill.portrait(victim['character_id'], victim['character_name'], 'character', '_32.jpg')
+				ykill.portrait(victim['ship_type_id'], victim['ship_name'], 'Type', 32),
+				ykill.portrait(victim['character_id'], victim['character_name'], 'Character', 32)
 			);
 			tr.grab(td);
 
@@ -51,8 +51,8 @@ window.addEvent('domready', function() {
 			td = new Element('td');
 			var final_blow = kill['final_blow'];
 			td.adopt(
-				ykill.portrait(final_blow['ship_type_id'], final_blow['ship_name'], 'type', '_32.png'),
-				ykill.portrait(final_blow['character_id'], final_blow['character_name'], 'character', '_32.jpg')
+				ykill.portrait(final_blow['ship_type_id'], final_blow['ship_name'], 'Type', 32),
+				ykill.portrait(final_blow['character_id'], final_blow['character_name'], 'Character', 32)
 			);
 			tr.grab(td);
 
