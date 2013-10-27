@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 
 import os
+import sys
 
 import cleancss
+import daemon
 import tornado.httpclient
 import tornado.ioloop
 import tornado.web
@@ -55,5 +57,7 @@ if __name__ == '__main__':
 		debug=config.debug,
 	).listen(config.port)
 	web.api.start()
+	if len(sys.argv) == 2 and sys.argv[1] == '-d':
+		daemon.daemonize()
 	print('listening on :%d' % config.port)
 	tornado.ioloop.IOLoop.instance().start()
