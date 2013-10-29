@@ -57,7 +57,7 @@ def insert_kill(c, kill):
 	except db.NoRowsException:
 		cost = 0
 	result = db.get(c, '''
-		SELECT SUM(cost * (dropped + destroyed)) AS item_cost
+		SELECT SUM(cost * (dropped + destroyed) / (singleton * 499.5 + 1)) AS item_cost
 		FROM items
 		JOIN item_costs ON items.type_id = item_costs.type_id
 		WHERE kill_id = ?

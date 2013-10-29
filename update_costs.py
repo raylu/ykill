@@ -38,8 +38,8 @@ def update_kill(kill_id):
 		# we want to divide by 1 for BPOs and by 1000 for BPCs
 		c.execute('''
 			SELECT SUM(cost * (dropped + destroyed) / (singleton * 499.5 + 1))
-			FROM items AS i
-			JOIN item_costs AS ic ON i.type_id = ic.type_id WHERE kill_id = ?
+			FROM items
+			JOIN item_costs ON items.type_id = item_costs.type_id WHERE kill_id = ?
 			''', (kill_id,))
 		r = c.fetchone()
 		c.nextset()
@@ -47,7 +47,7 @@ def update_kill(kill_id):
 			cost += int(r[0])
 		if cost < 0:
 			cost += au79_cost
-			print('goddamnit CCP', kill_id)
+			print('goddamnit CCP', kill_id) # sometimes, the implant just isn't there for a golden pod...
 		c.execute('UPDATE kill_costs SET cost = ? WHERE kill_id = ?', (cost, kill_id))
 
 def main():
