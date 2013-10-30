@@ -235,10 +235,18 @@ def battle_report(kill_id):
 		# organize characters and kills
 		characters = {}
 		for char in char_rows: # generate canonical chars
-			canonical_char = characters.get(char['character_id'])
-			if canonical_char is None or not canonical_char['victim']: # prefer canonicalizing victims
-				characters[char['character_id']] = char
-				char['faction'] = None
+			character_id = char['character_id']
+			canonical_char = characters.get(character_id)
+			if canonical_char is None:
+				characters[character_id] = char
+			elif not canonical_char['victim']: # prefer canonicalizing victims
+				characters[character_id] = char
+			elif canonical_char['ship_type_id'] in [670, 33328]: # pod
+				characters[character_id] = char
+				char['pod'] = canonical_char['kill_id']
+			elif char['ship_type_id'] in [670, 33328]:
+				canonical_char['pod'] = char['kill_id']
+			char['faction'] = None
 		kills = {}
 		for kill in kill_rows:
 			kills[kill['kill_id']] = {'victim': None, 'attackers': []}
@@ -247,40 +255,46 @@ def battle_report(kill_id):
 			kill = kills[char['kill_id']]
 			if char['victim']:
 				kill['victim'] = canonical_char
-				canonical_char['death_id'] = char['kill_id']
+				canonical_char['death_id'] = canonical_char['kill_id']
 			else:
 				kill['attackers'].append(canonical_char)
 
 		# let's sort this mess out
 		kills[kill_id]['victim']['faction'] = 0
 		for attacker in kills[kill_id]['attackers']:
-			attacker['faction'] = 1
+			# ignore minor awoxing
+			if attacker['corporation_id'] != kills[kill_id]['victim']['corporation_id'] or \
+					len(kill['attackers']) < 3:
+				attacker['faction'] = 1
 		change = True
 		while change:
 			change = False
 			for kill in kills.values():
-				if kill['victim']['faction'] is not None:
-					attacker_faction = 1 - kill['victim']['faction']
-					for attacker in kill['attackers']:
-						if attacker['faction'] is None:
-							attacker['faction'] = attacker_faction
-							change = True
+				victim = kill['victim']
+				if victim['faction'] is not None:
+					attacker_faction = 1 - victim['faction']
 				else:
 					for attacker in kill['attackers']:
-						if attacker['faction'] is not None:
+						# find an attacker that has already been assigned and isn't an NPC
+						if attacker['faction'] is not None and attacker['character_id'] != 0:
+							attacker_faction = attacker['faction']
+							victim['faction'] = 1 - attacker_faction
+							change = True
 							break
 					else:
 						continue
-					attacker_faction = attacker['faction']
-					kill['victim']['faction'] = 1 - attacker_faction
-					change = True
-					for attacker in kill['attackers']:
-						if attacker['faction'] is None:
-							attacker['faction'] = attacker_faction
+				for attacker in kill['attackers']:
+					if attacker['faction'] is None and \
+							(attacker['corporation_id'] != victim['corporation_id'] or \
+							len(kill['attackers']) < 3):
+						attacker['faction'] = attacker_faction
+						change = True
 
 		# prepare output lists
-		factions = [[], []]
+		factions = [[], [], []]
 		for char in characters.values():
+			if char['faction'] is None:
+				char['faction'] = 2
 			del char['kill_id']
 			del char['final_blow']
 			del char['victim']

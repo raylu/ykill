@@ -1,24 +1,34 @@
 window.addEvent('domready', function() {
 	ykill.api(document.location.pathname, function(results) {
-		['faction1', 'faction2'].each(function(faction, i) {
+		['faction1', 'faction2', 'faction3'].each(function(faction, i) {
 			var table = $(faction);
 			results[i].each(function(char) {
 				var tr = new Element('tr');
 				if (char['death_id']) {
+					var kill_url = '/kill/' + char['death_id'];
 					tr.addClass('dead');
-					tr.addEvent('click', function() {
-						window.location = '/kill/' + char['death_id'];
+					tr.addEvent('click', function(e) {
+						if (e.target.tagName == 'A')
+							return true;
+						e.preventDefault();
+						if (e.event.which == 2 || e.control)
+							window.open(kill_url);
+						else
+							window.location = kill_url;
 					});
 				}
 
-				td = new Element('td').grab(
+				var td = new Element('td');
+				var ship = ykill.portrait(char['ship_type_id'], char['ship_name'], 'Type', 32);
+				if (char['death_id']) {
+					ship = new Element('a', {'href': kill_url}).adopt(ship);
+				}
+				td.adopt(
 					new Element('div').adopt(
-						ykill.portrait(char['ship_type_id'], char['ship_name'], 'Type', 32),
+						ship,
 						new Element('div', {'class': 'tooltip', 'html': char['ship_name']})
-					)
-				);
-				td.grab(ykill.portrait(char['character_id'], char['character_name'], 'Character', 32));
-				td.grab(
+					),
+					ykill.portrait(char['character_id'], char['character_name'], 'Character', 32),
 					new Element('div').adopt(
 						ykill.portrait(char['corporation_id'], char['corporation_name'], 'Corporation', 32),
 						new Element('div', {'class': 'tooltip', 'html': char['corporation_name']})
@@ -35,6 +45,10 @@ window.addEvent('domready', function() {
 
 				td = new Element('td');
 				td.appendText(char['character_name']);
+				if (char['pod']) {
+					td.appendText(' ');
+					td.adopt(new Element('a', {'href': '/kill/' + char['pod'], 'html': '[pod]'}));
+				}
 				td.grab(new Element('br'));
 				if (char['alliance_id'])
 					td.appendText(char['alliance_name']);
@@ -44,6 +58,8 @@ window.addEvent('domready', function() {
 
 				table.grab(tr);
 			});
+			if (i == 2 && results[i].length)
+				table.setStyle('display', 'table');
 		});
 	});
 });

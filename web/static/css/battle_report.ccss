@@ -1,7 +1,9 @@
 .column:
 	display: inline-block
-	width: 450px
+	width: 440px
 	vertical-align: top
+	&:nth-child(2):
+		margin-left: 20px
 
 table.faction:
 	width: 100%
@@ -29,3 +31,8 @@ table.faction:
 			background-color: #481810
 			&:hover:
 				background-color: #522
+
+table#faction3:
+	display: none
+	width: 440px
+	margin: 25px auto
