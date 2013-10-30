@@ -1,4 +1,5 @@
 from collections import defaultdict
+import datetime
 import operator
 import db
 
@@ -204,6 +205,87 @@ def kill(kill_id):
 		'items': items,
 		'slots': slots,
 	}
+
+def battle_report(kill_id):
+	with db.cursor() as c:
+		# collect some data
+		try:
+			kill = db.get(c, 'SELECT kill_time, solar_system_id FROM kills WHERE kill_id = ?', kill_id)
+		except db.NoRowsException:
+			return None
+		after = kill['kill_time'] - datetime.timedelta(minutes=15)
+		before = kill['kill_time'] + datetime.timedelta(minutes=15)
+		kill_rows = db.query(c, '''
+			SELECT kills.kill_id, kill_time, cost
+			FROM kills
+			JOIN kill_costs ON kill_costs.kill_id = kills.kill_id
+			WHERE solar_system_id = ? AND kill_time BETWEEN ? AND ?
+			''', kill['solar_system_id'], after, before)
+		kill_ids = list(map(operator.itemgetter('kill_id'), kill_rows))
+		char_rows = db.query(c, '''
+			SELECT
+				kill_id, victim, final_blow,
+				character_id, character_name, corporation_id, corporation_name, alliance_id, alliance_name, faction_id, faction_name,
+				ship_type_id, typeName AS ship_name
+			FROM characters
+			JOIN eve.invTypes ON ship_type_id = typeID
+			WHERE kill_id IN ({})
+			'''.format(','.join(map(str, kill_ids))))
+
+		# organize characters and kills
+		characters = {}
+		for char in char_rows: # generate canonical chars
+			canonical_char = characters.get(char['character_id'])
+			if canonical_char is None or not canonical_char['victim']: # prefer canonicalizing victims
+				characters[char['character_id']] = char
+				char['faction'] = None
+		kills = {}
+		for kill in kill_rows:
+			kills[kill['kill_id']] = {'victim': None, 'attackers': []}
+		for char in char_rows:
+			canonical_char = characters[char['character_id']]
+			kill = kills[char['kill_id']]
+			if char['victim']:
+				kill['victim'] = canonical_char
+				canonical_char['death_id'] = char['kill_id']
+			else:
+				kill['attackers'].append(canonical_char)
+
+		# let's sort this mess out
+		kills[kill_id]['victim']['faction'] = 0
+		for attacker in kills[kill_id]['attackers']:
+			attacker['faction'] = 1
+		change = True
+		while change:
+			change = False
+			for kill in kills.values():
+				if kill['victim']['faction'] is not None:
+					attacker_faction = 1 - kill['victim']['faction']
+					for attacker in kill['attackers']:
+						if attacker['faction'] is None:
+							attacker['faction'] = attacker_faction
+							change = True
+				else:
+					for attacker in kill['attackers']:
+						if attacker['faction'] is not None:
+							break
+					else:
+						continue
+					attacker_faction = attacker['faction']
+					kill['victim']['faction'] = 1 - attacker_faction
+					change = True
+					for attacker in kill['attackers']:
+						if attacker['faction'] is None:
+							attacker['faction'] = attacker_faction
+
+		# prepare output lists
+		factions = [[], []]
+		for char in characters.values():
+			del char['kill_id']
+			del char['final_blow']
+			del char['victim']
+			factions[char['faction']].append(char)
+		return factions
 
 def top_cost():
 	with db.cursor() as c:

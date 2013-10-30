@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block js %}
+	<script src="/static/js/battle_report.js"></script>
+{% end %}
+
+{% block css %}
+	<link rel="stylesheet" type="text/css" href="/css/battle_report.css" />
+{% end %}
+
+{% block main %}
+
+<div class="column">
+	<table id="faction1" class="faction">
+		<caption>Faction 1</caption>
+	</table>
+</div>
+<div class="column">
+	<table id="faction2" class="faction">
+		<caption>Faction 2</caption>
+	</table>
+</div>
+
+{% end %}

@@ -1,0 +1,31 @@
+.column:
+	display: inline-block
+	width: 450px
+	vertical-align: top
+
+table.faction:
+	width: 100%
+
+	caption:
+		background-color: #181818
+
+	td:nth-child(1):
+		width: 130px
+		overflow: visible
+		> div:
+			display: inline-block
+			position: relative // for .tooltip
+			&:hover .tooltip:
+				display: block
+
+	tr.dead:
+		background-color: #410
+		cursor: pointer
+		&:hover:
+			background-color: #522
+	tr:nth-child(odd):
+		background-color: #181818
+		&.dead:
+			background-color: #481810
+			&:hover:
+				background-color: #522

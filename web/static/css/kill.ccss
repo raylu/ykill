@@ -58,6 +58,14 @@ table#victim:
 		width: 271px
 		padding-left: 8px
 
+a#battle_report:
+	display: block
+	float: right
+	width: 336px
+	margin-top: 10px
+	padding: 5px 10px
+	background-color: #181818
+
 table#attackers:
 	float: right
 	table-layout: fixed
@@ -137,16 +145,3 @@ table#items:
 		background-color: #041
 	.destroyed:
 		color: #a22
-
-.tooltip:
-	display: none
-	position: absolute
-	top: 32px
-	left: 8px
-	line-height: 1em
-	padding: 8px 10px
-	background-color: rgba(40, 40, 40, 0.9)
-	white-space: nowrap
-	text-align: center
-	z-index: 1
-	pointer-events: none

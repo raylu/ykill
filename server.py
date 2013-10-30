@@ -37,6 +37,10 @@ class KillHandler(BaseHandler):
 	def get(self):
 		self.render('kill.html')
 
+class BattleReportHandler(BaseHandler):
+	def get(self):
+		self.render('battle_report.html')
+
 class CSSHandler(tornado.web.RequestHandler):
 	def get(self, css_path):
 		css_path = os.path.join(os.path.dirname(__file__), 'web', 'static', css_path) + '.ccss'
@@ -53,6 +57,7 @@ if __name__ == '__main__':
 			(r'/', MainHandler),
 			(r'/search', SearchHandler),
 			(r'/(alliance|corporation|character)/.+', KillListHandler),
+			(r'/kill/.+/battle_report', BattleReportHandler),
 			(r'/kill/.+', KillHandler),
 			(r'/(css/.+)\.css', CSSHandler),
 		],

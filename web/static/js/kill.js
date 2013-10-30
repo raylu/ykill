@@ -65,6 +65,8 @@ window.addEvent('domready', function() {
 			)
 		);
 
+		$('battle_report').set('href', '/kill/' + kill_id + '/battle_report');
+
 		var items = data['items'];
 		var div = $('ship');
 		div.setStyle('background-image', 'url(https://image.zkillboard.com/Render/' + victim['ship_type_id'] + '_256.png)');
@@ -175,8 +177,6 @@ window.addEvent('domready', function() {
 		td.grab(ykill.portrait(char['character_id'], char['character_name'], 'Character', 32));
 		if (char['alliance_id'])
 			td.grab(ykill.portrait(char['alliance_id'], char['alliance_name'], 'Alliance', 32));
-		else if (char['faction_id'])
-			td.grab(ykill.portrait(char['faction_id'], char['faction_name'], 'Alliance', 32));
 		else
 			td.grab(ykill.portrait(char['corporation_id'], char['corporation_name'], 'Corporation', 32));
 		tr.grab(td);
@@ -196,8 +196,7 @@ window.addEvent('domready', function() {
 			td.grab(new Element('a', {
 				'html': char['alliance_name'], 'href': '/alliance/' + char['alliance_id']
 			}));
-		}
-		if (char['faction_id']) {
+		} else if (char['faction_id']) {
 			td.grab(new Element('br'));
 			td.grab(new Element('a', {
 				'html': char['faction_name'], 'href': '/faction/' + char['faction_id']

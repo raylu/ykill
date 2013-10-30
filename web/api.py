@@ -47,6 +47,17 @@ class KillHandler(APIBaseHandler):
 			raise tornado.web.HTTPError(404)
 		self.respond_json(kill)
 
+class BattleReportHandler(APIBaseHandler):
+	def get(self, kill_id):
+		try:
+			kill_id = int(kill_id)
+		except ValueError:
+			raise tornado.web.HTTPError(404)
+		kills = db.queries.battle_report(kill_id)
+		if kills is None:
+			raise tornado.web.HTTPError(404)
+		self.respond_json(kills)
+
 class TopCostHandler(APIBaseHandler):
 	def get(self):
 		kills = db.queries.top_cost()
@@ -57,6 +68,7 @@ def start():
 		handlers=[
 			(r'/search', SearchHandler),
 			(r'/(alliance|corporation|character)/(.+)', KillListHandler),
+			(r'/kill/(.+)/battle_report', BattleReportHandler),
 			(r'/kill/(.+)', KillHandler),
 			(r'/top/cost', TopCostHandler),
 		],
