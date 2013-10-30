@@ -4,6 +4,7 @@ import atexit
 import json
 import sys
 import time
+import traceback
 
 import daemon
 import db
@@ -12,11 +13,18 @@ import log
 import stomp
 
 class KillListener:
+	inserted = 0
+
 	def on_message(self, headers, message):
-		data = json.loads(message)
-		with db.cursor() as c:
-			print('inserting kill')
-			importer.insert_kill(c, data)
+		try:
+			data = json.loads(message)
+			with db.cursor() as c:
+				importer.insert_kill(c, data)
+			self.inserted += 1
+			if self.inserted % 500 == 0:
+				log.write('stomp inserted {} kills'.format(self.inserted))
+		except Exception as e:
+			log.write('stomp error: {}, {}\n{}'.format(headers, message, traceback.format_exc()))
 
 	def on_error(self, headers, message):
 		log.write('stomp error: {}, {}'.format(headers, message))
