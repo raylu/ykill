@@ -30,10 +30,12 @@ class KillListener:
 		log.write('stomp error: {}, {}'.format(headers, message))
 		log.flush()
 
+	def on_disconnected(self):
+		log.write('stomp disconnected')
+		log.flush()
+
 conn = stomp.Connection([('stomp.zkillboard.com', 61613)])
 conn.set_listener('', KillListener())
-conn.start()
-conn.connect()
 
 if len(sys.argv) == 2 and sys.argv[1] == '-d':
 	daemon.daemonize()
@@ -43,7 +45,9 @@ def exit():
 	log.close()
 atexit.register(exit)
 
-print('subscribing')
+conn.start()
+conn.connect()
+log.write('stomp subscribing')
 conn.subscribe(destination='/topic/kills', id=1, ack='auto')
 while True:
 	try:
