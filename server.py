@@ -40,9 +40,12 @@ class KillHandler(BaseHandler):
 class CSSHandler(tornado.web.RequestHandler):
 	def get(self, css_path):
 		css_path = os.path.join(os.path.dirname(__file__), 'web', 'static', css_path) + '.ccss'
-		with open(css_path, 'r') as f:
-			self.set_header('Content-Type', 'text/css')
-			self.write(cleancss.convert(f))
+		try:
+			with open(css_path, 'r') as f:
+				self.set_header('Content-Type', 'text/css')
+				self.write(cleancss.convert(f))
+		except FileNotFoundError:
+			raise tornado.web.HTTPError(404)
 
 if __name__ == '__main__':
 	tornado.web.Application(
