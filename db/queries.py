@@ -68,7 +68,7 @@ def kill_list(entity_type, entity_id):
 		kills.sort(key=operator.itemgetter('kill_id'), reverse=True)
 		for kill in kills:
 			kill['kill_time'] = _format_kill_time(kill['kill_time'])
-			kill['security_status'] = _security_status(kill['system_name'], kill['security'], kill['wh_class'])
+			kill['security_status'] = _security_status(kill['security'], kill['wh_class'])
 			chars = characters[kill['kill_id']]
 			kill['victim'] = chars['victim']
 			kill['final_blow'] = chars['final_blow']
@@ -90,7 +90,7 @@ def kill(kill_id):
 		except db.NoRowsException:
 			return None
 		kill['kill_time'] = _format_kill_time(kill['kill_time'])
-		kill['security_status'] = _security_status(kill['system_name'], kill['security'], kill['wh_class'])
+		kill['security_status'] = _security_status(kill['security'], kill['wh_class'])
 
 		characters = db.query(c, '''
 			SELECT character_id, character_name, damage, victim, final_blow,
@@ -232,99 +232,112 @@ def battle_report(kill_id):
 			WHERE kill_id IN ({})
 			'''.format(','.join(map(str, kill_ids))))
 
-		# organize characters and kills
-		characters = {}
-		for char in char_rows: # generate canonical chars
-			character_id = char['character_id']
-			canonical_char = characters.get(character_id)
-			if canonical_char is None:
-				characters[character_id] = char
-			elif not canonical_char['victim']: # prefer canonicalizing victims
-				characters[character_id] = char
-			elif canonical_char['ship_type_id'] in [670, 33328]: # pod
-				characters[character_id] = char
-				char['pod'] = canonical_char['kill_id']
-			elif char['ship_type_id'] in [670, 33328]:
-				canonical_char['pod'] = char['kill_id']
-			char['faction'] = None
-		kills = {}
-		for kill in kill_rows:
-			kills[kill['kill_id']] = {'victim': None, 'attackers': []}
-		for char in char_rows:
-			canonical_char = characters[char['character_id']]
-			kill = kills[char['kill_id']]
-			if char['victim']:
-				kill['victim'] = canonical_char
-				canonical_char['death_id'] = canonical_char['kill_id']
+	# organize characters and kills
+	characters = {}
+	for char in char_rows: # generate canonical chars
+		character_id = char['character_id']
+		canonical_char = characters.get(character_id)
+		if canonical_char is None:
+			characters[character_id] = char
+		elif not canonical_char['victim']: # prefer canonicalizing victims
+			characters[character_id] = char
+		elif canonical_char['ship_type_id'] in [670, 33328]: # pod
+			characters[character_id] = char
+			char['pod'] = canonical_char['kill_id']
+		elif char['ship_type_id'] in [670, 33328]:
+			canonical_char['pod'] = char['kill_id']
+		char['faction'] = None
+	kills = {}
+	for kill in kill_rows:
+		kills[kill['kill_id']] = {'victim': None, 'attackers': []}
+	for char in char_rows:
+		canonical_char = characters[char['character_id']]
+		kill = kills[char['kill_id']]
+		if char['victim']:
+			kill['victim'] = canonical_char
+			canonical_char['death_id'] = canonical_char['kill_id']
+		else:
+			kill['attackers'].append(canonical_char)
+
+	# let's sort this mess out
+	kills[kill_id]['victim']['faction'] = 0
+	for attacker in kills[kill_id]['attackers']:
+		# ignore minor awoxing
+		if attacker['corporation_id'] != kills[kill_id]['victim']['corporation_id'] or \
+				len(kill['attackers']) < 3:
+			attacker['faction'] = 1
+	change = True
+	while change:
+		change = False
+		for kill in kills.values():
+			victim = kill['victim']
+			if victim['faction'] is not None:
+				attacker_faction = 1 - victim['faction']
 			else:
-				kill['attackers'].append(canonical_char)
-
-		# let's sort this mess out
-		kills[kill_id]['victim']['faction'] = 0
-		for attacker in kills[kill_id]['attackers']:
-			# ignore minor awoxing
-			if attacker['corporation_id'] != kills[kill_id]['victim']['corporation_id'] or \
-					len(kill['attackers']) < 3:
-				attacker['faction'] = 1
-		change = True
-		while change:
-			change = False
-			for kill in kills.values():
-				victim = kill['victim']
-				if victim['faction'] is not None:
-					attacker_faction = 1 - victim['faction']
-				else:
-					for attacker in kill['attackers']:
-						# find an attacker that has already been assigned and isn't an NPC
-						if attacker['faction'] is not None and attacker['character_id'] != 0:
-							attacker_faction = attacker['faction']
-							victim['faction'] = 1 - attacker_faction
-							change = True
-							break
-					else:
-						continue
 				for attacker in kill['attackers']:
-					if attacker['faction'] is None and \
-							(attacker['corporation_id'] != victim['corporation_id'] or \
-							len(kill['attackers']) < 3):
-						attacker['faction'] = attacker_faction
+					# find an attacker that has already been assigned and isn't an NPC
+					if attacker['faction'] is not None and attacker['character_id'] != 0:
+						attacker_faction = attacker['faction']
+						victim['faction'] = 1 - attacker_faction
 						change = True
+						break
+				else:
+					continue
+			for attacker in kill['attackers']:
+				if attacker['faction'] is None and \
+						(attacker['corporation_id'] != victim['corporation_id'] or \
+						len(kill['attackers']) < 3):
+					attacker['faction'] = attacker_faction
+					change = True
 
-		# prepare output lists
-		factions = [[], [], []]
-		for char in characters.values():
-			if char['faction'] is None:
-				char['faction'] = 2
-			del char['kill_id']
-			del char['final_blow']
-			del char['victim']
-			factions[char['faction']].append(char)
-		return factions
+	# prepare output lists
+	factions = [[], [], []]
+	for char in characters.values():
+		if char['faction'] is None:
+			char['faction'] = 2
+		del char['kill_id']
+		del char['final_blow']
+		del char['victim']
+		factions[char['faction']].append(char)
+	return factions
 
 def top_cost():
 	with db.cursor() as c:
 		kills = db.query(c, '''
-			SELECT kills.kill_id, cost,
-				ship_type_id, typeName as ship_name,
-				solarSystemName AS system_name, security, class AS wh_class
+			SELECT kills.kill_id, cost, solar_system_id, kill_time,
+				ship_type_id, typeName AS ship_name
 			FROM kills
 			JOIN kill_costs ON kill_costs.kill_id = kills.kill_id
 			JOIN characters ON characters.kill_id = kills.kill_id
-			LEFT JOIN wh_systems ON solar_system_id = wh_systems.id
 			JOIN eve.invTypes ON typeID = ship_type_id
-			JOIN eve.mapSolarSystems ON solar_system_id = solarSystemID
-			WHERE victim = 1
+			WHERE victim = 1 AND kill_time >= ADDDATE(CURDATE(), INTERVAL -3 DAY)
 			ORDER BY cost DESC
 			LIMIT 25
 			''')
+		# joining eve.mapSolarSystems on the initial query causes filesort on large dbs for some reason
+		# do a manual join
+		system_ids = set(map(operator.itemgetter('solar_system_id'), kills))
+		system_rows = db.query(c, '''
+			SELECT solarSystemID as solar_system_id, solarSystemName AS system_name,
+				security, class AS wh_class
+			FROM eve.mapSolarSystems
+			LEFT JOIN wh_systems ON solarSystemID = wh_systems.id
+			WHERE solarSystemID IN ({})
+			'''.format(','.join(map(str, system_ids))))
+	systems = {}
+	for system in system_rows:
+		systems[system['solar_system_id']] = system
 	for kill in kills:
-		kill['security_status'] = _security_status(kill['system_name'], kill['security'], kill['wh_class'])
+		kill.update(systems[kill['solar_system_id']])
+		del kill['solar_system_id']
+		kill['security_status'] = _security_status(kill['security'], kill['wh_class'])
+		kill['kill_time'] = _format_kill_time(kill['kill_time'])
 	return kills
 
 def _format_kill_time(kill_time):
 	return kill_time.strftime('%Y-%m-%d %H:%M')
 
-def _security_status(system_name, security, wh_class):
+def _security_status(security, wh_class):
 		if wh_class:
 			security_status = 'wspace'
 		elif security >= 0.5:

@@ -2,6 +2,7 @@
 	padding: 20px
 
 #expensive:
+	width: 440px
 	margin: 0 auto
 
 	td:nth-child(4):
