@@ -89,18 +89,23 @@ window.addEvent('domready', function() {
 			});
 		});
 
-		table = $('attackers');
-		table.grab(new Element('tr').grab(
+		var attackers = $('attackers');
+		attackers.grab(new Element('tr').grab(
 			new Element('td', {'class': 'attacker_type', 'colspan': 4, 'html': 'final blow'})
 		));
-		show_attacker(table, data['final_blow']);
+		attackers.grab(attacker_row(data['final_blow']));
 		if (data['attackers'].length) {
-			table.grab(new Element('tr').grab(
+			attackers.grab(new Element('tr').grab(
 				new Element('td', {'class': 'attacker_type', 'colspan': 4, 'html': 'attackers'})
 			));
-			data['attackers'].each(function(char) {
-				show_attacker(table, char);
-			});
+			// putting this in a setTimeout(..., 100) more than doubles rendering speed in firefox
+			// when there are a lot of attackers. values <= 99 don't always render everything else first
+			// please don't ask me why
+			setTimeout(function() {
+				data['attackers'].each(function(char) {
+					attackers.grab(attacker_row(char));
+				});
+			}, 100);
 		}
 
 		table = $('items');
@@ -170,7 +175,7 @@ window.addEvent('domready', function() {
 		});
 	});
 
-	function show_attacker(table, char) {
+	function attacker_row(char) {
 		var tr = new Element('tr');
 
 		var td = new Element('td');
@@ -216,6 +221,6 @@ window.addEvent('domready', function() {
 		tr.grab(td);
 		tr.grab(new Element('td').appendText(char['damage'].toLocaleString()));
 
-		table.grab(tr);
+		return tr;
 	}
 });
