@@ -10,70 +10,73 @@
 
 {% block main %}
 
-<div id="ship">
-	<div id="high">
-		{% for i in range(27, 35) %}
-			<div id="slot_{{ i }}" class="slot"></div>
-		{% end %}
+<div class="column1">
+	<div id="ship">
+		<div id="high">
+			{% for i in range(27, 35) %}
+				<div id="slot_{{ i }}" class="slot"></div>
+			{% end %}
+		</div>
+		<div id="high_charges">
+			{% for i in range(27, 35) %}
+				<div id="charge_{{ i }}" class="slot"></div>
+			{% end %}
+		</div>
+		<div id="medium_charges">
+			{% for i in range(19, 27) %}
+				<div id="charge_{{ i }}" class="slot"></div>
+			{% end %}
+		</div>
+		<div id="medium">
+			{% for i in range(19, 27) %}
+				<div id="slot_{{ i }}" class="slot"></div>
+			{% end %}
+		</div>
+		<div id="rig">
+			{% for i in range(92, 95) %}
+				<div id="slot_{{ i }}" class="slot"></div>
+			{% end %}
+		</div>
+		<div id="subsystem">
+			{% for i in range(125, 130) %}
+				<div id="slot_{{ i }}" class="slot"></div>
+			{% end %}
+		</div>
+		<div id="low_charges">
+			{% for i in range(11, 19) %}
+				<div id="charge_{{ i }}" class="slot"></div>
+			{% end %}
+		</div>
+		<div id="low">
+			{% for i in range(11, 19) %}
+				<div id="slot_{{ i }}" class="slot"></div>
+			{% end %}
+		</div>
 	</div>
-	<div id="high_charges">
-		{% for i in range(27, 35) %}
-			<div id="charge_{{ i }}" class="slot"></div>
-		{% end %}
-	</div>
-	<div id="medium_charges">
-		{% for i in range(19, 27) %}
-			<div id="charge_{{ i }}" class="slot"></div>
-		{% end %}
-	</div>
-	<div id="medium">
-		{% for i in range(19, 27) %}
-			<div id="slot_{{ i }}" class="slot"></div>
-		{% end %}
-	</div>
-	<div id="rig">
-		{% for i in range(92, 95) %}
-			<div id="slot_{{ i }}" class="slot"></div>
-		{% end %}
-	</div>
-	<div id="subsystem">
-		{% for i in range(125, 130) %}
-			<div id="slot_{{ i }}" class="slot"></div>
-		{% end %}
-	</div>
-	<div id="low_charges">
-		{% for i in range(11, 19) %}
-			<div id="charge_{{ i }}" class="slot"></div>
-		{% end %}
-	</div>
-	<div id="low">
-		{% for i in range(11, 19) %}
-			<div id="slot_{{ i }}" class="slot"></div>
-		{% end %}
-	</div>
+
+	<table id="items">
+		<thead><tr>
+			<th></th>
+			<th></th>
+			<th></th>
+			<th></th>
+		</tr></thead>
+	</table>
 </div>
-<table id="victim"></table>
-<a id="battle_report">battle report</a>
-<div class="clear"></div>
 
-<table id="attackers">
-	<thead><tr>
-		<th></th>
-		<th></th>
-		<th></th>
-		<th></th>
-	</tr></thead>
-</table>
+<div class="column2">
+	<table id="victim"></table>
+	<a id="battle_report">battle report</a>
+	<div class="clear"></div>
 
-<table id="items">
-	<thead><tr>
-		<th></th>
-		<th></th>
-		<th></th>
-		<th></th>
-	</tr></thead>
-</table>
-
-<div class="clear"></div>
+	<table id="attackers">
+		<thead><tr>
+			<th></th>
+			<th></th>
+			<th></th>
+			<th></th>
+		</tr></thead>
+	</table>
+</div>
 
 {% end %}

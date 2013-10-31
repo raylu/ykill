@@ -1,9 +1,16 @@
-#wrapper:
-	padding: 20px
+.column1:
+	display: inline-block
+	width: 500px
+	margin: 20px 0 20px 20px
+	vertical-align: top
+.column2:
+	display: inline-block
+	width: 336px
+	margin: 20px 20px 20px 24px
+	vertical-align: top
 
 #ship:
-	float: left
-	width: 356px // 256 + 32 * 2 + 32 (last 32 is for medium charges)
+	width: 352px
 	height: 320px
 	line-height: 0
 	background-position: 32px 32px
@@ -46,9 +53,8 @@
 		border: 1px solid #888
 
 table#victim:
-	float: right
 	table-layout: fixed
-	width: 336px
+	width: 100%
 	background-color: #181818
 
 	td:nth-child(1):
@@ -60,60 +66,14 @@ table#victim:
 
 a#battle_report:
 	display: block
-	float: right
-	width: 336px
 	margin-top: 10px
 	padding: 5px 10px
 	background-color: #181818
 
-table#attackers:
-	float: right
-	table-layout: fixed
-	width: 336px
-	margin-top: 10px
-
-	th:
-		&:nth-child(1):
-			width: 33px
-		&:nth-child(2):
-			width: 200px
-		&:nth-child(3):
-			width: 33px
-		&:nth-child(4):
-			width: 70px
-
-	td:
-		height: 66px
-		&:nth-child(1):
-			white-space: normal
-			line-height: 0
-		&:nth-child(2):
-			padding-left: 5px
-		&:nth-child(3):
-			white-space: normal
-			line-height: 0
-			overflow: visible
-			> div:
-				position: relative // for .tooltip
-				&:hover .tooltip:
-					display: block
-		&:nth-child(4):
-			text-align: right
-			padding-right: 8px
-
-	td.attacker_type:
-		height: auto
-		line-height: normal
-		background-color: #222
-		padding: 2px 8px
-
-	tr:nth-child(even):
-		background-color: #181818
-
 table#items:
 	table-layout: fixed
-	width: 500px
-	margin-top: 10px
+	width: 100%
+	margin-top: 25px
 
 	th:nth-child(1):
 		width: 33px
@@ -145,3 +105,45 @@ table#items:
 		background-color: #041
 	.destroyed:
 		color: #a22
+
+table#attackers:
+	table-layout: fixed
+	width: 100%
+	margin-top: 25px
+
+	th:
+		&:nth-child(1):
+			width: 33px
+		&:nth-child(2):
+			width: 200px
+		&:nth-child(3):
+			width: 33px
+		&:nth-child(4):
+			width: 70px
+
+	td:
+		height: 66px
+		&:nth-child(1):
+			white-space: normal
+			line-height: 0
+		&:nth-child(2):
+			padding-left: 5px
+		&:nth-child(3):
+			white-space: normal
+			line-height: 0
+			overflow: visible
+			> div:
+				position: relative // for .tooltip
+				&:hover .tooltip:
+					display: block
+		&:nth-child(4):
+			text-align: right
+			padding-right: 8px
+		&.attacker_type:
+			height: auto
+			line-height: normal
+			background-color: #222
+			padding: 2px 8px
+
+	tr:nth-child(even):
+		background-color: #181818

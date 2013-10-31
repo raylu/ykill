@@ -96,7 +96,7 @@ window.addEvent('domready', function() {
 		show_attacker(table, data['final_blow']);
 		if (data['attackers'].length) {
 			table.grab(new Element('tr').grab(
-					new Element('td', {'class': 'attacker_type', 'colspan': 4, 'html': 'attackers'})
+				new Element('td', {'class': 'attacker_type', 'colspan': 4, 'html': 'attackers'})
 			));
 			data['attackers'].each(function(char) {
 				show_attacker(table, char);
@@ -198,9 +198,7 @@ window.addEvent('domready', function() {
 			}));
 		} else if (char['faction_id']) {
 			td.grab(new Element('br'));
-			td.grab(new Element('a', {
-				'html': char['faction_name'], 'href': '/faction/' + char['faction_id']
-			}));
+			td.appendText(char['faction_name']);
 		}
 
 		tr.grab(td);
