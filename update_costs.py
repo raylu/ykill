@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from decimal import Decimal
+import sys
 from xml.etree import ElementTree
 
 import requests
@@ -52,22 +53,30 @@ def update_kill(kill_id):
 
 def main():
 	with db.conn.cursor() as c:
-		print('downloading prices')
-		parambatch = get_prices()
+		if len(sys.argv) < 2:
+			print('downloading prices')
+			parambatch = get_prices()
 
-		print('updating items')
-		c.executemany('''
-			INSERT INTO item_costs (type_id, cost) VALUES(?, ?)
-			ON DUPLICATE KEY UPDATE cost = ?
-			''', parambatch)
+			print('updating items')
+			c.executemany('''
+				INSERT INTO item_costs (type_id, cost) VALUES(?, ?)
+				ON DUPLICATE KEY UPDATE cost = ?
+				''', parambatch)
 
 		c.execute('SELECT cost FROM item_costs WHERE type_id = 33329') # Genolution 'Auroral' AU-79
 		global au79_cost
 		au79_cost = c.fetchone()[0]
 		c.nextset()
 
-		print('getting kills')
-		c.execute('SELECT kill_id FROM kills')
+		if len(sys.argv) < 2:
+			print('getting kills')
+			c.execute('SELECT kill_id FROM kills')
+		else:
+			c.execute('''
+				SELECT kill_id FROM characters
+				JOIN eve.invTypes ON typeID = ship_type_id
+				WHERE victim = 1 AND groupID = ?
+				''', (sys.argv[1],))
 
 		print('updating kills')
 		while True:
