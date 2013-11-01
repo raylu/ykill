@@ -1,8 +1,15 @@
 window.addEvent('domready', function() {
 	ykill.api(document.location.pathname, function(results) {
+		var meta = results['meta'];
+		$('meta').set('html', 'battle report for ' +
+			ykill.format_system(meta, true) +
+			' around ' + meta['kill_time']
+		);
+
 		['faction1', 'faction2', 'faction3'].each(function(faction, i) {
 			var table = $(faction);
-			results[i].each(function(char) {
+			var members = results['factions'][i];
+			members.each(function(char) {
 				var tr = new Element('tr');
 				if (char['death_id']) {
 					var kill_url = '/kill/' + char['death_id'];
@@ -58,7 +65,7 @@ window.addEvent('domready', function() {
 
 				table.grab(tr);
 			});
-			if (i == 2 && results[i].length)
+			if (i == 2 && members.length)
 				table.setStyle('display', 'table');
 		});
 	});

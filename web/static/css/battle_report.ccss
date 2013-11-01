@@ -1,15 +1,22 @@
+#meta:
+	margin: 0 0 20px
+	padding: 4px
+	text-align: center
+	font-size: 16pt
+	background-color: #222
+
 .column:
 	display: inline-block
 	width: 440px
 	vertical-align: top
-	&:nth-child(2):
+	&:nth-of-type(2):
 		margin-left: 20px
 
 table.faction:
 	width: 100%
 
 	caption:
-		background-color: #181818
+		background-color: #222
 
 	td:nth-child(1):
 		width: 130px

@@ -210,17 +210,24 @@ def battle_report(kill_id):
 	with db.cursor() as c:
 		# collect some data
 		try:
-			kill = db.get(c, 'SELECT kill_time, solar_system_id FROM kills WHERE kill_id = ?', kill_id)
+			meta = db.get(c, '''
+				SELECT kill_time, solar_system_id, solarSystemName AS system_name,
+					security, class AS wh_class, static1, static2, effect AS wh_effect
+				FROM kills
+				LEFT JOIN wh_systems ON solar_system_id = id
+				JOIN eve.mapSolarSystems ON solar_system_id = solarSystemID
+				WHERE kill_id = ?
+				''', kill_id)
 		except db.NoRowsException:
 			return None
-		after = kill['kill_time'] - datetime.timedelta(minutes=15)
-		before = kill['kill_time'] + datetime.timedelta(minutes=15)
+		after = meta['kill_time'] - datetime.timedelta(minutes=15)
+		before = meta['kill_time'] + datetime.timedelta(minutes=15)
 		kill_rows = db.query(c, '''
 			SELECT kills.kill_id, kill_time, cost
 			FROM kills
 			JOIN kill_costs ON kill_costs.kill_id = kills.kill_id
 			WHERE solar_system_id = ? AND kill_time BETWEEN ? AND ?
-			''', kill['solar_system_id'], after, before)
+			''', meta['solar_system_id'], after, before)
 		kill_ids = list(map(operator.itemgetter('kill_id'), kill_rows))
 		char_rows = db.query(c, '''
 			SELECT
@@ -299,7 +306,10 @@ def battle_report(kill_id):
 		del char['final_blow']
 		del char['victim']
 		factions[char['faction']].append(char)
-	return factions
+
+	meta['kill_time'] = _format_kill_time(meta['kill_time'])
+	meta['security_status'] = _security_status(meta['security'], meta['wh_class'])
+	return {'meta': meta, 'factions': factions}
 
 def top_cost():
 	with db.cursor() as c:

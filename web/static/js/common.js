@@ -52,12 +52,22 @@
 			return ykill.format_millions(isk / 1000);
 		},
 
-		'format_system': function(system, security, wh_class, security_status) {
-			if (security_status == 'wspace')
-				security = 'C' + wh_class;
+		'format_system': function(system, wh_info) {
+			if (system['security_status'] == 'wspace')
+				security = 'C' + system['wh_class'];
 			else
-				security = security.toFixed(1);
-			return system + ' <span class="' + security_status + '">' + security + '</span>';
+				security = system['security'].toFixed(1);
+			var system_info = system['system_name'] + ' <span class="' + system['security_status'] + '">' + security + '</span>';
+			if (wh_info && system['wh_class']) {
+				system_info += ' static ' + system['static1'];
+				if (system['static2'])
+					system_info += '/' + system['static2'];
+				if (system['wh_effect'])
+					system_info += ', ' + system['wh_effect'];
+				else
+					system_info += ', no effect';
+			}
+			return system_info;
 		}
 	});
 })();

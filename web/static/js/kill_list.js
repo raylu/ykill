@@ -18,9 +18,7 @@ window.addEvent('domready', function() {
 			var td = new Element('td').grab(a);
 			tr.grab(td);
 
-			td = new Element('td', {
-				'html': ykill.format_system(kill['system_name'], kill['security'], kill['wh_class'], kill['security_status'])
-			});
+			td = new Element('td', {'html': ykill.format_system(kill, false)});
 			td.grab(new Element('br'));
 			if (kill['wh_class']) {
 				td.appendText('static ' + kill['static1']);

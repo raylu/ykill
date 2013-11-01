@@ -6,16 +6,6 @@ window.addEvent('domready', function() {
 		document.title += ' - ' + victim['character_name'] + ' - ' + victim['ship_name'];
 
 		var table = $('victim');
-		var system_info = ykill.format_system(kill['system_name'], kill['security'], kill['wh_class'], kill['security_status']);
-		if (kill['wh_class']) {
-			system_info += ' static ' + kill['static1'];
-			if (kill['static2'])
-				system_info += '/' + kill['static2'];
-			if (kill['wh_effect'])
-				system_info += ', ' + kill['wh_effect'];
-			else
-				system_info += ', no effect';
-		}
 		table.adopt(
 			new Element('tr').adopt(
 				new Element('td', {'html': 'time'}),
@@ -23,7 +13,7 @@ window.addEvent('domready', function() {
 			),
 			new Element('tr').adopt(
 				new Element('td', {'html': 'system'}),
-				new Element('td', {'html': system_info})
+				new Element('td', {'html': ykill.format_system(kill, true)})
 			),
 			new Element('tr').adopt(
 				new Element('td').grab(
