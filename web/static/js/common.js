@@ -32,6 +32,8 @@
 			var img = new Element('img', {
 				'src': 'https://image.zkillboard.com/' + img_dir + '/' + id + '_' + size + '.' + extension,
 				'alt': text,
+				'width': size,
+				'height': size,
 			});
 			return img;
 		},

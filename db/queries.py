@@ -256,13 +256,14 @@ def battle_report(kill_id):
 		char['faction'] = None
 	kills = {}
 	for kill in kill_rows:
-		kills[kill['kill_id']] = {'victim': None, 'attackers': []}
+		kills[kill['kill_id']] = {'victim': None, 'attackers': [], 'cost': kill['cost']}
 	for char in char_rows:
 		canonical_char = characters[char['character_id']]
 		kill = kills[char['kill_id']]
 		if char['victim']:
 			kill['victim'] = canonical_char
 			canonical_char['death_id'] = canonical_char['kill_id']
+			canonical_char['cost'] = canonical_char.get('cost', 0) + kill['cost']
 		else:
 			kill['attackers'].append(canonical_char)
 

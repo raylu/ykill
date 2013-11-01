@@ -6,6 +6,7 @@ window.addEvent('domready', function() {
 			' around ' + meta['kill_time']
 		);
 
+		var losses = [0, 0];
 		['faction1', 'faction2', 'faction3'].each(function(faction, i) {
 			var table = $(faction);
 			var members = results['factions'][i];
@@ -18,7 +19,7 @@ window.addEvent('domready', function() {
 						if (e.target.tagName == 'A')
 							return true;
 						e.preventDefault();
-						if (e.event.which == 2 || e.control)
+						if (e.event.which == 2 || e.control) // 2: middle-click
 							window.open(kill_url);
 						else
 							window.location = kill_url;
@@ -26,13 +27,9 @@ window.addEvent('domready', function() {
 				}
 
 				var td = new Element('td');
-				var ship = ykill.portrait(char['ship_type_id'], char['ship_name'], 'Type', 32);
-				if (char['death_id']) {
-					ship = new Element('a', {'href': kill_url}).adopt(ship);
-				}
 				td.adopt(
 					new Element('div').adopt(
-						ship,
+						ykill.portrait(char['ship_type_id'], char['ship_name'], 'Type', 32),
 						new Element('div', {'class': 'tooltip', 'html': char['ship_name']})
 					),
 					ykill.portrait(char['character_id'], char['character_name'], 'Character', 32),
@@ -63,10 +60,34 @@ window.addEvent('domready', function() {
 					td.appendText(char['corporation_name']);
 				tr.grab(td);
 
+				td = new Element('td');
+				if ('cost' in char)
+					td.grab(new Element('a', {
+						'href': kill_url, 'html': ykill.format_millions(char['cost'])
+					}));
+				tr.grab(td);
+
 				table.grab(tr);
+
+				if (char['cost'])
+					losses[i] += char['cost'];
 			});
 			if (i == 2 && members.length)
 				table.setStyle('display', 'table');
+		});
+
+		losses.each(function(lost, i) {
+			var table = $('faction' + (i+1) + '_summary')
+			table.grab(new Element('tr').adopt(
+				new Element('td').appendText('losses'),
+				new Element('td').appendText(ykill.format_billions(lost) + ' billion')
+			));
+			var killed = losses[1 - i];
+			var efficiency = (killed / (lost + killed) * 100).toFixed(0) + '%';
+			table.grab(new Element('tr').adopt(
+				new Element('td').appendText('efficiency'),
+				new Element('td').appendText(efficiency)
+			));
 		});
 	});
 });
