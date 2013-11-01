@@ -83,7 +83,11 @@ window.addEvent('domready', function() {
 				new Element('td').appendText(ykill.format_billions(lost) + ' billion')
 			));
 			var killed = losses[1 - i];
-			var efficiency = (killed / (lost + killed) * 100).toFixed(0) + '%';
+			var efficiency = killed / (lost + killed);
+			if (efficiency === efficiency)
+				efficiency = (efficiency * 100).toFixed(0) + '%';
+			else // NaN
+				efficiency = 'n/a';
 			table.grab(new Element('tr').adopt(
 				new Element('td').appendText('efficiency'),
 				new Element('td').appendText(efficiency)

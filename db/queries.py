@@ -248,10 +248,10 @@ def battle_report(kill_id):
 			characters[character_id] = char
 		elif not canonical_char['victim']: # prefer canonicalizing victims
 			characters[character_id] = char
-		elif canonical_char['ship_type_id'] in [670, 33328]: # pod
+		elif canonical_char['victim'] and canonical_char['ship_type_id'] in [670, 33328]: # pod
 			characters[character_id] = char
 			char['pod'] = canonical_char['kill_id']
-		elif char['ship_type_id'] in [670, 33328]:
+		elif char['victim'] and char['ship_type_id'] in [670, 33328]:
 			canonical_char['pod'] = char['kill_id']
 		char['faction'] = None
 	kills = {}
