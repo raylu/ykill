@@ -92,6 +92,14 @@ footer:
 	z-index: 1
 	pointer-events: none
 
+#loading:
+	display: block
+	position: relative
+	top: 10px
+	margin: 0 auto
+	width: 64px
+	height: 50px
+
 .error:
 	padding: 50px
 	text-align: center

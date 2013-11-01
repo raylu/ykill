@@ -17,6 +17,11 @@
 							'<br>have you become trapped?'
 					}));
 				},
+				'onComplete': function() {
+					var loading = $('loading');
+					if (loading)
+						loading.setStyle('display', 'none');
+				},
 			}).get();
 		},
 
