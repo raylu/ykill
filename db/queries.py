@@ -321,7 +321,7 @@ def top_cost():
 			JOIN kill_costs ON kill_costs.kill_id = kills.kill_id
 			JOIN characters ON characters.kill_id = kills.kill_id
 			JOIN eve.invTypes ON typeID = ship_type_id
-			WHERE victim = 1 AND kill_time >= ADDDATE(CURDATE(), INTERVAL -3 DAY)
+			WHERE victim = 1 AND kill_time >= ADDDATE(UTC_DATE(), INTERVAL -3 DAY)
 			ORDER BY cost DESC
 			LIMIT 25
 			''')
@@ -343,6 +343,26 @@ def top_cost():
 		del kill['solar_system_id']
 		kill['security_status'] = _security_status(kill['security'], kill['wh_class'])
 		kill['kill_time'] = _format_kill_time(kill['kill_time'])
+	return kills
+
+def last(kill_id):
+	with db.cursor() as c:
+		sql = '''
+			SELECT
+				kills.kill_id, kill_costs.cost AS total_cost, item_costs.cost AS hull_cost, typeName AS ship_name
+			FROM kills
+			JOIN kill_costs ON kill_costs.kill_id = kills.kill_id
+			JOIN characters ON characters.kill_id = kills.kill_id
+			JOIN item_costs ON item_costs.type_id = ship_type_id
+			JOIN eve.invTypes ON typeID = ship_type_id
+			WHERE victim = 1
+			'''
+		if kill_id is not None:
+			sql += 'AND kills.kill_id > ?'
+			kills = db.query(c, sql, kill_id)
+		else:
+			sql += 'ORDER BY kills.kill_id DESC LIMIT 1'
+			kills = db.query(c, sql)
 	return kills
 
 def _format_kill_time(kill_time):

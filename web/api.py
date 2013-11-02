@@ -63,6 +63,16 @@ class TopCostHandler(APIBaseHandler):
 		kills = db.queries.top_cost()
 		self.respond_json(kills)
 
+class LastHandler(APIBaseHandler):
+	def get(self, kill_id):
+		if kill_id is not None:
+			try:
+				kill_id = int(kill_id[1:])
+			except ValueError:
+				raise tornado.web.HTTPError(400)
+		kills = db.queries.last(kill_id)
+		self.respond_json(kills)
+
 def start():
 	tornado.web.Application(
 		handlers=[
@@ -71,6 +81,7 @@ def start():
 			(r'/kill/(.+)/battle_report', BattleReportHandler),
 			(r'/kill/(.+)', KillHandler),
 			(r'/top/cost', TopCostHandler),
+			(r'/last(/.+)?', LastHandler),
 		],
 		debug=config.debug,
 	).listen(config.api_port)
