@@ -13,8 +13,9 @@ table#stats:
 	height: 60px
 
 	td:
+		height: 30px
 		font-weight: bold
-		padding: 5px 8px
+		padding: 4px 8px
 		background-color: #181818
 		&:first-child:
 			width: 70px
