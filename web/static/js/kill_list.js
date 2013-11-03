@@ -3,10 +3,22 @@ window.addEvent('domready', function() {
 	var entity_type = split[1];
 	var entity_id = split[2];
 	ykill.api(document.location.pathname, function(data) {
-		if (data['entity_name'])
-			document.title += ' - ' + data['entity_name'];
+		var entity_name = data['stats'][entity_type + '_name'];
+		document.title += ' - ' + entity_name;
+		$('entity_name').appendText(entity_name);
+		var table = $('stats');
+		table.adopt(
+			new Element('tr').adopt(
+				new Element('td', {'html': 'killed:'}),
+				new Element('td', {'html': ykill.format_billions(data['stats']['killed']) + ' billion'})
+			),
+			new Element('tr').adopt(
+				new Element('td', {'html': 'lost:'}),
+				new Element('td', {'html': ykill.format_billions(data['stats']['lost']) + ' billion'})
+			)
+		);
 
-		var table = $('kills').getChildren('tbody')[0];
+		table = $('kills').getChildren('tbody')[0];
 		data['kills'].each(function(kill) {
 			var tr = new Element('tr');
 

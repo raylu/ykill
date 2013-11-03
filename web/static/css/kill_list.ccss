@@ -1,3 +1,26 @@
+h2#entity_name:
+	float: left
+	width: 445px
+	height: 60px
+	line-height: 60px
+	margin: 0 0 10px
+	text-align: center
+	background-color: #222
+
+table#stats:
+	float: right
+	width: 445px
+	height: 60px
+
+	td:
+		font-weight: bold
+		padding: 5px 8px
+		background-color: #181818
+		&:first-child:
+			width: 70px
+		&:last-child:
+			width: 375px
+
 table#kills:
 	table-layout: fixed
 	width: 900px

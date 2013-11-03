@@ -108,14 +108,17 @@ def search(q):
 
 def kill_list(entity_type, entity_id):
 	with db.cursor() as c:
+		try:
+			sql = 'SELECT {}_name, killed, lost FROM {}s WHERE {}_id = ?'.format(entity_type, entity_type, entity_type)
+			stats = db.get(c, sql, entity_id)
+		except db.NoRowsException:
+			return None
 		# the combination of DISTINCT and and ORDER BY means we can't join kills or we get filesort
 		# get kill_ids from chars, then get kill data on those ids
 		kills = db.query(c, '''
 			SELECT DISTINCT kill_id FROM kill_characters
 			WHERE {}_id = ? ORDER BY kill_id DESC LIMIT 50
 			'''.format(entity_type), entity_id)
-		if len(kills) == 0:
-			return None
 		kill_ids = list(map(operator.itemgetter('kill_id'), kills))
 		kills = db.query(c, '''
 			SELECT kills.kill_id, kill_time, cost,
@@ -138,7 +141,6 @@ def kill_list(entity_type, entity_id):
 			WHERE kill_id IN ({})
 			'''.format(','.join(map(str, kill_ids))))
 		characters = defaultdict(dict)
-		entity_name = None
 		for kill_id in kill_ids:
 			characters[kill_id]['attackers'] = 1 # count final_blow now
 		for char in char_rows:
@@ -149,8 +151,6 @@ def kill_list(entity_type, entity_id):
 				characters[kill_id]['final_blow'] = char
 			else:
 				characters[kill_id]['attackers'] += 1
-			if entity_name is None and char[entity_type + '_id'] == entity_id:
-				entity_name = char[entity_type + '_name']
 		kills.sort(key=operator.itemgetter('kill_id'), reverse=True)
 		for kill in kills:
 			kill['kill_time'] = _format_kill_time(kill['kill_time'])
@@ -159,7 +159,7 @@ def kill_list(entity_type, entity_id):
 			kill['victim'] = chars['victim']
 			kill['final_blow'] = chars['final_blow']
 			kill['attackers'] = chars['attackers']
-	return {'entity_name': entity_name, 'kills': kills}
+	return {'stats': stats, 'kills': kills}
 
 def kill(kill_id):
 	with db.cursor() as c:
