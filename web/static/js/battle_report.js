@@ -69,7 +69,7 @@ window.addEvent('domready', function() {
 
 				table.grab(tr);
 
-				if (char['cost'])
+				if (char['cost'] && i < 2)
 					losses[i] += char['cost'];
 			});
 			if (i == 2 && members.length)
