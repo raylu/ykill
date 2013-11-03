@@ -9,64 +9,7 @@ import oursql
 import requests
 
 import db
-
-def insert_kill(c, kill):
-	try:
-		db.execute(c, 'INSERT INTO kills (kill_id, solar_system_id, kill_time, moon_id) VALUES(?, ?, ?, ?)',
-				kill['killID'], kill['solarSystemID'], kill['killTime'], kill['moonID'])
-	except oursql.IntegrityError as e:
-		if e.args[0] == oursql.errnos['ER_DUP_ENTRY']:
-			return False
-		raise
-
-	victim = kill['victim']
-	parambatch = [(
-		kill['killID'], 1, victim['characterID'], victim['characterName'], victim['shipTypeID'],
-		victim['allianceID'], victim['allianceName'], victim['corporationID'], victim['corporationName'], victim['factionID'], victim['factionName'],
-		victim['damageTaken'], None, None, None,
-	)]
-	for attacker in kill['attackers']:
-		parambatch.append((
-			kill['killID'], 0, attacker['characterID'], attacker['characterName'], attacker['shipTypeID'],
-			attacker['allianceID'], attacker['allianceName'], attacker['corporationID'], attacker['corporationName'], attacker['factionID'], attacker['factionName'],
-			attacker['damageDone'], attacker['finalBlow'], attacker['securityStatus'], attacker['weaponTypeID'],
-		))
-	c.executemany('''
-		INSERT INTO kill_characters (
-			kill_id, victim, character_id, character_name, ship_type_id,
-			alliance_id, alliance_name, corporation_id, corporation_name, faction_id, faction_name,
-			damage, final_blow, security_status, weapon_type_id
-		) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-		''', parambatch
-	)
-
-	parambatch = []
-	for item in kill['items']:
-		parambatch.append((kill['killID'], item['typeID'], item['flag'],
-			item['qtyDropped'], item['qtyDestroyed'], item['singleton']))
-	c.executemany('''
-		INSERT INTO items (
-			kill_id, type_id, flag, dropped, destroyed, singleton
-		) VALUES(?, ?, ?, ?, ?, ?)
-		''', parambatch
-	)
-
-	try:
-		result = db.get(c, 'SELECT cost FROM item_costs WHERE type_id = ?', (victim['shipTypeID']))
-		cost = result['cost']
-	except db.NoRowsException:
-		cost = 0
-	result = db.get(c, '''
-		SELECT SUM(cost * (dropped + destroyed) / (singleton * 499.5 + 1)) AS item_cost
-		FROM items
-		JOIN item_costs ON items.type_id = item_costs.type_id
-		WHERE kill_id = ?
-		''', kill['killID'])
-	if result['item_cost'] is not None:
-		cost += result['item_cost']
-	db.execute(c, 'INSERT INTO kill_costs (kill_id, cost) VALUES(?, ?)', kill['killID'], cost)
-
-	return True
+import db.queries
 
 def main():
 	rs = requests.session()
@@ -83,7 +26,7 @@ def main():
 			for kill in data:
 				if kill['killID'] != kill_id:
 					continue
-				if insert_kill(c, kill):
+				if db.queries.insert_kill(c, kill):
 					print('inserted!')
 				else:
 					print('duplicate')
@@ -119,7 +62,7 @@ def main():
 				inserted = 0
 				try:
 					for kill in kills:
-						if insert_kill(c, kill):
+						if db.queries.insert_kill(c, kill):
 							inserted += 1
 				except TypeError as e:
 					print(repr(e), kills)

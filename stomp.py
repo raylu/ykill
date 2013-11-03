@@ -8,7 +8,7 @@ import traceback
 
 import daemon
 import db
-import importer
+import db.queries
 import log
 import stomp
 
@@ -19,7 +19,7 @@ class KillListener:
 		try:
 			data = json.loads(message)
 			with db.cursor() as c:
-				importer.insert_kill(c, data)
+				db.queries.insert_kill(c, data)
 			self.inserted += 1
 			if self.inserted % 500 == 0:
 				log.write('stomp inserted {} kills'.format(self.inserted))

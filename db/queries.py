@@ -1,7 +1,93 @@
 from collections import defaultdict
 import datetime
 import operator
+
+import oursql
+
 import db
+
+def insert_kill(c, kill):
+	try:
+		db.execute(c, 'INSERT INTO kills (kill_id, solar_system_id, kill_time, moon_id) VALUES(?, ?, ?, ?)',
+				kill['killID'], kill['solarSystemID'], kill['killTime'], kill['moonID'])
+	except oursql.IntegrityError as e:
+		if e.args[0] == oursql.errnos['ER_DUP_ENTRY']:
+			return False
+		raise
+
+	victim = kill['victim']
+	parambatch = [(
+		kill['killID'], 1, victim['characterID'], victim['characterName'], victim['shipTypeID'],
+		victim['allianceID'], victim['allianceName'], victim['corporationID'], victim['corporationName'], victim['factionID'], victim['factionName'],
+		victim['damageTaken'], None, None, None,
+	)]
+	for attacker in kill['attackers']:
+		parambatch.append((
+			kill['killID'], 0, attacker['characterID'], attacker['characterName'], attacker['shipTypeID'],
+			attacker['allianceID'], attacker['allianceName'], attacker['corporationID'], attacker['corporationName'], attacker['factionID'], attacker['factionName'],
+			attacker['damageDone'], attacker['finalBlow'], attacker['securityStatus'], attacker['weaponTypeID'],
+		))
+	c.executemany('''
+		INSERT INTO kill_characters (
+			kill_id, victim, character_id, character_name, ship_type_id,
+			alliance_id, alliance_name, corporation_id, corporation_name, faction_id, faction_name,
+			damage, final_blow, security_status, weapon_type_id
+		) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		''', parambatch
+	)
+
+	parambatch = []
+	for item in kill['items']:
+		parambatch.append((kill['killID'], item['typeID'], item['flag'],
+			item['qtyDropped'], item['qtyDestroyed'], item['singleton']))
+	c.executemany('''
+		INSERT INTO items (
+			kill_id, type_id, flag, dropped, destroyed, singleton
+		) VALUES(?, ?, ?, ?, ?, ?)
+		''', parambatch
+	)
+
+	try:
+		result = db.get(c, 'SELECT cost FROM item_costs WHERE type_id = ?', (victim['shipTypeID']))
+		cost = result['cost']
+	except db.NoRowsException:
+		cost = 0
+	result = db.get(c, '''
+		SELECT SUM(cost * (dropped + destroyed) / (singleton * 499.5 + 1)) AS item_cost
+		FROM items
+		JOIN item_costs ON items.type_id = item_costs.type_id
+		WHERE kill_id = ?
+		''', kill['killID'])
+	if result['item_cost'] is not None:
+		cost += result['item_cost']
+	db.execute(c, 'INSERT INTO kill_costs (kill_id, cost) VALUES(?, ?)', kill['killID'], cost)
+
+	for entity_type in ['alliance', 'corporation', 'character']:
+		entity_dict = defaultdict(lambda: {'name': None, 'killed': 0, 'lost': 0})
+		victim_id = victim[entity_type + 'ID']
+		entity = entity_dict[victim_id]
+		entity['name'] = victim[entity_type + 'Name']
+		entity['lost'] += cost
+		for attacker in kill['attackers']:
+			entity_id = attacker[entity_type + 'ID']
+			if entity_id != 0:
+				entity = entity_dict[entity_id]
+				entity['name'] = attacker[entity_type + 'Name']
+				if attacker[entity_type + 'ID'] != victim_id:
+					entity['killed'] += cost
+
+		parambatch = []
+		for entity_id, info in entity_dict.items():
+			parambatch.append((entity_id, info['name'], info['killed'], info['lost'],
+				info['name'], info['killed'], info['lost']))
+		sql = '''
+			INSERT INTO {}s ({}_id, {}_name, killed, lost)
+			VALUES(?, ?, ?, ?)
+			ON DUPLICATE KEY UPDATE {}_name = ?, killed = killed + ?, lost = lost + ?
+			'''.format(entity_type, entity_type, entity_type, entity_type)
+		c.executemany(sql, parambatch)
+
+	return True
 
 def search(q):
 	like_str = '{}%'.format(q)
