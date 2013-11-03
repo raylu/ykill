@@ -118,7 +118,7 @@ window.addEvent('domready', function() {
 			'command center hold', 'planetary commodities hold', 'implant', '???'
 		];
 		slots.each(function(slot) {
-			if (!items[slot] || !items[slot].length)
+			if (!items[slot])
 				return;
 			table.grab(new Element('tr').grab(
 				new Element('td', {'html': slot, 'colspan': 4, 'class': 'slot'})
