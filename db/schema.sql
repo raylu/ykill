@@ -1,8 +1,11 @@
-DROP TABLE IF EXISTS `characters`;
+DROP TABLE IF EXISTS `kill_characters`;
 DROP TABLE IF EXISTS `items`;
 DROP TABLE IF EXISTS `item_costs`;
 DROP TABLE IF EXISTS `kill_costs`;
 DROP TABLE IF EXISTS `kills`;
+DROP TABLE IF EXISTS `alliances`;
+DROP TABLE IF EXISTS `corporations`;
+DROP TABLE IF EXISTS `characters`;
 DROP TABLE IF EXISTS `wh_systems`;
 
 CREATE TABLE `kills` (
@@ -14,7 +17,7 @@ CREATE TABLE `kills` (
 	INDEX `solar_system_id_kill_time` (`solar_system_id`, `kill_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
-CREATE TABLE `characters` (
+CREATE TABLE `kill_characters` (
 	`id` int unsigned NOT NULL AUTO_INCREMENT,
 	`kill_id` int unsigned NOT NULL,
 	`victim` tinyint(1) NOT NULL,
@@ -36,9 +39,6 @@ CREATE TABLE `characters` (
 	INDEX `character_id_kill_id` (`character_id`, `kill_id`),
 	INDEX `alliance_id_kill_id` (`alliance_id`, `kill_id`),
 	INDEX `corporation_id_kill_id` (`corporation_id`, `kill_id`),
-	INDEX `character_name` (`character_name`),
-	INDEX `alliance_name` (`alliance_name`),
-	INDEX `corporation_name` (`corporation_name`),
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE TABLE `items` (
@@ -65,6 +65,33 @@ CREATE TABLE `kill_costs` (
 	PRIMARY KEY (`kill_id`),
 	INDEX `cost_kill_id` (`cost`, `kill_id`),
 	CONSTRAINT `fk_kill_cost_km` FOREIGN KEY (`kill_id`) REFERENCES `kills` (`kill_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+CREATE TABLE `alliances` (
+	`alliance_id` int unsigned NOT NULL,
+	`alliance_name` varchar(64) NOT NULL,
+	`killed` bigint unsigned NOT NULL,
+	`lost` bigint unsigned NOT NULL,
+	PRIMARY KEY (`alliance_id`),
+	INDEX `alliance_name` (`alliance_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+CREATE TABLE `corporations` (
+	`corporation_id` int unsigned NOT NULL,
+	`corporation_name` varchar(64) NOT NULL,
+	`killed` bigint unsigned NOT NULL,
+	`lost` bigint unsigned NOT NULL,
+	PRIMARY KEY (`corporation_id`),
+	INDEX `corporation_name` (`corporation_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+CREATE TABLE `characters` (
+	`character_id` int unsigned NOT NULL,
+	`character_name` varchar(64) NOT NULL,
+	`killed` bigint unsigned NOT NULL,
+	`lost` bigint unsigned NOT NULL,
+	PRIMARY KEY (`character_id`),
+	INDEX `character_name` (`character_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE TABLE `wh_systems` (

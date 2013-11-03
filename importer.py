@@ -32,7 +32,7 @@ def insert_kill(c, kill):
 			attacker['damageDone'], attacker['finalBlow'], attacker['securityStatus'], attacker['weaponTypeID'],
 		))
 	c.executemany('''
-		INSERT INTO characters (
+		INSERT INTO kill_characters (
 			kill_id, victim, character_id, character_name, ship_type_id,
 			alliance_id, alliance_name, corporation_id, corporation_name, faction_id, faction_name,
 			damage, final_blow, security_status, weapon_type_id

@@ -7,15 +7,15 @@ def search(q):
 	like_str = '{}%'.format(q)
 	with db.cursor() as c:
 		alliances = db.query(c, '''
-			SELECT DISTINCT alliance_id, alliance_name FROM characters
+			SELECT alliance_id, alliance_name FROM alliances
 			WHERE alliance_name LIKE ? LIMIT 25
 			''', like_str)
 		corps = db.query(c, '''
-			SELECT DISTINCT corporation_id, corporation_name FROM characters
+			SELECT corporation_id, corporation_name FROM corporations
 			WHERE corporation_name LIKE ? LIMIT 25
 			''', like_str)
 		chars = db.query(c, '''
-			SELECT DISTINCT character_id, character_name FROM characters
+			SELECT character_id, character_name FROM characters
 			WHERE character_name LIKE ? LIMIT 25
 			''', like_str)
 	return {'alliances': alliances, 'corporations': corps, 'characters': chars}
@@ -25,7 +25,7 @@ def kill_list(entity_type, entity_id):
 		# the combination of DISTINCT and and ORDER BY means we can't join kills or we get filesort
 		# get kill_ids from chars, then get kill data on those ids
 		kills = db.query(c, '''
-			SELECT DISTINCT kill_id FROM characters
+			SELECT DISTINCT kill_id FROM kill_characters
 			WHERE {}_id = ? ORDER BY kill_id DESC LIMIT 50
 			'''.format(entity_type), entity_id)
 		if len(kills) == 0:
@@ -47,7 +47,7 @@ def kill_list(entity_type, entity_id):
 				kill_id, victim, final_blow,
 				character_id, character_name, corporation_id, corporation_name, alliance_id, alliance_name, faction_id, faction_name,
 				ship_type_id, typeName AS ship_name
-			FROM characters
+			FROM kill_characters
 			JOIN eve.invTypes ON ship_type_id = typeID
 			WHERE kill_id IN ({})
 			'''.format(','.join(map(str, kill_ids))))
@@ -97,7 +97,7 @@ def kill(kill_id):
 				corporation_id, corporation_name, alliance_id, alliance_name, faction_id, faction_name,
 				ship_type_id, weapon_type_id,
 				ship.typeName AS ship_name, weapon.typeName AS weapon_name
-			FROM characters
+			FROM kill_characters
 			JOIN eve.invTypes AS ship ON ship_type_id = ship.typeID
 			LEFT JOIN eve.invTypes AS weapon ON weapon_type_id = weapon.typeID
 			WHERE kill_id = ?
@@ -235,7 +235,7 @@ def battle_report(kill_id):
 				kill_id, victim, final_blow,
 				character_id, character_name, corporation_id, corporation_name, alliance_id, alliance_name, faction_id, faction_name,
 				ship_type_id, typeName AS ship_name
-			FROM characters
+			FROM kill_characters
 			JOIN eve.invTypes ON ship_type_id = typeID
 			WHERE kill_id IN ({})
 			'''.format(','.join(map(str, kill_ids))))
@@ -320,7 +320,7 @@ def top_cost():
 				ship_type_id, typeName AS ship_name
 			FROM kills
 			JOIN kill_costs ON kill_costs.kill_id = kills.kill_id
-			JOIN characters ON characters.kill_id = kills.kill_id
+			JOIN kill_characters ON kill_characters.kill_id = kills.kill_id
 			JOIN eve.invTypes ON typeID = ship_type_id
 			WHERE victim = 1 AND kill_time >= ADDDATE(UTC_DATE(), INTERVAL -3 DAY)
 			ORDER BY cost DESC
@@ -353,7 +353,7 @@ def last(kill_id):
 				kills.kill_id, kill_costs.cost AS total_cost, item_costs.cost AS hull_cost, typeName AS ship_name
 			FROM kills
 			JOIN kill_costs ON kill_costs.kill_id = kills.kill_id
-			JOIN characters ON characters.kill_id = kills.kill_id
+			JOIN kill_characters ON kill_characters.kill_id = kills.kill_id
 			JOIN item_costs ON item_costs.type_id = ship_type_id
 			JOIN eve.invTypes ON typeID = ship_type_id
 			WHERE victim = 1

@@ -23,7 +23,7 @@ au79_cost = None
 def update_kill(kill_id):
 	with db.conn.cursor() as c:
 		c.execute('''
-			SELECT ship_type_id, cost FROM characters
+			SELECT ship_type_id, cost FROM kill_characters
 			LEFT JOIN item_costs ON ship_type_id = item_costs.type_id
 			WHERE kill_id = ? AND victim
 			''', (kill_id,))
@@ -73,7 +73,7 @@ def main():
 			c.execute('SELECT kill_id FROM kills')
 		else:
 			c.execute('''
-				SELECT kill_id FROM characters
+				SELECT kill_id FROM kill_characters
 				JOIN eve.invTypes ON typeID = ship_type_id
 				WHERE victim = 1 AND groupID = ?
 				''', (sys.argv[1],))
