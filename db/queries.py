@@ -106,7 +106,7 @@ def search(q):
 			''', like_str)
 	return {'alliances': alliances, 'corporations': corps, 'characters': chars}
 
-def kill_list(entity_type, entity_id):
+def kill_list(entity_type, entity_id, list_type):
 	with db.cursor() as c:
 		try:
 			sql = 'SELECT {}_name, killed, lost FROM {}s WHERE {}_id = ?'.format(entity_type, entity_type, entity_type)
@@ -115,10 +115,18 @@ def kill_list(entity_type, entity_id):
 			return None
 		# the combination of DISTINCT and and ORDER BY means we can't join kills or we get filesort
 		# get kill_ids from chars, then get kill data on those ids
-		kills = db.query(c, '''
+		if list_type == 'kills':
+			extra_cond = 'AND victim = 0'
+		elif list_type == 'losses':
+			extra_cond = 'AND victim = 1'
+		elif list_type is None:
+			extra_cond = ''
+		sql = '''
 			SELECT DISTINCT kill_id FROM kill_characters
-			WHERE {}_id = ? ORDER BY kill_id DESC LIMIT 50
-			'''.format(entity_type), entity_id)
+			WHERE {}_id = ? {}
+			ORDER BY kill_id DESC LIMIT 50
+			'''.format(entity_type, extra_cond)
+		kills = db.query(c, sql, entity_id)
 		kill_ids = list(map(operator.itemgetter('kill_id'), kills))
 		kills = db.query(c, '''
 			SELECT kills.kill_id, kill_time, cost,

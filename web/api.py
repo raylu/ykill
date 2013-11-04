@@ -30,12 +30,12 @@ class SearchHandler(APIBaseHandler):
 		self.respond_json(data)
 
 class KillListHandler(APIBaseHandler):
-	def get(self, entity_type, entity_id):
-		try:
-			entity_id = int(entity_id)
-		except ValueError:
-			raise tornado.web.HTTPError(404)
-		kills = db.queries.kill_list(entity_type, entity_id)
+	def get(self, entity_type, entity_id, list_type):
+		if list_type in ['/kills', '/losses']:
+			list_type = list_type[1:]
+		elif list_type is not None:
+			raise tornado.web.HTTPError(400)
+		kills = db.queries.kill_list(entity_type, entity_id, list_type)
 		if kills is None:
 			raise tornado.web.HTTPError(404)
 		self.respond_json(kills)
@@ -52,7 +52,7 @@ class BattleReportHandler(APIBaseHandler):
 		try:
 			kill_id = int(kill_id)
 		except ValueError:
-			raise tornado.web.HTTPError(404)
+			raise tornado.web.HTTPError(400)
 		kills = db.queries.battle_report(kill_id)
 		if kills is None:
 			raise tornado.web.HTTPError(404)
@@ -77,7 +77,7 @@ def start():
 	tornado.web.Application(
 		handlers=[
 			(r'/search', SearchHandler),
-			(r'/(alliance|corporation|character)/(.+)', KillListHandler),
+			(r'/(alliance|corporation|character)/(\d+)(/.*)?', KillListHandler),
 			(r'/kill/(.+)/battle_report', BattleReportHandler),
 			(r'/kill/(.+)', KillHandler),
 			(r'/top/cost', TopCostHandler),

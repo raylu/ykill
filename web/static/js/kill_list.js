@@ -1,19 +1,22 @@
 window.addEvent('domready', function() {
-	var split = document.location.pathname.split('/');
+	var path = document.location.pathname;
+	var split = path.split('/');
 	var entity_type = split[1];
 	var entity_id = split[2];
-	ykill.api(document.location.pathname, function(data) {
+	ykill.api(path, function(data) {
 		var entity_name = data['stats'][entity_type + '_name'];
 		document.title += ' - ' + entity_name;
-		$('entity_name').appendText(entity_name);
+		var base_path = '/' + entity_type + '/' + entity_id;
+		$('entity_name').grab(new Element('a', {'href': base_path, 'html': entity_name}));
+
 		var table = $('stats');
 		table.adopt(
 			new Element('tr').adopt(
-				new Element('td', {'html': 'killed:'}),
+				new Element('td', {'html': '<a href="' + base_path + '/kills' + '">killed</a>:'}),
 				new Element('td', {'html': ykill.format_billions(data['stats']['killed']) + ' billion'})
 			),
 			new Element('tr').adopt(
-				new Element('td', {'html': 'lost:'}),
+				new Element('td', {'html': '<a href="' + base_path + '/losses' + '">lost</a>:'}),
 				new Element('td', {'html': ykill.format_billions(data['stats']['lost']) + ' billion'})
 			)
 		);
@@ -49,7 +52,7 @@ window.addEvent('domready', function() {
 			tr.grab(td);
 
 			td = new Element('td');
-			td.appendText(victim['character_name']);
+			td.appendText(victim['character_name'] + ' (' + victim['ship_name'] + ')');
 			td.grab(new Element('br'));
 			td.appendText(victim['corporation_name']);
 			if (victim['alliance_id'])
