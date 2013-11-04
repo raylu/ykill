@@ -67,14 +67,14 @@ def insert_kill(c, kill):
 		victim_id = victim[entity_type + 'ID']
 		entity = entity_dict[victim_id]
 		entity['name'] = victim[entity_type + 'Name']
-		entity['lost'] += cost
+		entity['lost'] = cost
 		for attacker in kill['attackers']:
 			entity_id = attacker[entity_type + 'ID']
 			if entity_id != 0:
 				entity = entity_dict[entity_id]
 				entity['name'] = attacker[entity_type + 'Name']
 				if attacker[entity_type + 'ID'] != victim_id:
-					entity['killed'] += cost
+					entity['killed'] = cost
 
 		parambatch = []
 		for entity_id, info in entity_dict.items():

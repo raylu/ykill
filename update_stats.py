@@ -29,9 +29,9 @@ def update_for_kill(kill):
 					entity = entity_dict[entity_id]
 					entity['name'] = row[entity_type + '_name']
 					if row['victim']:
-						entity['lost'] += kill['cost']
+						entity['lost'] = kill['cost']
 					elif row[entity_type + '_id'] != victim:
-						entity['killed'] += kill['cost']
+						entity['killed'] = kill['cost']
 
 			parambatch = []
 			for entity_id, info in entity_dict.items():
