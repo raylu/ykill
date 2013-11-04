@@ -261,8 +261,9 @@ def kill(kill_id):
 		module_slots = ['high', 'medium', 'low']
 		fitting_items = set()
 		for slot in module_slots:
-			if slot in items: # otherwise, defaultdict creates lists for them
-				fitting_items.update(map(operator.itemgetter('type_id'), items[slot]))
+			if slot not in items:
+				continue # otherwise, defaultdict creates lists for them
+			fitting_items.update(map(operator.itemgetter('type_id'), items[slot]))
 		if len(fitting_items):
 			# 11: requires low, 12: requires high, 13: requires medium; :CCP:
 			modules = db.query(c, '''
@@ -271,6 +272,8 @@ def kill(kill_id):
 				'''.format(','.join(map(str, fitting_items))))
 			module_ids = set(map(operator.itemgetter('type_id'), modules))
 			for slot in module_slots:
+				if slot not in items:
+					continue
 				for item in items[slot]:
 					if item['type_id'] not in module_ids:
 						item['charge'] = True
