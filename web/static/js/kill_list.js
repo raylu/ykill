@@ -1,9 +1,10 @@
 window.addEvent('domready', function() {
 	var path = document.location.pathname;
+	var search = document.location.search;
 	var split = path.split('/');
 	var entity_type = split[1];
 	var entity_id = split[2];
-	ykill.api(path, function(data) {
+	ykill.api(path + search, function(data) {
 		var entity_name = data['stats'][entity_type + '_name'];
 		document.title += ' - ' + entity_name;
 		var base_path = '/' + entity_type + '/' + entity_id;
@@ -87,5 +88,11 @@ window.addEvent('domready', function() {
 
 			table.grab(tr);
 		});
+
+		var page = Number(search.substr(6) || 1);
+		var pages = $('pages');
+		pages.grab(new Element('a', {'html': 'next', 'href': path + '?page=' + (page + 1)}), 'top');
+		if (page > 1)
+			pages.grab(new Element('a', {'html': 'prev', 'href': path + '?page=' + (page - 1)}), 'top');
 	});
 });

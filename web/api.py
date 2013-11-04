@@ -35,7 +35,8 @@ class KillListHandler(APIBaseHandler):
 			list_type = list_type[1:]
 		elif list_type is not None:
 			raise tornado.web.HTTPError(400)
-		kills = db.queries.kill_list(entity_type, entity_id, list_type)
+		page = int(self.get_argument('page', 1))
+		kills = db.queries.kill_list(entity_type, entity_id, list_type, page)
 		if kills is None:
 			raise tornado.web.HTTPError(404)
 		self.respond_json(kills)

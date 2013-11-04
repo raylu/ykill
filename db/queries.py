@@ -106,7 +106,7 @@ def search(q):
 			''', like_str)
 	return {'alliances': alliances, 'corporations': corps, 'characters': chars}
 
-def kill_list(entity_type, entity_id, list_type):
+def kill_list(entity_type, entity_id, list_type, page):
 	with db.cursor() as c:
 		try:
 			sql = 'SELECT {}_name, killed, lost FROM {}s WHERE {}_id = ?'.format(entity_type, entity_type, entity_type)
@@ -121,12 +121,15 @@ def kill_list(entity_type, entity_id, list_type):
 			extra_cond = 'AND victim = 1'
 		elif list_type is None:
 			extra_cond = ''
+		page_size = 50
 		sql = '''
 			SELECT DISTINCT kill_id FROM kill_characters
 			WHERE {}_id = ? {}
-			ORDER BY kill_id DESC LIMIT 50
+			ORDER BY kill_id DESC LIMIT ? OFFSET ?
 			'''.format(entity_type, extra_cond)
-		kills = db.query(c, sql, entity_id)
+		kills = db.query(c, sql, entity_id, page_size, (page - 1) * page_size)
+		if len(kills) == 0:
+			return None
 		kill_ids = list(map(operator.itemgetter('kill_id'), kills))
 		kills = db.query(c, '''
 			SELECT kills.kill_id, kill_time, cost,

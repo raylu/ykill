@@ -49,3 +49,11 @@ table#kills:
 
 	.loss:
 		color: #a44
+
+div#pages:
+	margin: 15px 0 0
+	padding: 10px
+	background-color: #222
+
+	a:last-of-type:
+		float: right
