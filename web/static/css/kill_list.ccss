@@ -5,7 +5,7 @@ h2#entity_name:
 	line-height: 60px
 	margin: 0 0 10px
 	text-align: center
-	background-color: #222
+	background-color: rgba(34, 34, 34, 0.75)
 
 table#stats:
 	float: right
@@ -53,7 +53,7 @@ table#kills:
 div#pages:
 	margin: 15px 0 0
 	padding: 10px
-	background-color: #222
+	background-color: rgba(34, 34, 34, 0.75)
 
 	a:last-of-type:
 		float: right

@@ -7,7 +7,7 @@ body:
 	margin: 0
 	padding: 0
 	height: 100%
-	background: #000
+	background: url(/static/img/bg.jpg) center fixed #000
 	color: #ddd
 	font-family: Metrophobic, sans-serif
 	font-size: 12pt
@@ -17,7 +17,7 @@ a:
 	color: #38c
 
 form input:
-	background: #111
+	background-color: #111
 	border: 1px solid #444
 	padding: 3px 10px
 	color: #ccc
@@ -48,10 +48,11 @@ table:
 #topbar:
 	width: 900px
 	margin: 50px auto 2px
+	background-color: rgba(17, 17, 17, 0.9)
 
 	h1:
 		display: inline-block
-		margin: 0 40px 0 10px
+		margin: 0 40px 5px 8px
 
 	#nav:
 		display: inline-block
@@ -65,6 +66,7 @@ table:
 	form:
 		display: inline-block
 		float: right
+		margin: 8px
 
 		input[type="search"]:
 			margin-right: 5px
@@ -72,7 +74,7 @@ table:
 #wrapper:
 	width: 900px
 	margin: 0 auto 50px
-	background: #111
+	background-color: rgba(17, 17, 17, 0.9)
 
 footer:
 	width: 900px

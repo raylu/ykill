@@ -3,7 +3,7 @@
 	padding: 4px
 	text-align: center
 	font-size: 16pt
-	background-color: #222
+	background-color: rgba(34, 34, 34, 0.75)
 
 .column:
 	display: inline-block
@@ -18,7 +18,7 @@ table.summary:
 	background-color: #181818
 
 	caption:
-		background-color: #222
+		background-color: rgba(34, 34, 34, 0.75)
 
 	td:nth-child(1):
 		width: 50%

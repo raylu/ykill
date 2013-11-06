@@ -85,7 +85,7 @@ table#items:
 		width: 117px
 
 	.slot:
-		background-color: #222
+		background-color: rgba(34, 34, 34, 0.75)
 		padding: 2px 8px
 
 	tr:nth-child(even):
@@ -142,7 +142,7 @@ table#attackers:
 		&.attacker_type:
 			height: auto
 			line-height: normal
-			background-color: #222
+			background-color: rgba(34, 34, 34, 0.75)
 			padding: 2px 8px
 
 	tr:nth-child(even):
