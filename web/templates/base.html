@@ -5,6 +5,7 @@
 	<link rel="stylesheet" type="text/css" href="/css/base.css">
 	<link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Metrophobic">
 	{% block css %}{% end %}
+	<link rel="stylesheet" type="text/css" href="/static/css/clippy.css">
 	<script src="//ajax.googleapis.com/ajax/libs/mootools/1.4.5/mootools.js"></script>
 	<script>
 		window.ykill = {
@@ -30,5 +31,13 @@
 	<footer>
 		in the game of moons, you can't win, but you also can't die
 	</footer>
+	<script src="//code.jquery.com/jquery-1.7.js"></script>
+	<script src="/static/js/clippy.js"></script>
+	<script>
+		clippy.load('Clippy', function(agent) {
+			agent.show();
+		});
+		jQuery.noConflict();
+	</script>
 </body>
 </html>
