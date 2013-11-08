@@ -448,22 +448,19 @@ def top_cost():
 
 def last(kill_id):
 	with db.cursor() as c:
-		sql = '''
-			SELECT
-				kills.kill_id, kill_costs.cost AS total_cost, item_costs.cost AS hull_cost, typeName AS ship_name
-			FROM kills
-			JOIN kill_costs ON kill_costs.kill_id = kills.kill_id
-			JOIN kill_characters ON kill_characters.kill_id = kills.kill_id
-			JOIN item_costs ON item_costs.type_id = ship_type_id
-			JOIN eve.invTypes ON typeID = ship_type_id
-			WHERE victim = 1
-			'''
-		if kill_id is not None:
-			sql += 'AND kills.kill_id > ?'
-			kills = db.query(c, sql, kill_id)
+		if kill_id is None:
+			kills = db.get(c, 'SELECT kills.kill_id FROM kills ORDER BY kills.kill_id DESC LIMIT 1')
 		else:
-			sql += 'ORDER BY kills.kill_id DESC LIMIT 1'
-			kills = db.query(c, sql)
+			kills = db.query(c, '''
+				SELECT
+					kills.kill_id, kill_costs.cost AS total_cost, item_costs.cost AS hull_cost, typeName AS ship_name
+				FROM kills
+				JOIN kill_costs ON kill_costs.kill_id = kills.kill_id
+				JOIN kill_characters ON kill_characters.kill_id = kills.kill_id
+				JOIN item_costs ON item_costs.type_id = ship_type_id
+				JOIN eve.invTypes ON typeID = ship_type_id
+				WHERE victim = 1 AND kills.kill_id > ?
+			''', kill_id)
 	return kills
 
 def _format_kill_time(kill_time):
