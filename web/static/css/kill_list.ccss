@@ -4,8 +4,12 @@ h2#entity_name:
 	height: 60px
 	line-height: 60px
 	margin: 0 0 10px
+	padding: 0 10px
 	text-align: center
 	background-color: #222
+	white-space: nowrap
+	overflow: hidden
+	text-overflow: ellipsis
 
 table#stats:
 	float: right
