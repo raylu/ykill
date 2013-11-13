@@ -24,6 +24,8 @@ window.addEvent('domready', function() {
 			);
 		}
 
+		if (entity_type == 'ship')
+			entity_type = 'ship_type';
 		table = $('kills').getChildren('tbody')[0];
 		data['kills'].each(function(kill) {
 			var tr = new Element('tr');

@@ -109,17 +109,25 @@ def search(q):
 			FROM eve.mapSolarSystems
 			WHERE solarSystemName LIKE ? LIMIT 5
 			''', like_str)
+		ships = db.query(c, '''
+			SELECT typeID AS ship_id, typeName AS ship_name FROM eve.invTypes
+			JOIN eve.invGroups ON invTypes.groupID = invGroups.groupID
+			WHERE typeName LIKE ? AND invGroups.categoryID = 6 LIMIT 5
+			''', like_str) # 6 == ship
 	return {
 		'alliances': alliances,
 		'corporations': corps,
 		'characters': chars,
 		'systems': systems,
+		'ships': ships,
 	}
 
 def kill_list(entity_type, entity_id, list_type, page):
 	with db.cursor() as c:
 		if entity_type == 'system':
 			sql = 'SELECT solarSystemName AS system_name FROM eve.mapSolarSystems WHERE solarSystemID = ?'
+		elif entity_type == 'ship':
+			sql = 'SELECT typeName AS ship_name FROM eve.invTypes WHERE typeID = ?'
 		else:
 			sql = 'SELECT {}_name, killed, lost FROM {}s WHERE {}_id = ?'.format(entity_type, entity_type, entity_type)
 		try:
@@ -138,6 +146,8 @@ def kill_list(entity_type, entity_id, list_type, page):
 		if entity_type == 'system':
 			sql = 'SELECT kill_id FROM kills WHERE solar_system_id = ? ORDER BY kill_id DESC LIMIT ? OFFSET ?'
 		else:
+			if entity_type == 'ship':
+				entity_type = 'ship_type'
 			sql = '''
 				SELECT DISTINCT kill_id FROM kill_characters
 				WHERE {}_id = ? {}
