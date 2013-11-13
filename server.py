@@ -56,7 +56,7 @@ if __name__ == '__main__':
 		handlers=[
 			(r'/', MainHandler),
 			(r'/search', SearchHandler),
-			(r'/(alliance|corporation|character)/.+', KillListHandler),
+			(r'/(alliance|corporation|character|system)/.+', KillListHandler),
 			(r'/kill/.+/battle_report', BattleReportHandler),
 			(r'/kill/.+', KillHandler),
 			(r'/(css/.+)\.css', CSSHandler),

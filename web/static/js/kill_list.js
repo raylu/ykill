@@ -10,17 +10,19 @@ window.addEvent('domready', function() {
 		var base_path = '/' + entity_type + '/' + entity_id;
 		$('entity_name').grab(new Element('a', {'href': base_path, 'html': entity_name}));
 
-		var table = $('stats');
-		table.adopt(
-			new Element('tr').adopt(
-				new Element('td', {'html': '<a href="' + base_path + '/kills' + '">killed</a>:'}),
-				new Element('td', {'html': ykill.format_billions(data['stats']['killed']) + ' billion'})
-			),
-			new Element('tr').adopt(
-				new Element('td', {'html': '<a href="' + base_path + '/losses' + '">lost</a>:'}),
-				new Element('td', {'html': ykill.format_billions(data['stats']['lost']) + ' billion'})
-			)
-		);
+		if ('killed' in data['stats']) {
+			var table = $('stats');
+			table.adopt(
+				new Element('tr').adopt(
+					new Element('td', {'html': '<a href="' + base_path + '/kills' + '">killed</a>:'}),
+					new Element('td', {'html': ykill.format_billions(data['stats']['killed']) + ' billion'})
+				),
+				new Element('tr').adopt(
+					new Element('td', {'html': '<a href="' + base_path + '/losses' + '">lost</a>:'}),
+					new Element('td', {'html': ykill.format_billions(data['stats']['lost']) + ' billion'})
+				)
+			);
+		}
 
 		table = $('kills').getChildren('tbody')[0];
 		data['kills'].each(function(kill) {

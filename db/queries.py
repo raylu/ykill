@@ -104,12 +104,25 @@ def search(q):
 			SELECT character_id, character_name FROM characters
 			WHERE character_name LIKE ? LIMIT 25
 			''', like_str)
-	return {'alliances': alliances, 'corporations': corps, 'characters': chars}
+		systems = db.query(c, '''
+			SELECT solarSystemID AS system_id, solarSystemName AS system_name
+			FROM eve.mapSolarSystems
+			WHERE solarSystemName LIKE ? LIMIT 5
+			''', like_str)
+	return {
+		'alliances': alliances,
+		'corporations': corps,
+		'characters': chars,
+		'systems': systems,
+	}
 
 def kill_list(entity_type, entity_id, list_type, page):
 	with db.cursor() as c:
-		try:
+		if entity_type == 'system':
+			sql = 'SELECT solarSystemName AS system_name FROM eve.mapSolarSystems WHERE solarSystemID = ?'
+		else:
 			sql = 'SELECT {}_name, killed, lost FROM {}s WHERE {}_id = ?'.format(entity_type, entity_type, entity_type)
+		try:
 			stats = db.get(c, sql, entity_id)
 		except db.NoRowsException:
 			return None
@@ -122,11 +135,14 @@ def kill_list(entity_type, entity_id, list_type, page):
 		elif list_type is None:
 			extra_cond = ''
 		page_size = 50
-		sql = '''
-			SELECT DISTINCT kill_id FROM kill_characters
-			WHERE {}_id = ? {}
-			ORDER BY kill_id DESC LIMIT ? OFFSET ?
-			'''.format(entity_type, extra_cond)
+		if entity_type == 'system':
+			sql = 'SELECT kill_id FROM kills WHERE solar_system_id = ? ORDER BY kill_id DESC LIMIT ? OFFSET ?'
+		else:
+			sql = '''
+				SELECT DISTINCT kill_id FROM kill_characters
+				WHERE {}_id = ? {}
+				ORDER BY kill_id DESC LIMIT ? OFFSET ?
+				'''.format(entity_type, extra_cond)
 		kills = db.query(c, sql, entity_id, page_size, (page - 1) * page_size)
 		if len(kills) == 0:
 			return None
