@@ -31,6 +31,10 @@ class SearchHandler(APIBaseHandler):
 
 class KillListHandler(APIBaseHandler):
 	def get(self, entity_type, entity_id, list_type):
+		try:
+			entity_id = int(entity_id)
+		except ValueError:
+			raise tornado.web.HTTPError(400)
 		if list_type in ['/kills', '/losses']:
 			list_type = list_type[1:]
 		elif list_type is not None:

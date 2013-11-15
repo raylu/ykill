@@ -177,25 +177,32 @@ def kill_list(entity_type, entity_id, list_type, page):
 			JOIN eve.invTypes ON ship_type_id = typeID
 			WHERE kill_id IN ({})
 			'''.format(','.join(map(str, kill_ids))))
-		characters = defaultdict(dict)
-		for kill_id in kill_ids:
-			characters[kill_id]['attackers'] = 1 # count final_blow now
-		for char in char_rows:
-			kill_id = char['kill_id']
-			if char['victim']:
-				characters[kill_id]['victim'] = char
-			elif char['final_blow']:
-				characters[kill_id]['final_blow'] = char
+	characters = defaultdict(dict)
+	for kill_id in kill_ids:
+		characters[kill_id]['attackers'] = 1 # count final_blow now
+	for char in char_rows:
+		kill_id = char['kill_id']
+		if char['victim']:
+			characters[kill_id]['victim'] = char
+		elif char['final_blow']:
+			characters[kill_id]['final_blow'] = char
+		else:
+			characters[kill_id]['attackers'] += 1
+	if entity_type == 'ship_type':
+		stats['killed'] = stats['lost'] = 0
+	kills.sort(key=operator.itemgetter('kill_id'), reverse=True)
+	for kill in kills:
+		kill['kill_time'] = _format_kill_time(kill['kill_time'])
+		kill['security_status'] = _security_status(kill['security'], kill['wh_class'])
+		chars = characters[kill['kill_id']]
+		kill['victim'] = chars['victim']
+		kill['final_blow'] = chars['final_blow']
+		kill['attackers'] = chars['attackers']
+		if entity_type == 'ship_type':
+			if chars['victim']['ship_type_id'] == entity_id:
+				stats['lost'] += kill['cost']
 			else:
-				characters[kill_id]['attackers'] += 1
-		kills.sort(key=operator.itemgetter('kill_id'), reverse=True)
-		for kill in kills:
-			kill['kill_time'] = _format_kill_time(kill['kill_time'])
-			kill['security_status'] = _security_status(kill['security'], kill['wh_class'])
-			chars = characters[kill['kill_id']]
-			kill['victim'] = chars['victim']
-			kill['final_blow'] = chars['final_blow']
-			kill['attackers'] = chars['attackers']
+				stats['killed'] += kill['cost']
 	return {'stats': stats, 'kills': kills}
 
 def kill(kill_id):
