@@ -39,6 +39,7 @@ CREATE TABLE `kill_characters` (
 	INDEX `character_id_kill_id` (`character_id`, `kill_id`),
 	INDEX `alliance_id_kill_id` (`alliance_id`, `kill_id`),
 	INDEX `corporation_id_kill_id` (`corporation_id`, `kill_id`),
+	INDEX `ship_type_id_victim_kill_id` (`ship_type_id`, `victim`, `kill_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE TABLE `items` (
