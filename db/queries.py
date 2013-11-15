@@ -358,7 +358,7 @@ def battle_report(kill_id):
 		kill_ids = list(map(operator.itemgetter('kill_id'), kill_rows))
 		char_rows = db.query(c, '''
 			SELECT
-				kill_id, victim, final_blow,
+				kill_id, victim, final_blow, damage,
 				character_id, character_name, corporation_id, corporation_name, alliance_id, alliance_name, faction_id, faction_name,
 				ship_type_id, typeName AS ship_name
 			FROM kill_characters
@@ -381,6 +381,7 @@ def battle_report(kill_id):
 		elif char['victim'] and char['ship_type_id'] in [670, 33328]:
 			canonical_char['pod'] = char['kill_id']
 		char['faction'] = None
+		char['damage_dealt'] = 0
 	kills = {}
 	for kill in kill_rows:
 		kills[kill['kill_id']] = {'victim': None, 'attackers': [], 'cost': kill['cost']}
@@ -393,6 +394,7 @@ def battle_report(kill_id):
 			canonical_char['cost'] = canonical_char.get('cost', 0) + kill['cost']
 		else:
 			kill['attackers'].append(canonical_char)
+			canonical_char['damage_dealt'] += char['damage']
 
 	# let's sort this mess out
 	kills[kill_id]['victim']['faction'] = 0
@@ -433,7 +435,10 @@ def battle_report(kill_id):
 		del char['kill_id']
 		del char['final_blow']
 		del char['victim']
+		del char['damage']
 		factions[char['faction']].append(char)
+	for faction in factions:
+		faction.sort(key=operator.itemgetter('damage_dealt'), reverse=True)
 
 	meta['kill_time'] = _format_kill_time(meta['kill_time'])
 	meta['security_status'] = _security_status(meta['security'], meta['wh_class'])

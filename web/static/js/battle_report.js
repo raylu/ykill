@@ -48,7 +48,7 @@ window.addEvent('domready', function() {
 				tr.grab(td);
 
 				td = new Element('td');
-				td.appendText(char['character_name']);
+				td.appendText(char['character_name'] + ' (' + char['ship_name'] + ')');
 				if (char['pod']) {
 					td.appendText(' ');
 					td.adopt(new Element('a', {'href': '/kill/' + char['pod'], 'html': '[pod]'}));
