@@ -53,6 +53,9 @@ table:
 		display: inline-block
 		margin: 0 40px 0 10px
 
+		a:
+			color: #ddd
+
 	#nav:
 		display: inline-block
 
