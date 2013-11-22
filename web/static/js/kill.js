@@ -177,9 +177,12 @@ window.addEvent('domready', function() {
 		tr.grab(td);
 
 		td = new Element('td');
-		td.grab(new Element('a', {
-			'html': char['character_name'], 'href': '/character/' + char['character_id']
-		}));
+		if (char['character_id'] == 0)
+			td.appendText(char['character_name'] || char['ship_name']);
+		else
+			td.grab(new Element('a', {
+				'html': char['character_name'], 'href': '/character/' + char['character_id']
+			}));
 
 		td.grab(new Element('br'));
 		td.grab(new Element('a', {

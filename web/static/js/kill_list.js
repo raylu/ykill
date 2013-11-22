@@ -75,7 +75,8 @@ window.addEvent('domready', function() {
 			tr.grab(td);
 
 			td = new Element('td');
-			td.appendText(final_blow['character_name'] + ' (' + kill['attackers'] + ')');
+			var attacker_name = final_blow['character_name'] || final_blow['ship_name'];
+			td.appendText(attacker_name + ' (' + kill['attackers'] + ')');
 			td.grab(new Element('br'));
 			td.appendText(final_blow['corporation_name']);
 			if (final_blow['alliance_id'])
