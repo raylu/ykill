@@ -453,6 +453,7 @@ def battle_report(kill_id):
 
 def top_cost():
 	with db.cursor() as c:
+		last_kill = db.get(c, 'SELECT MAX(kill_id) AS kill_id FROM kills')
 		kills = db.query(c, '''
 			SELECT kills.kill_id, cost, solar_system_id, kill_time,
 				ship_type_id, typeName AS ship_name
@@ -460,10 +461,10 @@ def top_cost():
 			JOIN kill_costs ON kill_costs.kill_id = kills.kill_id
 			JOIN kill_characters ON kill_characters.kill_id = kills.kill_id
 			JOIN eve.invTypes ON typeID = ship_type_id
-			WHERE victim = 1 AND kill_time >= ADDDATE(UTC_DATE(), INTERVAL -3 DAY)
+			WHERE victim = 1 AND kills.kill_id > ?
 			ORDER BY cost DESC
 			LIMIT 25
-			''')
+			''', last_kill['kill_id'] - 2500)
 		# joining eve.mapSolarSystems on the initial query causes filesort on large dbs for some reason
 		# do a manual join
 		system_ids = set(map(operator.itemgetter('solar_system_id'), kills))
