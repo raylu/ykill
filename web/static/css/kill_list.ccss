@@ -26,30 +26,47 @@ table#stats:
 		&:last-child:
 			width: 375px
 
-table#kills:
-	table-layout: fixed
+#kills:
 	width: 100%
 
-	tr:nth-child(odd):
-		background-color: #1a1a1a
+	.row:
+		&.header:
+			text-align: center
+			font-weight: bold
+			line-height: 22px
+			height: 22px
+		&:nth-child(odd):
+			background-color: #1a1a1a
 
-	th.time:
-		width: 90px
-	th.system:
-		width: 116px
-	th.victim_portrait:
-		width: 66px
-	th.victim:
-		width: 350px
-	th.killer_portrait:
-		width: 66px
-	th.killer:
-		width: 342px
-	th.value:
-		width: 70px
+		div:
+			display: inline-block
+			white-space: nowrap
+			overflow: hidden
+			text-overflow: ellipsis
 
-	td:nth-child(7):
-		text-align: right
+			&:nth-child(1):
+				width: 90px
+				padding-left: 8px
+			&:nth-child(2):
+				width: 116px
+			&:nth-child(3):
+				width: 66px
+			&:nth-child(4):
+				width: 350px
+			&:nth-child(5):
+				width: 66px
+			&:nth-child(6):
+				width: 340px
+			&:nth-child(7):
+				width: 72px
+				padding-right: 8px
+				text-align: right
+	a.row:
+		display: block
+		color: inherit
+		line-height: 1.2
+		&:hover:
+			background-color: #282828
 
 	.loss:
 		color: #a44

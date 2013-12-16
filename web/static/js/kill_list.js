@@ -26,72 +26,71 @@ window.addEvent('domready', function() {
 
 		if (entity_type == 'ship')
 			entity_type = 'ship_type';
-		table = $('kills').getChildren('tbody')[0];
+		var kills = $('kills');
 		data['kills'].each(function(kill) {
-			var tr = new Element('tr');
+			var row = new Element('a', {'href': '/kill/' + kill['kill_id'], 'class': 'row'});
 
 			var kill_time = kill['kill_time'].split(' ', 2);
-			var a = new Element('a', {'href': '/kill/' + kill['kill_id']});
-			a.appendText(kill_time[0]);
-			a.grab(new Element('br'));
-			a.appendText(kill_time[1]);
-			var td = new Element('td').grab(a);
-			tr.grab(td);
+			var div = new Element('div');
+			div.appendText(kill_time[0]);
+			div.grab(new Element('br'));
+			div.appendText(kill_time[1]);
+			row.grab(div);
 
-			td = new Element('td', {'html': ykill.format_system(kill, false)});
-			td.grab(new Element('br'));
+			div = new Element('div', {'html': ykill.format_system(kill, false)});
+			div.grab(new Element('br'));
 			if (kill['wh_class']) {
-				td.appendText('static ' + kill['static1']);
+				div.appendText('static ' + kill['static1']);
 				if (kill['static2'])
-					td.appendText('/' + kill['static2']);
+					div.appendText('/' + kill['static2']);
 			} else
-				td.appendText(kill['region']);
-			tr.grab(td);
+				div.appendText(kill['region']);
+			row.grab(div);
 
-			td = new Element('td');
+			div = new Element('div');
 			var victim = kill['victim'];
-			td.adopt(
+			div.adopt(
 				ykill.portrait(victim['ship_type_id'], victim['ship_name'], 'Type', 32),
 				ykill.portrait(victim['character_id'], victim['character_name'], 'Character', 32)
 			);
-			tr.grab(td);
+			row.grab(div);
 
-			td = new Element('td');
-			td.appendText(victim['character_name'] + ' (' + victim['ship_name'] + ')');
-			td.grab(new Element('br'));
-			td.appendText(victim['corporation_name']);
+			div = new Element('div');
+			div.appendText(victim['character_name'] + ' (' + victim['ship_name'] + ')');
+			div.grab(new Element('br'));
+			div.appendText(victim['corporation_name']);
 			if (victim['alliance_id'])
-				td.appendText(' / ' + victim['alliance_name']);
+				div.appendText(' / ' + victim['alliance_name']);
 			if (victim['faction_id'])
-				td.appendText(' / ' + victim['faction_name']);
-			tr.grab(td);
+				div.appendText(' / ' + victim['faction_name']);
+			row.grab(div);
 
-			td = new Element('td');
+			div = new Element('div');
 			var final_blow = kill['final_blow'];
-			td.adopt(
+			div.adopt(
 				ykill.portrait(final_blow['ship_type_id'], final_blow['ship_name'], 'Type', 32),
 				ykill.portrait(final_blow['character_id'], final_blow['character_name'], 'Character', 32)
 			);
-			tr.grab(td);
+			row.grab(div);
 
-			td = new Element('td');
+			div = new Element('div');
 			var attacker_name = final_blow['character_name'] || final_blow['ship_name'];
-			td.appendText(attacker_name + ' (' + kill['attackers'] + ')');
-			td.grab(new Element('br'));
-			td.appendText(final_blow['corporation_name']);
+			div.appendText(attacker_name + ' (' + kill['attackers'] + ')');
+			div.grab(new Element('br'));
+			div.appendText(final_blow['corporation_name']);
 			if (final_blow['alliance_id'])
-				td.appendText(' / ' + final_blow['alliance_name']);
+				div.appendText(' / ' + final_blow['alliance_name']);
 			if (final_blow['faction_id'])
-				td.appendText(' / ' + final_blow['faction_name']);
-			tr.grab(td);
+				div.appendText(' / ' + final_blow['faction_name']);
+			row.grab(div);
 
-			td = new Element('td');
-			td.appendText(ykill.format_millions(kill['cost']));
+			div = new Element('div');
+			div.appendText(ykill.format_millions(kill['cost']));
 			if (victim[entity_type + '_id'] == entity_id)
-				td.addClass('loss');
-			tr.grab(td);
+				div.addClass('loss');
+			row.grab(div);
 
-			table.grab(tr);
+			kills.grab(row);
 		});
 
 		var page = Number(search.substr(6) || 1);
