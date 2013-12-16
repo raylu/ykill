@@ -259,6 +259,7 @@ def kill(kill_id):
 			ORDER BY (cost * (dropped + destroyed) / (singleton * 499.5 + 1)) DESC
 			''', kill_id)
 		items = defaultdict(list)
+		dropped = 0
 		for item in item_rows:
 			flag = item['flag']
 			if 125 <= flag <= 132:
@@ -290,6 +291,9 @@ def kill(kill_id):
 			else:
 				slot = '???'
 			items[slot].append(item)
+
+			dropped += item['cost'] * item['dropped'] / (item['singleton'] * 499.5 + 1)
+		kill['dropped'] = dropped
 
 		module_slots = ['high', 'medium', 'low']
 		fitting_items = set()

@@ -48,10 +48,14 @@ window.addEvent('domready', function() {
 				),
 				new Element('td', {'html': victim['faction_name']})
 			));
-		table.grab(
+		table.adopt(
 			new Element('tr').adopt(
-				new Element('td', {'html': 'cost'}),
+				new Element('td', {'html': 'total'}),
 				new Element('td', {'html': ykill.format_isk(kill['cost'])})
+			),
+			new Element('tr').adopt(
+				new Element('td', {'html': 'dropped'}),
+				new Element('td', {'html': ykill.format_isk(kill['dropped'])})
 			)
 		);
 
