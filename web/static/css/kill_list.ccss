@@ -1,6 +1,6 @@
 h2#entity_name:
 	float: left
-	width: 445px
+	width: 545px
 	height: 60px
 	line-height: 60px
 	margin: 0 0 10px
@@ -13,7 +13,7 @@ h2#entity_name:
 
 table#stats:
 	float: right
-	width: 445px
+	width: 545px
 	height: 60px
 
 	td:
@@ -28,7 +28,7 @@ table#stats:
 
 table#kills:
 	table-layout: fixed
-	width: 900px
+	width: 100%
 
 	tr:nth-child(odd):
 		background-color: #1a1a1a
@@ -36,17 +36,17 @@ table#kills:
 	th.time:
 		width: 90px
 	th.system:
-		width: 120px
+		width: 116px
 	th.victim_portrait:
 		width: 66px
 	th.victim:
-		width: 248px
+		width: 350px
 	th.killer_portrait:
 		width: 66px
 	th.killer:
-		width: 248px
+		width: 342px
 	th.value:
-		width: 62px
+		width: 70px
 
 	td:nth-child(7):
 		text-align: right

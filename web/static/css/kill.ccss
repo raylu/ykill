@@ -1,11 +1,11 @@
 .column1:
 	display: inline-block
-	width: 500px
+	width: 650px
 	margin: 20px 0 20px 20px
 	vertical-align: top
 .column2:
 	display: inline-block
-	width: 336px
+	width: 386px
 	margin: 20px 20px 20px 24px
 	vertical-align: top
 
@@ -61,7 +61,7 @@ table#victim:
 		width: 65px
 		line-height: 0
 	td:nth-child(2):
-		width: 271px
+		width: 321px
 		padding-left: 8px
 
 a#battle_report:
@@ -78,11 +78,11 @@ table#items:
 	th:nth-child(1):
 		width: 33px
 	th:nth-child(2):
-		width: 285px
+		width: 424px
 	th:nth-child(3):
-		width: 65px
+		width: 77px
 	th:nth-child(4):
-		width: 117px
+		width: 116px
 
 	.slot:
 		background-color: #222
@@ -115,11 +115,11 @@ table#attackers:
 		&:nth-child(1):
 			width: 33px
 		&:nth-child(2):
-			width: 200px
+			width: 220px
 		&:nth-child(3):
 			width: 33px
 		&:nth-child(4):
-			width: 70px
+			width: 100px
 
 	td:
 		height: 66px

@@ -7,7 +7,7 @@
 
 .column:
 	display: inline-block
-	width: 440px
+	width: 540px
 	vertical-align: top
 	&:nth-of-type(2):
 		margin-left: 20px
@@ -40,9 +40,9 @@ table.faction:
 			&:hover .tooltip:
 				display: block
 	td:nth-child(2):
-		max-width: 220px
+		max-width: 310px
 	td:nth-child(3):
-		width: 90px
+		width: 100px
 		text-align: right
 		padding-right: 8px
 
