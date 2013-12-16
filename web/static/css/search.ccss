@@ -3,3 +3,8 @@
 
 h2:
 	margin: 1em 0 0.4em
+
+.no_results:
+	margin: 1em 0 0.4em
+	text-align: center
+	font-size: 14pt

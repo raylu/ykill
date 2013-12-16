@@ -22,5 +22,7 @@ window.addEvent('domready', function() {
 			});
 			wrapper.grab(div);
 		});
+		if (!wrapper.getElements('div').length)
+			wrapper.grab(new Element('div').addClass('no_results').appendText('no search results'));
 	});
 });
