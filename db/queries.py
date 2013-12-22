@@ -5,6 +5,7 @@ import operator
 import oursql
 
 import db
+from dogma import Dogma
 
 def insert_kill(c, kill):
 	try:
@@ -335,6 +336,26 @@ def kill(kill_id):
 			for modifier in modifier_rows:
 				slot = slot_mapping[modifier['attributeID']]
 				slots[slot] += int(modifier['valueFloat']) # strangely, an improvement
+
+		dgm = Dogma()
+		dgm.set_ship(victim['ship_type_id'])
+		dogma = {'hp': {}, 'resists': {}, 'ehp': 0.0}
+		for slot in ['subsystem', 'medium', 'low', 'rig']:
+			if slot not in items:
+				continue
+			for item in items[slot]:
+				dgm.add_module(item['type_id'])
+		for hp_type, attr in dgm.hp_types.items():
+			dogma['hp'][hp_type] = dgm.get_attribute(attr)
+			resists = {}
+			average_res = 0.0
+			for resist_type, attr in dgm.resists[hp_type].items():
+				res = dgm.get_attribute(attr)
+				average_res += res
+				resists[resist_type] = 1 - res
+			average_res /= len(dgm.resists[hp_type])
+			dogma['ehp'] += dogma['hp'][hp_type] / average_res
+			dogma['resists'][hp_type] = resists
 	return {
 		'kill': kill,
 		'victim': victim,
@@ -342,6 +363,7 @@ def kill(kill_id):
 		'attackers': attackers,
 		'items': items,
 		'slots': slots,
+		'dogma': dogma,
 	}
 
 def battle_report(kill_id):

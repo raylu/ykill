@@ -13,7 +13,7 @@ body:
 	font-size: 12pt
 
 img:
-	-moz-force-broken-image-icon: 1; // http://gavtaylor.co.uk/blog/enable-broken-image-placeholders-in-firefox
+	-moz-force-broken-image-icon: 1 // http://gavtaylor.co.uk/blog/enable-broken-image-placeholders-in-firefox
 
 a:
 	text-decoration: none

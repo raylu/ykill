@@ -56,6 +56,19 @@
 		</div>
 	</div>
 
+	<div id="dogma">
+		<div id="ehp"></div>
+		{% for hp_type in ['shield', 'armor'] %}
+			<div id="{{ hp_type }}" class="hp_type">
+				<img src="/static/img/{{ hp_type }}.png" alt="{{ hp_type }}">
+				<div id="{{ hp_type }}_hp" class="hp"></div>
+				{% for resist in ['em', 'thermal', 'kinetic', 'explosive'] %}
+					<div id="{{ hp_type }}_{{ resist }}" class="resist"></div>
+				{% end %}
+			</div>
+		{% end %}
+	</div>
+
 	<table id="items">
 		<thead><tr>
 			<th></th>

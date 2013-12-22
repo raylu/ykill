@@ -83,6 +83,26 @@ window.addEvent('domready', function() {
 			});
 		});
 
+		var dogma = data['dogma'];
+		$('ehp').appendText('EHP: ' + ykill.format_number(dogma['ehp']));
+		var resist_colors = {
+			'em':        '#013',
+			'thermal':   '#300',
+			'kinetic':   '#333',
+			'explosive': '#320',
+		};
+		['shield', 'armor'].each(function(hp_type) {
+			$(hp_type + '_hp').appendText(ykill.format_number(dogma['hp'][hp_type]));
+			Object.each(dogma['resists'][hp_type], function(resist, resist_type) {
+				var resist_text = (resist * 100).toFixed(1);
+				div = $(hp_type + '_' + resist_type)
+				div.appendText(resist_text);
+				var bar_px = div.getSize().x * resist;
+				var color = resist_colors[resist_type];
+				div.setStyle('box-shadow', 'inset ' + bar_px + 'px 0 ' + color);
+			});
+		});
+
 		var attackers = $('attackers');
 		attackers.grab(new Element('tr').grab(
 			new Element('td', {'class': 'attacker_type', 'colspan': 4, 'html': 'final blow'})
@@ -161,7 +181,7 @@ window.addEvent('domready', function() {
 							ykill.portrait(item['type_id'], item['item_name'], 'Type', 32)
 						),
 						new Element('td', {'html': item_name}),
-						new Element('td', {'html': item[key], 'class': key}),
+						new Element('td', {'html': ykill.format_number(item[key]), 'class': key}),
 						new Element('td', {'html': ykill.format_isk(item[key] * cost)})
 					));
 				});

@@ -1,5 +1,3 @@
-import db
-
 import ctypes
 
 class LibDogma:

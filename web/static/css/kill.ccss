@@ -10,8 +10,10 @@
 	vertical-align: top
 
 #ship:
+	display: inline-block
 	width: 352px
 	height: 320px
+	vertical-align: middle
 	line-height: 0
 	background-position: 32px 32px
 	background-repeat: no-repeat
@@ -51,6 +53,36 @@
 
 	.avail:
 		border: 1px solid #888
+
+#dogma:
+	display: inline-block
+	vertical-align: middle
+	margin-left: 4px
+	padding: 4px
+	background-color: #222
+
+	#ehp:
+		text-align: center
+
+	.hp_type:
+		margin-top: 5px
+
+		.hp:
+			display: inline-block
+			width: 66px
+
+		img:
+			vertical-align: bottom
+
+	.resist:
+		display: inline-block
+		width: 45px
+		height: 20px
+		margin-left: 4px
+		text-align: center
+		line-height: 1
+		border: 1px solid #555
+		background-color: #111
 
 table#victim:
 	table-layout: fixed

@@ -38,11 +38,13 @@
 			return img;
 		},
 
-		'format_isk': function(isk) {
-			isk /= 100;
+		'format_number': function(number) {
 			if (!locale_options)
-				return parseFloat(isk.toFixed(0)).toLocaleString();
-			return isk.toLocaleString('en-US', {'maximumFractionDigits': 0});
+				return parseFloat(number.toFixed()).toLocaleString();
+			return number.toLocaleString('en-US', {'maximumFractionDigits': 0});
+		},
+		'format_isk': function(isk) {
+			return ykill.format_number(isk / 100);
 		},
 		'format_millions': function(isk) {
 			isk /= 100 * 1000 * 1000;
