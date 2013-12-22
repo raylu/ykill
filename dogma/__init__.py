@@ -47,6 +47,7 @@ class Dogma:
 			'explosive': 111, # ATT_ExplosiveDamageResonance
 		},
 	}
+	max_velocity = 37
 
 	def __init__(self):
 		void_star = ctypes.POINTER(ctypes.c_int)

@@ -102,6 +102,7 @@ window.addEvent('domready', function() {
 				div.setStyle('box-shadow', 'inset ' + bar_px + 'px 0 ' + color);
 			});
 		});
+		$('velocity').appendText(ykill.format_number(dogma['velocity']) + ' m/s');
 
 		var attackers = $('attackers');
 		attackers.grab(new Element('tr').grab(

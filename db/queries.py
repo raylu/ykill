@@ -339,7 +339,7 @@ def kill(kill_id):
 
 		dgm = Dogma()
 		dgm.set_ship(victim['ship_type_id'])
-		dogma = {'hp': {}, 'resists': {}, 'ehp': 0.0}
+		dogma = {'hp': {}, 'resists': {}, 'ehp': 0.0, 'velocity': 0.0}
 		for slot in ['subsystem', 'medium', 'low', 'rig']:
 			if slot not in items:
 				continue
@@ -356,6 +356,7 @@ def kill(kill_id):
 			average_res /= len(dgm.resists[hp_type])
 			dogma['ehp'] += dogma['hp'][hp_type] / average_res
 			dogma['resists'][hp_type] = resists
+		dogma['velocity'] = dgm.get_attribute(dgm.max_velocity)
 	return {
 		'kill': kill,
 		'victim': victim,
