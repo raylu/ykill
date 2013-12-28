@@ -450,12 +450,17 @@ def battle_report(kill_id):
 				for attacker in kill['attackers']:
 					# find an attacker that has already been assigned and isn't an NPC
 					if attacker['faction'] is not None and attacker['character_id'] != 0:
-						attacker_faction = attacker['faction']
-						victim['faction'] = 1 - attacker_faction
-						change = True
 						break
 				else:
-					continue
+					for attacker in kill['attackers']:
+						# settle for an NPC
+						if attacker['faction'] is not None:
+							break
+					else:
+						continue
+				attacker_faction = attacker['faction']
+				victim['faction'] = 1 - attacker_faction
+				change = True
 			for attacker in kill['attackers']:
 				if attacker['faction'] is None and \
 						(attacker['corporation_id'] != victim['corporation_id'] or \

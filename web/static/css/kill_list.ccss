@@ -76,5 +76,7 @@ div#pages:
 	padding: 10px
 	background-color: #222
 
+	a:first-of-type:
+		float: left
 	a:last-of-type:
 		float: right
