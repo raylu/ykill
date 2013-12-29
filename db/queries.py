@@ -254,7 +254,7 @@ def kill(kill_id):
 			SELECT items.type_id, flag, dropped, destroyed, singleton,
 				cost, typeName AS item_name
 			FROM items
-			JOIN item_costs ON item_costs.type_id = items.type_id
+			LEFT JOIN item_costs ON item_costs.type_id = items.type_id
 			JOIN eve.invTypes ON items.type_id = typeID
 			WHERE kill_id = ?
 			ORDER BY (cost * (dropped + destroyed) / (singleton * 499.5 + 1)) DESC
@@ -293,7 +293,8 @@ def kill(kill_id):
 				slot = '???'
 			items[slot].append(item)
 
-			dropped += item['cost'] * item['dropped'] / (item['singleton'] * 499.5 + 1)
+			cost = item['cost'] or 0
+			dropped += cost * item['dropped'] / (item['singleton'] * 499.5 + 1)
 		kill['dropped'] = dropped
 
 		module_slots = ['high', 'medium', 'low']
