@@ -425,19 +425,33 @@ def battle_report(kill_id):
 		kills[kill['kill_id']] = {'victim': None, 'attackers': [], 'cost': kill['cost']}
 	for char in char_rows:
 		canonical_char = characters[char['character_id']]
-		if char['ship_type_id'] not in [canonical_char['ship_type_id'], 670, 33328]:
+		kill = kills[char['kill_id']]
+		if char['victim']:
+			kill['victim'] = canonical_char
+			if id(char) == id(canonical_char):
+				canonical_char['death_id'] = canonical_char['kill_id']
+				canonical_char['cost'] = kill['cost']
+		else:
+			kill['attackers'].append(canonical_char)
+			canonical_char['damage_dealt'] += char['damage']
+
+		# add this as a sub char?
+		add_sub_char = True
+		if id(char) == id(canonical_char):
+			add_sub_char = False
+		elif not char['victim']:
+			if char['ship_type_id'] in [canonical_char['ship_type_id'], 0, 670, 33328]:
+				add_sub_char = False
+			else:
+				for sub_char in canonical_char['sub_chars']:
+					if sub_char['ship_type_id'] == char['ship_type_id']:
+						add_sub_char = False
+						break
+		if add_sub_char:
 			canonical_char['sub_chars'].append(char)
 			if char['victim']:
 				char['death_id'] = char['kill_id']
 				char['cost'] = kills[char['kill_id']]['cost']
-		kill = kills[char['kill_id']]
-		if char['victim']:
-			kill['victim'] = canonical_char
-			canonical_char['death_id'] = canonical_char['kill_id']
-			canonical_char['cost'] = kill['cost']
-		else:
-			kill['attackers'].append(canonical_char)
-			canonical_char['damage_dealt'] += char['damage']
 
 	# let's sort this mess out
 	kills[kill_id]['victim']['faction'] = 0
