@@ -419,16 +419,22 @@ def battle_report(kill_id):
 			canonical_char['pod'] = char['kill_id']
 		char['faction'] = None
 		char['damage_dealt'] = 0
+		char['sub_chars'] = []
 	kills = {}
 	for kill in kill_rows:
 		kills[kill['kill_id']] = {'victim': None, 'attackers': [], 'cost': kill['cost']}
 	for char in char_rows:
 		canonical_char = characters[char['character_id']]
+		if char['ship_type_id'] not in [canonical_char['ship_type_id'], 670, 33328]:
+			canonical_char['sub_chars'].append(char)
+			if char['victim']:
+				char['death_id'] = char['kill_id']
+				char['cost'] = kills[char['kill_id']]['cost']
 		kill = kills[char['kill_id']]
 		if char['victim']:
 			kill['victim'] = canonical_char
 			canonical_char['death_id'] = canonical_char['kill_id']
-			canonical_char['cost'] = canonical_char.get('cost', 0) + kill['cost']
+			canonical_char['cost'] = kill['cost']
 		else:
 			kill['attackers'].append(canonical_char)
 			canonical_char['damage_dealt'] += char['damage']
@@ -471,14 +477,18 @@ def battle_report(kill_id):
 
 	# prepare output lists
 	factions = [[], [], []]
+	del_keys = ['kill_id', 'final_blow', 'victim', 'damage']
 	for char in characters.values():
 		if char['faction'] is None:
 			char['faction'] = 2
-		del char['kill_id']
-		del char['final_blow']
-		del char['victim']
-		del char['damage']
+		for key in del_keys:
+			del char[key]
 		factions[char['faction']].append(char)
+		for sub_char in char['sub_chars']:
+			for key in del_keys:
+				del sub_char[key]
+			factions[char['faction']].append(sub_char)
+		del char['sub_chars']
 	for faction in factions:
 		faction.sort(key=operator.itemgetter('damage_dealt'), reverse=True)
 
