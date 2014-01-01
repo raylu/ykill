@@ -567,7 +567,7 @@ def _format_kill_time(kill_time):
 def _security_status(security, wh_class):
 		if wh_class:
 			security_status = 'wspace'
-		elif security >= 0.5:
+		elif security >= 0.45:
 			security_status = 'high'
 		elif security > 0.0:
 			security_status = 'low'

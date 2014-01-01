@@ -59,6 +59,8 @@
 		'format_system': function(system, wh_info) {
 			if (system['security_status'] == 'wspace')
 				security = 'C' + system['wh_class'];
+			else if (system['security'] > 0.0 && system['security'] < 0.1)
+				security = 0.1
 			else
 				security = system['security'].toFixed(1);
 			var system_info = system['system_name'] + ' <span class="' + system['security_status'] + '">' + security + '</span>';
