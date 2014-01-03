@@ -437,10 +437,10 @@ def battle_report(kill_id):
 
 		# add this as a sub char?
 		add_sub_char = True
-		if id(char) == id(canonical_char):
+		if id(char) == id(canonical_char) or char['ship_type_id'] in [0, 670, 33328]:
 			add_sub_char = False
 		elif not char['victim']:
-			if char['ship_type_id'] in [canonical_char['ship_type_id'], 0, 670, 33328]:
+			if char['ship_type_id'] == canonical_char['ship_type_id']:
 				add_sub_char = False
 			else:
 				for sub_char in canonical_char['sub_chars']:
