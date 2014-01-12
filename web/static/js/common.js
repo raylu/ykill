@@ -30,7 +30,7 @@
 			if (img_dir == 'Character')
 				extension = 'jpg';
 			var img = new Element('img', {
-				'src': 'https://image.zkillboard.com/' + img_dir + '/' + id + '_' + size + '.' + extension,
+				'src': 'https://image.eveonline.com/' + img_dir + '/' + id + '_' + size + '.' + extension,
 				'alt': text,
 				'width': size,
 				'height': size,

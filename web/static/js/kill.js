@@ -63,7 +63,7 @@ window.addEvent('domready', function() {
 
 		var items = data['items'];
 		var div = $('ship');
-		div.setStyle('background-image', 'url(https://image.zkillboard.com/Render/' + victim['ship_type_id'] + '_256.png)');
+		div.setStyle('background-image', 'url(https://image.eveonline.com/Render/' + victim['ship_type_id'] + '_256.png)');
 		Object.each(data['slots'], function(num, slot) {
 			var divs = $(slot).getChildren();
 			for (var i = 0; i < num; i++)
@@ -78,7 +78,7 @@ window.addEvent('domready', function() {
 					div = $('charge_' + item['flag']);
 				else
 					div = $('slot_' + item['flag']);
-				div.setStyle('background-image', 'url(https://image.zkillboard.com/Type/' + item['type_id'] + '_32.png)');
+				div.setStyle('background-image', 'url(https://image.eveonline.com/Type/' + item['type_id'] + '_32.png)');
 				div.grab(new Element('div', {'class': 'tooltip', 'html': item['item_name']}));
 			});
 		});
