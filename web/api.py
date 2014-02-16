@@ -1,10 +1,12 @@
 import datetime
 import json
+import traceback
 
 import tornado.web
 
 from config import web as config
 import db.queries
+import log
 
 class APIBaseHandler(tornado.web.RequestHandler):
 	def set_default_headers(self):
@@ -22,6 +24,14 @@ class APIBaseHandler(tornado.web.RequestHandler):
 
 	def options(self, *args):
 		return
+
+	def write_error(self, status_code, **kwargs):
+		if not log.stdout:
+			log.write('api error: {} for {}'.format(status_code, self.request.uri))
+			exc_info = kwargs.get('exc_info')
+			if exc_info is not None:
+				log.write(''.join(traceback.format_exception(*exc_info)))
+		super(APIBaseHandler, self).write_error(status_code, **kwargs)
 
 class SearchHandler(APIBaseHandler):
 	def get(self):
