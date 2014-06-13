@@ -34,14 +34,15 @@ class KillListener:
 		log.write('stomp disconnected')
 		log.flush()
 
-conn = stomp.Connection([('stomp.zkillboard.com', 61613)])
+conn = stomp.Connection([('eve-kill.net', 61613)])
 conn.set_listener('', KillListener())
 
 if len(sys.argv) == 2 and sys.argv[1] == '-d':
 	daemon.daemonize()
 
 def exit():
-	conn.disconnect()
+	if conn.is_connected():
+		conn.disconnect()
 	log.close()
 atexit.register(exit)
 
