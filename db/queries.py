@@ -327,7 +327,7 @@ def kill(kill_id):
 		for attr in slot_rows:
 			slot = slot_mapping[attr['attributeID']]
 			slots[slot] = attr['valueInt'] or int(attr['valueFloat']) # wtf CCP
-		if slots['subsystem']:
+		if items['subsystem']:
 			sub_ids = map(lambda s: str(s['type_id']), items['subsystem'])
 			modifier_rows = db.query(c, '''
 				SELECT attributeID, valueFloat FROM eve.dgmTypeAttributes
