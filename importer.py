@@ -24,7 +24,7 @@ def main():
 			data = response.json()
 			print('got {} kills'.format(len(data)))
 			for kill in data:
-				if kill['killID'] != kill_id:
+				if int(kill['killID']) != kill_id:
 					continue
 				if db.queries.insert_kill(c, kill):
 					print('inserted!')
