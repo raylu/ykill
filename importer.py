@@ -41,7 +41,7 @@ def main():
 			heapq.heappush(last_kill_ids, (-float('inf'), query_groups))
 		last_request_time = 0
 		last_kill_id, query_group = heapq.heappop(last_kill_ids)
-		while True:
+		while last_kill_id < -27500770: # first kill of 2013
 			path = '/api/losses/api-only/groupID/' + query_group
 			if last_kill_id != -float('inf'):
 				path += '/beforeKillID/' + str(-last_kill_id)
