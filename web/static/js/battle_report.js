@@ -42,10 +42,6 @@ window.addEvent('domready', function() {
 
 				var text_div = new Element('div', {'class': 'text'});
 				text_div.appendText(char['character_name'] + ' (' + char['ship_name'] + ')');
-				if (char['pod']) {
-					text_div.appendText(' ');
-					text_div.adopt(new Element('a', {'href': '/kill/' + char['pod'], 'html': '[pod]'}));
-				}
 				text_div.grab(new Element('br'));
 				if (char['alliance_id'])
 					text_div.appendText(char['alliance_name']);
@@ -56,6 +52,12 @@ window.addEvent('domready', function() {
 				if ('cost' in char) {
 					var cost_div = new Element('div', {'class': 'cost'});
 					cost_div.appendText(ykill.format_millions(char['cost']));
+					if (char['pod']) {
+						cost_div.adopt(
+							new Element('br'),
+							new Element('a', {'href': '/kill/' + char['pod'], 'html': '[pod]'})
+						);
+					}
 					row.grab(cost_div);
 				}
 
