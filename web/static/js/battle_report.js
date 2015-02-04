@@ -8,26 +8,19 @@ window.addEvent('domready', function() {
 
 		var losses = [0, 0];
 		['faction1', 'faction2', 'faction3'].each(function(faction, i) {
-			var table = $(faction);
+			var faction_div = $(faction);
 			var members = results['factions'][i];
 			members.each(function(char) {
-				var tr = new Element('tr');
+				var row;
 				if (char['death_id']) {
 					var kill_url = '/kill/' + char['death_id'];
-					tr.addClass('dead');
-					tr.addEvent('click', function(e) {
-						if (e.target.tagName == 'A')
-							return true;
-						e.preventDefault();
-						if (e.event.which == 2 || e.control) // 2: middle-click
-							window.open(kill_url);
-						else
-							window.location = kill_url;
-					});
-				}
+					row = new Element('a', {'href': kill_url, 'class': 'row'});
+					row.addClass('dead');
+				} else
+					row = new Element('div', {'class': 'row'});
 
-				var td = new Element('td');
-				td.adopt(
+				var portraits_div = new Element('div', {'class': 'portraits'});
+				portraits_div.adopt(
 					new Element('div').adopt(
 						ykill.portrait(char['ship_type_id'], char['ship_name'], 'Type', 32),
 						new Element('div', {'class': 'tooltip', 'html': char['ship_name']})
@@ -39,41 +32,41 @@ window.addEvent('domready', function() {
 					)
 				);
 				if (char['alliance_id'])
-					td.grab(
+					portraits_div.grab(
 						new Element('div').adopt(
 							ykill.portrait(char['alliance_id'], char['alliance_name'], 'Alliance', 32),
 							new Element('div', {'class': 'tooltip', 'html': char['alliance_name']})
 						)
 					);
-				tr.grab(td);
+				row.grab(portraits_div);
 
-				td = new Element('td');
-				td.appendText(char['character_name'] + ' (' + char['ship_name'] + ')');
+				var text_div = new Element('div', {'class': 'text'});
+				text_div.appendText(char['character_name'] + ' (' + char['ship_name'] + ')');
 				if (char['pod']) {
-					td.appendText(' ');
-					td.adopt(new Element('a', {'href': '/kill/' + char['pod'], 'html': '[pod]'}));
+					text_div.appendText(' ');
+					text_div.adopt(new Element('a', {'href': '/kill/' + char['pod'], 'html': '[pod]'}));
 				}
-				td.grab(new Element('br'));
+				text_div.grab(new Element('br'));
 				if (char['alliance_id'])
-					td.appendText(char['alliance_name']);
+					text_div.appendText(char['alliance_name']);
 				else
-					td.appendText(char['corporation_name']);
-				tr.grab(td);
+					text_div.appendText(char['corporation_name']);
+				row.grab(text_div);
 
-				td = new Element('td');
-				if ('cost' in char)
-					td.grab(new Element('a', {
-						'href': kill_url, 'html': ykill.format_millions(char['cost'])
-					}));
-				tr.grab(td);
+				if ('cost' in char) {
+					var cost_div = new Element('div', {'class': 'cost'});
+					cost_div.appendText(ykill.format_millions(char['cost']));
+					row.grab(cost_div);
+				}
 
-				table.grab(tr);
+				faction_div.grab(row);
 
 				if (char['cost'] && i < 2)
 					losses[i] += char['cost'];
 			});
+
 			if (i == 2 && members.length)
-				table.setStyle('display', 'table');
+				faction_div.setStyle('display', 'block'); // unhide third party
 		});
 
 		losses.each(function(lost, i) {

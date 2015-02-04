@@ -28,10 +28,26 @@ table.summary:
 		padding-right: 20%
 		text-align: right
 
-table.faction:
+.faction:
 	width: 100%
 
-	td:nth-child(1):
+	.row:
+		display: flex
+		align-items: center
+	a.row:
+		color: inherit
+		background-color: #410
+		&:hover:
+			background-color: #522
+	.row:nth-child(even):
+		background-color: #181818
+	a.row:nth-child(even):
+		background-color: #481810
+		&:hover:
+			background-color: #522
+
+
+	.portraits:
 		width: 130px
 		overflow: visible
 		> div:
@@ -39,26 +55,24 @@ table.faction:
 			position: relative // for .tooltip
 			&:hover .tooltip:
 				display: block
-	td:nth-child(2):
+
+	.text:
 		max-width: 310px
-	td:nth-child(3):
+		white-space: nowrap
+		overflow: hidden
+		text-overflow: ellipsis
+
+	.cost:
 		width: 100px
+		margin-left: auto
 		text-align: right
 		padding-right: 8px
 
-	tr.dead:
-		background-color: #410
-		cursor: pointer
-		&:hover:
-			background-color: #522
-	tr:nth-child(even):
-		background-color: #181818
-		&.dead:
-			background-color: #481810
-			&:hover:
-				background-color: #522
-
-table#faction3:
+#faction3:
 	display: none
 	width: 440px
 	margin: 25px auto
+
+	div.heading:
+		text-align: center
+		background-color: #222
