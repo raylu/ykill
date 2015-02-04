@@ -40,9 +40,12 @@ window.addEvent('domready', function() {
 			div = new Element('div', {'html': ykill.format_system(kill, false)});
 			div.grab(new Element('br'));
 			if (kill['wh_class']) {
-				div.appendText('static ' + kill['static1']);
-				if (kill['static2'])
-					div.appendText('/' + kill['static2']);
+				if (kill['static1']) {
+					div.appendText('static ' + kill['static1']);
+					if (kill['static2'])
+						div.appendText('/' + kill['static2']);
+				} else
+					div.appendText('no statics');
 			} else
 				div.appendText(kill['region']);
 			row.grab(div);

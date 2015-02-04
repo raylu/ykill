@@ -65,9 +65,12 @@
 				security = system['security'].toFixed(1);
 			var system_info = system['system_name'] + ' <span class="' + system['security_status'] + '">' + security + '</span>';
 			if (wh_info && system['wh_class']) {
-				system_info += ' static ' + system['static1'];
-				if (system['static2'])
-					system_info += '/' + system['static2'];
+				if (system['static1']) {
+					system_info += ' static ' + system['static1'];
+					if (system['static2'])
+						system_info += '/' + system['static2'];
+				} else
+					system_info += ' no statics';
 				if (system['wh_effect'])
 					system_info += ', ' + system['wh_effect'];
 				else
