@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
+import datetime
 from decimal import Decimal
 import sys
-from xml.etree import ElementTree
 
 import requests
 
@@ -10,13 +10,13 @@ import db
 
 rs = requests.session()
 def get_prices():
-	r = rs.get('http://eve.no-ip.de/prices/30d/prices-all.xml', stream=True)
-	tree = ElementTree.parse(r.raw)
-	rowset = tree.getroot().find('result').find('rowset').findall('row')
+	date = (datetime.datetime.utcnow() - datetime.timedelta(days=1)).date()
+	r = rs.get('https://beta.eve-kill.net/api/market/date/%s' % date)
+	items = r.json()
 	parambatch = []
-	for row in rowset:
-		price = int(Decimal(row.attrib['median']) * 100)
-		parambatch.append((row.attrib['typeID'], price, price))
+	for item in items:
+		price = int(Decimal(item['avgPrice']) * 100)
+		parambatch.append((item['typeID'], price, price))
 	return parambatch
 
 au79_cost = None
