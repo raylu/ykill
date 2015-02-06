@@ -52,11 +52,14 @@ def update_kill(kill_id):
 		c.execute('UPDATE kill_costs SET cost = ? WHERE kill_id = ?', (cost, kill_id))
 
 def main():
+	quiet = (len(sys.argv) == 2 and sys.argv[1] == '-q')
 	with db.conn.cursor() as c:
-		print('downloading prices')
+		if not quiet:
+			print('downloading prices')
 		parambatch = get_prices()
 
-		print('updating items')
+		if not quiet:
+			print('updating items')
 		c.executemany('''
 			INSERT INTO item_costs (type_id, cost) VALUES(?, ?)
 			ON DUPLICATE KEY UPDATE cost = ?
