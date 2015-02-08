@@ -10,7 +10,7 @@ import db
 
 rs = requests.session()
 def get_prices():
-	date = (datetime.datetime.utcnow() - datetime.timedelta(days=1)).date()
+	date = (datetime.datetime.utcnow() - datetime.timedelta(days=2)).date()
 	r = rs.get('https://beta.eve-kill.net/api/market/date/%s' % date)
 	items = r.json()
 	parambatch = []
