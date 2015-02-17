@@ -9,8 +9,8 @@ from dogma import Dogma
 
 def insert_kill(c, kill):
 	try:
-		db.execute(c, 'INSERT INTO kills (kill_id, solar_system_id, kill_time, moon_id) VALUES(?, ?, ?, ?)',
-				kill['killID'], kill['solarSystemID'], kill['killTime'], kill['moonID'])
+		db.execute(c, 'INSERT INTO kills (kill_id, solar_system_id, kill_time) VALUES(?, ?, ?)',
+				kill['killID'], kill['solarSystemID'], kill['killTime'])
 	except oursql.IntegrityError as e:
 		if e.args[0] == oursql.errnos['ER_DUP_ENTRY']:
 			return False

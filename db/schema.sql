@@ -12,7 +12,7 @@ CREATE TABLE `kills` (
 	`kill_id` int unsigned NOT NULL,
 	`solar_system_id` int NOT NULL,
 	`kill_time` datetime NOT NULL,
-	`moon_id` int unsigned NOT NULL,
+	`moon_id` int unsigned NULL,
 	PRIMARY KEY (`kill_id`),
 	INDEX `solar_system_id_kill_time` (`solar_system_id`, `kill_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
