@@ -16,7 +16,7 @@ import log
 
 @tornado.gen.coroutine
 def main():
-	conn = yield tornado.websocket.websocket_connect('wss://ws.eve-kill.net/', connect_timeout=5)
+	conn = yield tornado.websocket.websocket_connect('wss://ws.eve-kill.net/kills', connect_timeout=5)
 
 	if len(sys.argv) == 2 and sys.argv[1] == '-d':
 		daemon.daemonize()
@@ -29,7 +29,7 @@ def main():
 	while True:
 		msg = yield conn.read_message()
 		if msg is None:
-			log.write('stomp disconnected')
+			log.write('websocket disconnected')
 			log.flush()
 			break
 		handle_message(msg)
