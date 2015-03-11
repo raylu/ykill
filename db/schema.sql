@@ -14,7 +14,8 @@ CREATE TABLE `kills` (
 	`kill_time` datetime NOT NULL,
 	`moon_id` int unsigned NULL,
 	PRIMARY KEY (`kill_id`),
-	INDEX `solar_system_id_kill_time` (`solar_system_id`, `kill_time`)
+	INDEX `solar_system_id_kill_time` (`solar_system_id`, `kill_time`),
+	INDEX `kill_time` (`kill_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE TABLE `kill_characters` (

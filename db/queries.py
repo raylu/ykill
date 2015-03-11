@@ -125,16 +125,19 @@ def search(q):
 
 def kill_list(entity_type, entity_id, list_type, page):
 	with db.cursor() as c:
-		if entity_type == 'system':
-			sql = 'SELECT solarSystemName AS system_name FROM eve.mapSolarSystems WHERE solarSystemID = ?'
-		elif entity_type == 'ship':
-			sql = 'SELECT typeName AS ship_name FROM eve.invTypes WHERE typeID = ?'
+		if entity_type == 'time':
+			stats = None
 		else:
-			sql = 'SELECT {}_name, killed, lost FROM {}s WHERE {}_id = ?'.format(entity_type, entity_type, entity_type)
-		try:
-			stats = db.get(c, sql, entity_id)
-		except db.NoRowsException:
-			return None
+			if entity_type == 'system':
+				sql = 'SELECT solarSystemName AS system_name FROM eve.mapSolarSystems WHERE solarSystemID = ?'
+			elif entity_type == 'ship':
+				sql = 'SELECT typeName AS ship_name FROM eve.invTypes WHERE typeID = ?'
+			else:
+				sql = 'SELECT {}_name, killed, lost FROM {}s WHERE {}_id = ?'.format(entity_type, entity_type, entity_type)
+			try:
+				stats = db.get(c, sql, entity_id)
+			except db.NoRowsException:
+				return None
 		# the combination of DISTINCT and and ORDER BY means we can't join kills or we get filesort
 		# get kill_ids from chars, then get kill data on those ids
 		if list_type == 'kills':
@@ -144,17 +147,22 @@ def kill_list(entity_type, entity_id, list_type, page):
 		elif list_type is None:
 			extra_cond = ''
 		page_size = 50
-		if entity_type == 'system':
-			sql = 'SELECT kill_id FROM kills WHERE solar_system_id = ? ORDER BY kill_id DESC LIMIT ? OFFSET ?'
+		if entity_type == 'time':
+			sql = 'SELECT kill_id FROM kills WHERE kill_time BETWEEN ? AND ? ORDER BY kill_id DESC LIMIT ? OFFSET ?'
+			start, end = entity_id
+			kills = db.query(c, sql, start, end, page_size, (page - 1) * page_size)
 		else:
-			if entity_type == 'ship':
-				entity_type = 'ship_type'
-			sql = '''
-				SELECT DISTINCT kill_id FROM kill_characters
-				WHERE {}_id = ? {}
-				ORDER BY kill_id DESC LIMIT ? OFFSET ?
-				'''.format(entity_type, extra_cond)
-		kills = db.query(c, sql, entity_id, page_size, (page - 1) * page_size)
+			if entity_type == 'system':
+				sql = 'SELECT kill_id FROM kills WHERE solar_system_id = ? ORDER BY kill_id DESC LIMIT ? OFFSET ?'
+			else:
+				if entity_type == 'ship':
+					entity_type = 'ship_type'
+				sql = '''
+					SELECT DISTINCT kill_id FROM kill_characters
+					WHERE {}_id = ? {}
+					ORDER BY kill_id DESC LIMIT ? OFFSET ?
+					'''.format(entity_type, extra_cond)
+			kills = db.query(c, sql, entity_id, page_size, (page - 1) * page_size)
 		if len(kills) == 0:
 			return None
 		kill_ids = list(map(operator.itemgetter('kill_id'), kills))

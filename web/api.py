@@ -42,7 +42,13 @@ class SearchHandler(APIBaseHandler):
 class KillListHandler(APIBaseHandler):
 	def get(self, entity_type, entity_id, list_type):
 		try:
-			entity_id = int(entity_id)
+			if entity_type == 'time':
+				start, end = entity_id.split('_')
+				datetime.datetime.strptime(start, '%Y-%m-%dT%H:%M')
+				datetime.datetime.strptime(end, '%Y-%m-%dT%H:%M')
+				entity_id = start, end
+			else:
+				entity_id = int(entity_id)
 		except ValueError:
 			raise tornado.web.HTTPError(400)
 		if list_type in ['/kills', '/losses']:
@@ -92,7 +98,7 @@ def start():
 	tornado.web.Application(
 		handlers=[
 			(r'/search', SearchHandler),
-			(r'/(alliance|corporation|character|system|ship)/(\d+)(/.*)?', KillListHandler),
+			(r'/(alliance|corporation|character|system|ship|time)/(.+)(/.*)?', KillListHandler),
 			(r'/kill/(.+)/battle_report', BattleReportHandler),
 			(r'/kill/(.+)', KillHandler),
 			(r'/top/cost', TopCostHandler),
