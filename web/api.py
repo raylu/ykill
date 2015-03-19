@@ -98,7 +98,7 @@ def start():
 	tornado.web.Application(
 		handlers=[
 			(r'/search', SearchHandler),
-			(r'/(alliance|corporation|character|system|ship|time)/(.+)(/.*)?', KillListHandler),
+			(r'/(alliance|corporation|character|system|ship|time)/([^\/]+)(/.*)?', KillListHandler),
 			(r'/kill/(.+)/battle_report', BattleReportHandler),
 			(r'/kill/(.+)', KillHandler),
 			(r'/top/cost', TopCostHandler),
