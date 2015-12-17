@@ -2,38 +2,39 @@ from collections import defaultdict
 import datetime
 import operator
 
-import oursql
+import psycopg2
+import psycopg2.errorcodes
 
 import db
 from dogma import Dogma
 
 def insert_kill(c, kill):
 	try:
-		db.execute(c, 'INSERT INTO kills (kill_id, solar_system_id, kill_time) VALUES(?, ?, ?)',
+		db.execute(c, 'INSERT INTO kills (kill_id, solar_system_id, kill_time) VALUES(%s, %s, %s)',
 				kill['killID'], kill['solarSystemID'], kill['killTime'])
-	except oursql.IntegrityError as e:
-		if e.args[0] == oursql.errnos['ER_DUP_ENTRY']:
+	except psycopg2.IntegrityError as e:
+		if e.pgcode == psycopg2.errorcodes.UNIQUE_VIOLATION:
 			return False
 		raise
 
 	victim = kill['victim']
 	parambatch = [(
-		kill['killID'], 1, victim['characterID'], victim['characterName'], victim['shipTypeID'],
+		kill['killID'], True, victim['characterID'], victim['characterName'], victim['shipTypeID'],
 		victim['allianceID'], victim['allianceName'], victim['corporationID'], victim['corporationName'], victim['factionID'], victim['factionName'],
 		victim['damageTaken'], None, None, None,
 	)]
 	for attacker in kill['attackers']:
 		parambatch.append((
-			kill['killID'], 0, attacker['characterID'], attacker['characterName'], attacker['shipTypeID'],
+			kill['killID'], False, attacker['characterID'], attacker['characterName'], attacker['shipTypeID'],
 			attacker['allianceID'], attacker['allianceName'], attacker['corporationID'], attacker['corporationName'], attacker['factionID'], attacker['factionName'],
-			attacker['damageDone'], attacker['finalBlow'], attacker['securityStatus'], attacker['weaponTypeID'],
+			attacker['damageDone'], bool(attacker['finalBlow']), attacker['securityStatus'], attacker['weaponTypeID'],
 		))
 	c.executemany('''
 		INSERT INTO kill_characters (
 			kill_id, victim, character_id, character_name, ship_type_id,
 			alliance_id, alliance_name, corporation_id, corporation_name, faction_id, faction_name,
 			damage, final_blow, security_status, weapon_type_id
-		) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
 		''', parambatch
 	)
 
@@ -44,12 +45,12 @@ def insert_kill(c, kill):
 	c.executemany('''
 		INSERT INTO items (
 			kill_id, type_id, flag, dropped, destroyed, singleton
-		) VALUES(?, ?, ?, ?, ?, ?)
+		) VALUES(%s, %s, %s, %s, %s, %s)
 		''', parambatch
 	)
 
 	try:
-		result = db.get(c, 'SELECT cost FROM item_costs WHERE type_id = ?', (victim['shipTypeID']))
+		result = db.get(c, 'SELECT cost FROM item_costs WHERE type_id = %s', (victim['shipTypeID']))
 		cost = result['cost']
 	except db.NoRowsException:
 		cost = 0
@@ -57,11 +58,11 @@ def insert_kill(c, kill):
 		SELECT SUM(cost * (dropped + destroyed) / (singleton * 499.5 + 1)) AS item_cost
 		FROM items
 		JOIN item_costs ON items.type_id = item_costs.type_id
-		WHERE kill_id = ?
+		WHERE kill_id = %s
 		''', kill['killID'])
 	if result['item_cost'] is not None:
 		cost += result['item_cost']
-	db.execute(c, 'INSERT INTO kill_costs (kill_id, cost) VALUES(?, ?)', kill['killID'], cost)
+	db.execute(c, 'INSERT INTO kill_costs (kill_id, cost) VALUES(%s, %s)', kill['killID'], cost)
 
 	for entity_type in ['alliance', 'corporation', 'character']:
 		entity_dict = defaultdict(lambda: {'name': None, 'killed': 0, 'lost': 0})
@@ -77,16 +78,17 @@ def insert_kill(c, kill):
 				if attacker[entity_type + 'ID'] != victim_id:
 					entity['killed'] = cost
 
-		parambatch = []
 		for entity_id, info in entity_dict.items():
-			parambatch.append((entity_id, info['name'], info['killed'], info['lost'],
-				info['name'], info['killed'], info['lost']))
-		sql = '''
-			INSERT INTO {}s ({}_id, {}_name, killed, lost)
-			VALUES(?, ?, ?, ?)
-			ON DUPLICATE KEY UPDATE {}_name = ?, killed = killed + ?, lost = lost + ?
-			'''.format(entity_type, entity_type, entity_type, entity_type)
-		c.executemany(sql, parambatch)
+			sql = '''
+				UPDATE {}s
+				SET {}_name = %s, killed = killed + %s, lost = lost + %s
+				WHERE {}_id = %s
+				'''.format(entity_type, entity_type, entity_type)
+			c.execute(sql, (info['name'], info['killed'], info['lost'], entity_id))
+			if c.rowcount == 0:
+				sql = 'INSERT INTO {}s ({}_id, {}_name, killed, lost) VALUES(%s, %s, %s, %s)'.format(
+						entity_type, entity_type, entity_type)
+				c.execute(sql, (entity_id, info['name'], info['killed'], info['lost']))
 
 	return True
 
@@ -95,25 +97,25 @@ def search(q):
 	with db.cursor() as c:
 		alliances = db.query(c, '''
 			SELECT alliance_id, alliance_name FROM alliances
-			WHERE alliance_name LIKE ? LIMIT 25
+			WHERE alliance_name LIKE %s LIMIT 25
 			''', like_str)
 		corps = db.query(c, '''
 			SELECT corporation_id, corporation_name FROM corporations
-			WHERE corporation_name LIKE ? LIMIT 25
+			WHERE corporation_name LIKE %s LIMIT 25
 			''', like_str)
 		chars = db.query(c, '''
 			SELECT character_id, character_name FROM characters
-			WHERE character_name LIKE ? LIMIT 25
+			WHERE character_name LIKE %s LIMIT 25
 			''', like_str)
 		systems = db.query(c, '''
 			SELECT solarSystemID AS system_id, solarSystemName AS system_name
 			FROM eve.mapSolarSystems
-			WHERE solarSystemName LIKE ? LIMIT 5
+			WHERE solarSystemName LIKE %s LIMIT 5
 			''', like_str)
 		ships = db.query(c, '''
 			SELECT typeID AS ship_id, typeName AS ship_name FROM eve.invTypes
 			JOIN eve.invGroups ON invTypes.groupID = invGroups.groupID
-			WHERE typeName LIKE ? AND invGroups.categoryID = 6 LIMIT 5
+			WHERE typeName LIKE %s AND invGroups.categoryID = 6 LIMIT 5
 			''', like_str) # 6 == ship
 	return {
 		'alliances': alliances,
@@ -129,11 +131,11 @@ def kill_list(entity_type, entity_id, list_type, page):
 			stats = None
 		else:
 			if entity_type == 'system':
-				sql = 'SELECT solarSystemName AS system_name FROM eve.mapSolarSystems WHERE solarSystemID = ?'
+				sql = 'SELECT solarSystemName AS system_name FROM eve.mapSolarSystems WHERE solarSystemID = %s'
 			elif entity_type == 'ship':
-				sql = 'SELECT typeName AS ship_name FROM eve.invTypes WHERE typeID = ?'
+				sql = 'SELECT typeName AS ship_name FROM eve.invTypes WHERE typeID = %s'
 			else:
-				sql = 'SELECT {}_name, killed, lost FROM {}s WHERE {}_id = ?'.format(entity_type, entity_type, entity_type)
+				sql = 'SELECT {}_name, killed, lost FROM {}s WHERE {}_id = %s'.format(entity_type, entity_type, entity_type)
 			try:
 				stats = db.get(c, sql, entity_id)
 			except db.NoRowsException:
@@ -148,19 +150,19 @@ def kill_list(entity_type, entity_id, list_type, page):
 			extra_cond = ''
 		page_size = 50
 		if entity_type == 'time':
-			sql = 'SELECT kill_id FROM kills WHERE kill_time BETWEEN ? AND ? ORDER BY kill_id DESC LIMIT ? OFFSET ?'
+			sql = 'SELECT kill_id FROM kills WHERE kill_time BETWEEN %s AND %s ORDER BY kill_id DESC LIMIT %s OFFSET %s'
 			start, end = entity_id
 			kills = db.query(c, sql, start, end, page_size, (page - 1) * page_size)
 		else:
 			if entity_type == 'system':
-				sql = 'SELECT kill_id FROM kills WHERE solar_system_id = ? ORDER BY kill_id DESC LIMIT ? OFFSET ?'
+				sql = 'SELECT kill_id FROM kills WHERE solar_system_id = %s ORDER BY kill_id DESC LIMIT %s OFFSET %s'
 			else:
 				if entity_type == 'ship':
 					entity_type = 'ship_type'
 				sql = '''
 					SELECT DISTINCT kill_id FROM kill_characters
-					WHERE {}_id = ? {}
-					ORDER BY kill_id DESC LIMIT ? OFFSET ?
+					WHERE {}_id = %s {}
+					ORDER BY kill_id DESC LIMIT %s OFFSET %s
 					'''.format(entity_type, extra_cond)
 			kills = db.query(c, sql, entity_id, page_size, (page - 1) * page_size)
 		if len(kills) == 0:
@@ -224,7 +226,7 @@ def kill(kill_id):
 				JOIN kill_costs ON kill_costs.kill_id = kills.kill_id
 				LEFT JOIN wh_systems ON solar_system_id = id
 				JOIN eve.mapSolarSystems ON solar_system_id = solarSystemID
-				WHERE kills.kill_id = ?
+				WHERE kills.kill_id = %s
 				''', kill_id)
 		except db.NoRowsException:
 			return None
@@ -239,7 +241,7 @@ def kill(kill_id):
 			FROM kill_characters
 			JOIN eve.invTypes AS ship ON ship_type_id = ship.typeID
 			LEFT JOIN eve.invTypes AS weapon ON weapon_type_id = weapon.typeID
-			WHERE kill_id = ?
+			WHERE kill_id = %s
 			''', kill_id)
 		attackers = []
 		for char in characters:
@@ -251,7 +253,7 @@ def kill(kill_id):
 				attackers.append(char)
 
 		try:
-			ship_cost = db.get(c, 'SELECT cost FROM item_costs WHERE type_id = ?',
+			ship_cost = db.get(c, 'SELECT cost FROM item_costs WHERE type_id = %s',
 					victim['ship_type_id'])
 			victim['ship_cost'] = ship_cost['cost']
 		except db.NoRowsException:
@@ -264,7 +266,7 @@ def kill(kill_id):
 			FROM items
 			LEFT JOIN item_costs ON item_costs.type_id = items.type_id
 			JOIN eve.invTypes ON items.type_id = typeID
-			WHERE kill_id = ?
+			WHERE kill_id = %s
 			ORDER BY (cost * (dropped + destroyed) / (singleton * 499.5 + 1)) DESC
 			''', kill_id)
 		items = defaultdict(list)
@@ -327,7 +329,7 @@ def kill(kill_id):
 
 		slot_rows = db.query(c, '''
 			SELECT attributeID, valueInt, valueFloat FROM eve.dgmTypeAttributes
-			WHERE typeID = ? AND attributeID IN (12, 13, 14, 1137, 1367)
+			WHERE typeID = %s AND attributeID IN (12, 13, 14, 1137, 1367)
 				AND (valueInt != 0 OR valueFloat != 0.0)
 			''', victim['ship_type_id'])
 		slot_mapping = {12: 'low', 13: 'medium', 14: 'high', 1137: 'rig', 1367: 'subsystem'}
@@ -386,7 +388,7 @@ def battle_report(kill_id):
 				FROM kills
 				LEFT JOIN wh_systems ON solar_system_id = id
 				JOIN eve.mapSolarSystems ON solar_system_id = solarSystemID
-				WHERE kill_id = ?
+				WHERE kill_id = %s
 				''', kill_id)
 		except db.NoRowsException:
 			return None
@@ -396,7 +398,7 @@ def battle_report(kill_id):
 			SELECT kills.kill_id, kill_time, cost
 			FROM kills
 			JOIN kill_costs ON kill_costs.kill_id = kills.kill_id
-			WHERE solar_system_id = ? AND kill_time BETWEEN ? AND ?
+			WHERE solar_system_id = %s AND kill_time BETWEEN %s AND %s
 			''', meta['solar_system_id'], after, before)
 		kill_ids = list(map(operator.itemgetter('kill_id'), kill_rows))
 		char_rows = db.query(c, '''
@@ -528,7 +530,7 @@ def top_cost():
 			JOIN kill_costs ON kill_costs.kill_id = kills.kill_id
 			JOIN kill_characters ON kill_characters.kill_id = kills.kill_id
 			JOIN eve.invTypes ON typeID = ship_type_id
-			WHERE victim = 1 AND kills.kill_id > ?
+			WHERE victim = 1 AND kills.kill_id > %s
 			ORDER BY cost DESC
 			LIMIT 25
 			''', last_kill['kill_id'] - 2500)
@@ -565,7 +567,7 @@ def last(kill_id):
 				JOIN kill_characters ON kill_characters.kill_id = kills.kill_id
 				JOIN item_costs ON item_costs.type_id = ship_type_id
 				JOIN eve.invTypes ON typeID = ship_type_id
-				WHERE victim = 1 AND kills.kill_id > ?
+				WHERE victim = 1 AND kills.kill_id > %s
 			''', kill_id)
 	return kills
 

@@ -20,10 +20,7 @@ class WebConfig(Config):
 
 class DBConfig(Config):
 	attrs = frozenset([
-		'host',
-		'user',
-		'password',
-		'database',
+		'dsn',
 	])
 
 __doc = yaml.load(open('config.yaml', 'r'))

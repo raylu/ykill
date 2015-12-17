@@ -6,31 +6,18 @@ import operator
 import sys
 import time
 
-import oursql
 import requests
 
 import db
 import db.queries
 
+rs = requests.session()
 def main():
-	rs = requests.session()
 	with db.cursor() as c:
 		if len(sys.argv) == 2:
-			kill_id = sys.argv[1]
-			response = rs.get('http://api.whelp.gg/kill/' + kill_id)
-			character_id = response.json()['victim']['character_id']
-			kill_id = int(kill_id)
-			url = 'https://zkillboard.com/api/losses/characterID/{}/beforeKillID/{}/limit/200'
-			response = rs.get(url.format(character_id, kill_id + 200))
-			data = response.json()
-			print('got {} kills'.format(len(data)))
-			for kill in data:
-				if int(kill['killID']) != kill_id:
-					continue
-				if db.queries.insert_kill(c, kill):
-					print('inserted!')
-				else:
-					print('duplicate')
+			kill_id = int(sys.argv[1])
+			import_one_kill(c, kill_id)
+			db.conn.commit()
 			return
 
 		groups = db.query(c, 'SELECT groupID FROM eve.invGroups WHERE categoryID = ?', 6)
@@ -46,8 +33,8 @@ def main():
 			if last_kill_id != -float('inf'):
 				path += '/beforeKillID/' + str(-last_kill_id)
 			now = time.time()
-			if now - last_request_time < 12:
-				sleep_secs = 12 - (now - last_request_time)
+			if now - last_request_time < 5:
+				sleep_secs = 5 - (now - last_request_time)
 				print('sleeping', sleep_secs)
 				time.sleep(sleep_secs)
 			last_request_time = time.time()
@@ -72,6 +59,14 @@ def main():
 
 			last_kill_id = int(kills[-1]['killID'])
 			last_kill_id, query_group = heapq.heappushpop(last_kill_ids, (-last_kill_id, query_group))
+
+def import_one_kill(cursor, kill_id):
+	response = rs.get('https://zkillboard.com/api/killID/%d' % kill_id)
+	kill = response.json()[0]
+	if db.queries.insert_kill(cursor, kill):
+		print('inserted!')
+	else:
+		print('duplicate')
 
 if __name__ == '__main__':
 	main()

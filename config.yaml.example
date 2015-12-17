@@ -6,9 +6,6 @@ web:
     debug: true
 
 db:
-    host: localhost
-    user: ykill
-    password: ykill
-    database: ykill
+    dsn: 'dbname=ykill user=ykill'
 
 # vim: set et ft=yaml:

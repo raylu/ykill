@@ -1,11 +1,12 @@
-import oursql
+import psycopg2
+import psycopg2.extras
 
 from config import db as dbconfig
 
-conn = oursql.connect(host=dbconfig.host, db=dbconfig.database, user=dbconfig.user, passwd=dbconfig.password, autoreconnect=True)
+conn = psycopg2.connect(dbconfig.dsn)
 
 def cursor():
-	return conn.cursor(oursql.DictCursor)
+	return conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
 def execute(cursor, sql, *values):
 	cursor.execute(sql, values)
