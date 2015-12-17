@@ -21,7 +21,6 @@ def main():
 		daemon.daemonize()
 
 	def exit():
-		db.conn.commit()
 		conn.close()
 		log.close()
 	atexit.register(exit)
@@ -36,7 +35,6 @@ def main():
 			log.flush()
 			break
 		handle_message(msg)
-	db.conn.commit()
 
 inserted = 0
 def handle_message(message):
@@ -46,10 +44,8 @@ def handle_message(message):
 		with db.cursor() as c:
 			db.queries.insert_kill(c, data)
 		inserted += 1
-		if inserted % 50 == 0:
-			db.conn.commit()
-			if inserted % 500 == 0:
-				log.write('websocket inserted {} kills'.format(inserted))
+		if inserted % 500 == 0:
+			log.write('websocket inserted {} kills'.format(inserted))
 	except:
 		log.write('websocket error: {}\n{}'.format(message, traceback.format_exc()))
 		raise

@@ -14,6 +14,7 @@ def insert_kill(c, kill):
 				kill['killID'], kill['solarSystemID'], kill['killTime'])
 	except psycopg2.IntegrityError as e:
 		if e.pgcode == psycopg2.errorcodes.UNIQUE_VIOLATION:
+			db.conn.rollback()
 			return False
 		raise
 
@@ -90,6 +91,7 @@ def insert_kill(c, kill):
 						entity_type, entity_type, entity_type)
 				c.execute(sql, (entity_id, info['name'], info['killed'], info['lost']))
 
+	db.conn.commit()
 	return True
 
 def search(q):
