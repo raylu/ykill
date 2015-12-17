@@ -20,45 +20,26 @@ def main():
 			db.conn.commit()
 			return
 
-		groups = db.query(c, 'SELECT groupID FROM eve.invGroups WHERE categoryID = ?', 6)
-		groups = list(map(operator.itemgetter('groupID'), groups))
-		last_kill_ids = []
-		for i in range(0, len(groups), 10):
-			query_groups = ','.join(map(str, groups[i:i+10]))
-			heapq.heappush(last_kill_ids, (-float('inf'), query_groups))
-		last_request_time = 0
-		last_kill_id, query_group = heapq.heappop(last_kill_ids)
-		while last_kill_id < -27500770: # first kill of 2013
-			path = '/api/losses/api-only/groupID/' + query_group
-			if last_kill_id != -float('inf'):
-				path += '/beforeKillID/' + str(-last_kill_id)
-			now = time.time()
-			if now - last_request_time < 5:
-				sleep_secs = 5 - (now - last_request_time)
-				print('sleeping', sleep_secs)
-				time.sleep(sleep_secs)
-			last_request_time = time.time()
-			try:
-				r = rs.get('https://zkillboard.com' + path)
-				kills = r.json()
-			except Exception as e:
-				print(repr(e))
-				break
+		last_kill_id = None
+		while not last_kill_id or last_kill_id > 27500770: # don't go before 2013
+			if last_kill_id is None:
+				path = '/page/0'
+			else:
+				path += '/beforeKillID/%s' % last_kill_id
+			r = rs.get('https://zkillboard.com/api' + path)
+			kills = r.json()
+			last_kill_id = kills[-1]['killID']
+
 			print('inserting', len(kills), 'kills', end='... ')
 			sys.stdout.flush()
 			inserted = 0
-			try:
-				for kill in kills:
-					if db.queries.insert_kill(c, kill):
-						inserted += 1
-			except TypeError as e:
-				print(repr(e), kills)
-				break
+			for kill in kills:
+				if db.queries.insert_kill(c, kill):
+					inserted += 1
 			db.conn.commit()
 			print(len(kills) - inserted, 'dupes')
 
-			last_kill_id = int(kills[-1]['killID'])
-			last_kill_id, query_group = heapq.heappushpop(last_kill_ids, (-last_kill_id, query_group))
+			time.sleep(5)
 
 def import_one_kill(cursor, kill_id):
 	response = rs.get('https://zkillboard.com/api/killID/%d' % kill_id)
