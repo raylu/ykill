@@ -6,7 +6,7 @@ from config import db as dbconfig
 conn = psycopg2.connect(dbconfig.dsn)
 
 def cursor():
-	return conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+	return conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
 def execute(cursor, sql, *values):
 	cursor.execute(sql, values)

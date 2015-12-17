@@ -93,29 +93,29 @@ def insert_kill(c, kill):
 	return True
 
 def search(q):
-	like_str = '{}%'.format(q)
+	like_str = '{}%'.format(q.lower())
 	with db.cursor() as c:
 		alliances = db.query(c, '''
 			SELECT alliance_id, alliance_name FROM alliances
-			WHERE alliance_name LIKE %s LIMIT 25
+			WHERE LOWER(alliance_name) LIKE %s LIMIT 25
 			''', like_str)
 		corps = db.query(c, '''
 			SELECT corporation_id, corporation_name FROM corporations
-			WHERE corporation_name LIKE %s LIMIT 25
+			WHERE LOWER(corporation_name) LIKE %s LIMIT 25
 			''', like_str)
 		chars = db.query(c, '''
 			SELECT character_id, character_name FROM characters
-			WHERE character_name LIKE %s LIMIT 25
+			WHERE LOWER(character_name) LIKE %s LIMIT 25
 			''', like_str)
 		systems = db.query(c, '''
-			SELECT solarSystemID AS system_id, solarSystemName AS system_name
-			FROM eve.mapSolarSystems
-			WHERE solarSystemName LIKE %s LIMIT 5
+			SELECT "solarSystemID" AS system_id, "solarSystemName" AS system_name
+			FROM "mapSolarSystems"
+			WHERE LOWER("solarSystemName") LIKE %s LIMIT 5
 			''', like_str)
 		ships = db.query(c, '''
-			SELECT typeID AS ship_id, typeName AS ship_name FROM eve.invTypes
-			JOIN eve.invGroups ON invTypes.groupID = invGroups.groupID
-			WHERE typeName LIKE %s AND invGroups.categoryID = 6 LIMIT 5
+			SELECT "typeID" AS ship_id, "typeName" AS ship_name FROM "invTypes"
+			JOIN "invGroups" ON "invTypes"."groupID" = "invGroups"."groupID"
+			WHERE LOWER("typeName") LIKE %s AND "invGroups"."categoryID" = 6 LIMIT 5
 			''', like_str) # 6 == ship
 	return {
 		'alliances': alliances,
@@ -131,9 +131,9 @@ def kill_list(entity_type, entity_id, list_type, page):
 			stats = None
 		else:
 			if entity_type == 'system':
-				sql = 'SELECT solarSystemName AS system_name FROM eve.mapSolarSystems WHERE solarSystemID = %s'
+				sql = 'SELECT "solarSystemName" AS system_name FROM "mapSolarSystems" WHERE "solarSystemID" = %s'
 			elif entity_type == 'ship':
-				sql = 'SELECT typeName AS ship_name FROM eve.invTypes WHERE typeID = %s'
+				sql = 'SELECT "typeName" AS ship_name FROM "invTypes" WHERE "typeID" = %s'
 			else:
 				sql = 'SELECT {}_name, killed, lost FROM {}s WHERE {}_id = %s'.format(entity_type, entity_type, entity_type)
 			try:
@@ -143,9 +143,9 @@ def kill_list(entity_type, entity_id, list_type, page):
 		# the combination of DISTINCT and and ORDER BY means we can't join kills or we get filesort
 		# get kill_ids from chars, then get kill data on those ids
 		if list_type == 'kills':
-			extra_cond = 'AND victim = 0'
+			extra_cond = 'AND victim = FALSE'
 		elif list_type == 'losses':
-			extra_cond = 'AND victim = 1'
+			extra_cond = 'AND victim = TRUE'
 		elif list_type is None:
 			extra_cond = ''
 		page_size = 50
@@ -170,22 +170,22 @@ def kill_list(entity_type, entity_id, list_type, page):
 		kill_ids = list(map(operator.itemgetter('kill_id'), kills))
 		kills = db.query(c, '''
 			SELECT kills.kill_id, kill_time, cost,
-				solarSystemName AS system_name, security, regionName AS region,
+				"solarSystemName" AS system_name, security, "regionName" AS region,
 				class AS wh_class, static1, static2
 			FROM kills
 			JOIN kill_costs ON kill_costs.kill_id = kills.kill_id
 			LEFT JOIN wh_systems ON solar_system_id = id
-			JOIN eve.mapSolarSystems ON solar_system_id = solarSystemID
-			JOIN eve.mapRegions ON mapSolarSystems.regionID = mapRegions.regionID
+			JOIN "mapSolarSystems" ON solar_system_id = "solarSystemID"
+			JOIN "mapRegions" ON "mapSolarSystems"."regionID" = "mapRegions"."regionID"
 			WHERE kills.kill_id IN ({})
 			'''.format(','.join(map(str, kill_ids))))
 		char_rows = db.query(c, '''
 			SELECT
 				kill_id, victim, final_blow,
 				character_id, character_name, corporation_id, corporation_name, alliance_id, alliance_name, faction_id, faction_name,
-				ship_type_id, typeName AS ship_name
+				ship_type_id, "typeName" AS ship_name
 			FROM kill_characters
-			JOIN eve.invTypes ON ship_type_id = typeID
+			JOIN "invTypes" ON ship_type_id = "typeID"
 			WHERE kill_id IN ({})
 			'''.format(','.join(map(str, kill_ids))))
 	characters = defaultdict(dict)
@@ -220,12 +220,12 @@ def kill(kill_id):
 	with db.cursor() as c:
 		try:
 			kill = db.get(c, '''
-				SELECT kill_time, cost, solarSystemName AS system_name, security,
+				SELECT kill_time, cost, "solarSystemName" AS system_name, security,
 					class AS wh_class, static1, static2, effect AS wh_effect
 				FROM kills
 				JOIN kill_costs ON kill_costs.kill_id = kills.kill_id
 				LEFT JOIN wh_systems ON solar_system_id = id
-				JOIN eve.mapSolarSystems ON solar_system_id = solarSystemID
+				JOIN "mapSolarSystems" ON solar_system_id = "solarSystemID"
 				WHERE kills.kill_id = %s
 				''', kill_id)
 		except db.NoRowsException:
@@ -237,10 +237,10 @@ def kill(kill_id):
 			SELECT character_id, character_name, damage, victim, final_blow,
 				corporation_id, corporation_name, alliance_id, alliance_name, faction_id, faction_name,
 				ship_type_id, weapon_type_id,
-				ship.typeName AS ship_name, weapon.typeName AS weapon_name
+				ship."typeName" AS ship_name, weapon."typeName" AS weapon_name
 			FROM kill_characters
-			JOIN eve.invTypes AS ship ON ship_type_id = ship.typeID
-			LEFT JOIN eve.invTypes AS weapon ON weapon_type_id = weapon.typeID
+			JOIN "invTypes" AS ship ON ship_type_id = ship."typeID"
+			LEFT JOIN "invTypes" AS weapon ON weapon_type_id = weapon."typeID"
 			WHERE kill_id = %s
 			''', kill_id)
 		attackers = []
@@ -262,10 +262,10 @@ def kill(kill_id):
 		# see update_costs for an explanation of the ORDER BY
 		item_rows = db.query(c, '''
 			SELECT items.type_id, flag, dropped, destroyed, singleton,
-				cost, typeName AS item_name
+				cost, "typeName" AS item_name
 			FROM items
 			LEFT JOIN item_costs ON item_costs.type_id = items.type_id
-			JOIN eve.invTypes ON items.type_id = typeID
+			JOIN "invTypes" ON items.type_id = "typeID"
 			WHERE kill_id = %s
 			ORDER BY (cost * (dropped + destroyed) / (singleton * 499.5 + 1)) DESC
 			''', kill_id)
@@ -316,8 +316,8 @@ def kill(kill_id):
 		if len(fitting_items):
 			# 11: requires low, 12: requires high, 13: requires medium; :CCP:
 			modules = db.query(c, '''
-				SELECT DISTINCT typeID AS type_id FROM eve.dgmTypeEffects
-				WHERE typeID IN ({}) and effectID IN (11, 12, 13)
+				SELECT DISTINCT "typeID" AS type_id FROM "dgmTypeEffects"
+				WHERE "typeID" IN ({}) and "effectID" IN (11, 12, 13)
 				'''.format(','.join(map(str, fitting_items))))
 			module_ids = set(map(operator.itemgetter('type_id'), modules))
 			for slot in module_slots:
@@ -328,9 +328,9 @@ def kill(kill_id):
 						item['charge'] = True
 
 		slot_rows = db.query(c, '''
-			SELECT attributeID, valueInt, valueFloat FROM eve.dgmTypeAttributes
-			WHERE typeID = %s AND attributeID IN (12, 13, 14, 1137, 1367)
-				AND (valueInt != 0 OR valueFloat != 0.0)
+			SELECT "attributeID", "valueInt", "valueFloat" FROM "dgmTypeAttributes"
+			WHERE "typeID" = %s AND "attributeID" IN (12, 13, 14, 1137, 1367)
+				AND ("valueInt" != 0 OR "valueFloat" != 0.0)
 			''', victim['ship_type_id'])
 		slot_mapping = {12: 'low', 13: 'medium', 14: 'high', 1137: 'rig', 1367: 'subsystem'}
 		slots = dict.fromkeys(slot_mapping.values(), 0)
@@ -340,8 +340,8 @@ def kill(kill_id):
 		if 'subsystem' in items:
 			sub_ids = map(lambda s: str(s['type_id']), items['subsystem'])
 			modifier_rows = db.query(c, '''
-				SELECT attributeID, valueFloat FROM eve.dgmTypeAttributes
-				WHERE typeID IN ({}) AND attributeID in (1374, 1375, 1376) and valueFloat != 0.0
+				SELECT "attributeID", "valueFloat" FROM "dgmTypeAttributes"
+				WHERE "typeID" IN ({}) AND "attributeID" in (1374, 1375, 1376) and "valueFloat" != 0.0
 				'''.format(','.join(sub_ids)))
 			slot_mapping = {1374: 'high', 1375: 'medium', 1376: 'low'} # that's right, it's backwards for subs!
 			for modifier in modifier_rows:
@@ -383,11 +383,11 @@ def battle_report(kill_id):
 		# collect some data
 		try:
 			meta = db.get(c, '''
-				SELECT kill_time, solar_system_id, solarSystemName AS system_name,
+				SELECT kill_time, solar_system_id, "solarSystemName" AS system_name,
 					security, class AS wh_class, static1, static2, effect AS wh_effect
 				FROM kills
 				LEFT JOIN wh_systems ON solar_system_id = id
-				JOIN eve.mapSolarSystems ON solar_system_id = solarSystemID
+				JOIN "mapSolarSystems" ON solar_system_id = "solarSystemID"
 				WHERE kill_id = %s
 				''', kill_id)
 		except db.NoRowsException:
@@ -405,9 +405,9 @@ def battle_report(kill_id):
 			SELECT
 				kill_id, victim, final_blow, damage,
 				character_id, character_name, corporation_id, corporation_name, alliance_id, alliance_name, faction_id, faction_name,
-				ship_type_id, typeName AS ship_name
+				ship_type_id, "typeName" AS ship_name
 			FROM kill_characters
-			JOIN eve.invTypes ON ship_type_id = typeID
+			JOIN "invTypes" ON ship_type_id = "typeID"
 			WHERE kill_id IN ({})
 			'''.format(','.join(map(str, kill_ids))))
 
@@ -525,24 +525,24 @@ def top_cost():
 		last_kill = db.get(c, 'SELECT MAX(kill_id) AS kill_id FROM kills')
 		kills = db.query(c, '''
 			SELECT kills.kill_id, cost, solar_system_id, kill_time,
-				ship_type_id, typeName AS ship_name
+				ship_type_id, "typeName" AS ship_name
 			FROM kills
 			JOIN kill_costs ON kill_costs.kill_id = kills.kill_id
 			JOIN kill_characters ON kill_characters.kill_id = kills.kill_id
-			JOIN eve.invTypes ON typeID = ship_type_id
-			WHERE victim = 1 AND kills.kill_id > %s
+			JOIN "invTypes" ON "typeID" = ship_type_id
+			WHERE victim = TRUE AND kills.kill_id > %s
 			ORDER BY cost DESC
 			LIMIT 25
 			''', last_kill['kill_id'] - 2500)
-		# joining eve.mapSolarSystems on the initial query causes filesort on large dbs for some reason
+		# joining "mapSolarSystems" on the initial query causes filesort on large dbs for some reason
 		# do a manual join
 		system_ids = set(map(operator.itemgetter('solar_system_id'), kills))
 		system_rows = db.query(c, '''
-			SELECT solarSystemID as solar_system_id, solarSystemName AS system_name,
+			SELECT "solarSystemID" as solar_system_id, "solarSystemName" AS system_name,
 				security, class AS wh_class
-			FROM eve.mapSolarSystems
-			LEFT JOIN wh_systems ON solarSystemID = wh_systems.id
-			WHERE solarSystemID IN ({})
+			FROM "mapSolarSystems"
+			LEFT JOIN wh_systems ON "solarSystemID" = wh_systems.id
+			WHERE "solarSystemID" IN ({})
 			'''.format(','.join(map(str, system_ids))))
 	systems = {}
 	for system in system_rows:
@@ -561,13 +561,13 @@ def last(kill_id):
 		else:
 			kills = db.query(c, '''
 				SELECT
-					kills.kill_id, kill_costs.cost AS total_cost, item_costs.cost AS hull_cost, typeName AS ship_name
+					kills.kill_id, kill_costs.cost AS total_cost, item_costs.cost AS hull_cost, "typeName" AS ship_name
 				FROM kills
 				JOIN kill_costs ON kill_costs.kill_id = kills.kill_id
 				JOIN kill_characters ON kill_characters.kill_id = kills.kill_id
 				JOIN item_costs ON item_costs.type_id = ship_type_id
-				JOIN eve.invTypes ON typeID = ship_type_id
-				WHERE victim = 1 AND kills.kill_id > %s
+				JOIN "invTypes" ON "typeID" = ship_type_id
+				WHERE victim = TRUE AND kills.kill_id > %s
 			''', kill_id)
 	return kills
 
