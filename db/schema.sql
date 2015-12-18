@@ -35,6 +35,7 @@ CREATE TABLE "kill_characters" (
 	"security_status" float DEFAULT NULL,
 	"weapon_type_id" integer DEFAULT NULL
 );
+CREATE INDEX ON "kill_characters" ("kill_id");
 CREATE INDEX "character_id_kill_id" ON "kill_characters" ("character_id", "kill_id");
 CREATE INDEX "alliance_id_kill_id" ON "kill_characters" ("alliance_id", "kill_id");
 CREATE INDEX "corporation_id_kill_id" ON "kill_characters" ("corporation_id", "kill_id");
@@ -49,6 +50,7 @@ CREATE TABLE "items" (
 	"destroyed" integer NOT NULL,
 	"singleton" smallint NOT NULL
 );
+CREATE INDEX ON "items" ("kill_id");
 
 CREATE TABLE "item_costs" (
 	"type_id" serial PRIMARY KEY,
