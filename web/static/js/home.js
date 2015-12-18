@@ -1,4 +1,6 @@
 window.addEvent('domready', function() {
+	'use strict';
+
 	var table = $('expensive');
 	ykill.api('/top/cost', function(kills) {
 		kills.each(function(kill) {

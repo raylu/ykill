@@ -1,4 +1,6 @@
 window.addEvent('domready', function() {
+	'use strict';
+
 	var kill_id = document.location.pathname.split('/').getLast();
 	ykill.api('/kill/' + kill_id, function(data) {
 		var kill = data['kill'];

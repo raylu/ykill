@@ -1,4 +1,6 @@
 window.addEvent('domready', function() {
+	'use strict';
+
 	document.title += ' - search';
 	ykill.api('/search' + document.location.search, function(results) {
 		var wrapper = $('wrapper');

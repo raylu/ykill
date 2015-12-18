@@ -1,4 +1,6 @@
 window.addEvent('domready', function() {
+	'use strict';
+
 	var path = document.location.pathname;
 	var search = document.location.search;
 	var split = path.split('/');

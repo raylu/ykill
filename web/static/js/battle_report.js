@@ -1,4 +1,6 @@
 window.addEvent('domready', function() {
+	'use strict';
+
 	ykill.api(document.location.pathname, function(results) {
 		var meta = results['meta'];
 		$('meta').set('html', 'battle report for ' +

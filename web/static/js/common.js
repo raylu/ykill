@@ -1,4 +1,6 @@
 (function() {
+	'use strict';
+
 	var locale_options = false;
 	try {
 		(0).toLocaleString('i');
@@ -57,6 +59,7 @@
 		},
 
 		'format_system': function(system, wh_info) {
+			var security;
 			if (system['security_status'] == 'wspace')
 				security = 'C' + system['wh_class'];
 			else if (system['security'] > 0.0 && system['security'] < 0.1)
