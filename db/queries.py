@@ -244,6 +244,7 @@ def kill(kill_id):
 			JOIN "invTypes" AS ship ON ship_type_id = ship."typeID"
 			LEFT JOIN "invTypes" AS weapon ON weapon_type_id = weapon."typeID"
 			WHERE kill_id = %s
+			ORDER BY damage DESC
 			''', kill_id)
 		attackers = []
 		for char in characters:

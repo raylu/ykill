@@ -108,7 +108,8 @@ window.addEvent('domready', function() {
 		attackers.grab(new Element('tr').grab(
 			new Element('td', {'class': 'attacker_type', 'colspan': 4, 'html': 'final blow'})
 		));
-		attackers.grab(attacker_row(data['final_blow']));
+		var total_damage = calc_total_damage(data);
+		attackers.grab(attacker_row(data['final_blow'], total_damage));
 		if (data['attackers'].length) {
 			attackers.grab(new Element('tr').grab(
 				new Element('td', {'class': 'attacker_type', 'colspan': 4, 'html': 'attackers'})
@@ -118,7 +119,7 @@ window.addEvent('domready', function() {
 			// please don't ask me why
 			setTimeout(function() {
 				data['attackers'].each(function(char) {
-					attackers.grab(attacker_row(char));
+					attackers.grab(attacker_row(char, total_damage));
 				});
 			}, 100);
 		}
@@ -190,7 +191,15 @@ window.addEvent('domready', function() {
 		});
 	});
 
-	function attacker_row(char) {
+	function calc_total_damage(data) {
+		var total = data['final_blow']['damage'];
+		data['attackers'].each(function(char) {
+			total += char['damage'];
+		});
+		return total;
+	}
+
+	function attacker_row(char, total_damage) {
 		var tr = new Element('tr');
 
 		var td = new Element('td');
@@ -237,7 +246,12 @@ window.addEvent('domready', function() {
 			)
 		);
 		tr.grab(td);
-		tr.grab(new Element('td').appendText(char['damage'].toLocaleString()));
+
+		td = new Element('td').appendText(char['damage'].toLocaleString());
+		td.grab(new Element('br'));
+		var percent = char['damage'] / total_damage;
+		td.appendText(percent.toLocaleString('en-US', {'style': 'percent', 'maximumFractionDigits': 1}));
+		tr.grab(td);
 
 		return tr;
 	}
