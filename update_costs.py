@@ -12,7 +12,9 @@ def get_prices():
 	r = rs.get('https://public-crest.eveonline.com/market/prices/')
 	items = r.json()['items']
 	for item in items:
-		price = int(Decimal(item['adjustedPrice']) * 100)
+		# averagePrice updates faster but some items (AT ships) don't have one
+		price = item.get('averagePrice', item['adjustedPrice'])
+		price = int(Decimal(price) * 100)
 		yield item['type']['id'], price
 
 au79_cost = None
@@ -49,7 +51,6 @@ def main():
 		if not quiet:
 			print('updating items')
 		for type_id, price in get_prices():
-			print('updating', type_id)
 			c.execute('UPDATE item_costs SET cost = %s WHERE type_id = %s', (price, type_id))
 			if c.rowcount == 0:
 				c.execute('INSERT INTO item_costs (type_id, cost) VALUES(%s, %s)', (type_id, price))
