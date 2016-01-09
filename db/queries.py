@@ -8,6 +8,8 @@ import psycopg2.errorcodes
 import db
 from dogma import Dogma
 
+entity_types = ['alliance', 'corporation', 'character']
+
 def insert_kill(c, kill):
 	try:
 		db.execute(c, 'INSERT INTO kills (kill_id, solar_system_id, kill_time) VALUES(%s, %s, %s)',
@@ -66,7 +68,7 @@ def insert_kill(c, kill):
 		cost += result['item_cost']
 	db.execute(c, 'INSERT INTO kill_costs (kill_id, cost) VALUES(%s, %s)', kill['killID'], cost)
 
-	for entity_type in ['alliance', 'corporation', 'character']:
+	for entity_type in entity_types:
 		entity_dict = defaultdict(lambda: {'name': None, 'killed': 0, 'lost': 0})
 		victim_id = victim[entity_type + 'ID']
 		entity = entity_dict[victim_id]
@@ -94,6 +96,40 @@ def insert_kill(c, kill):
 
 	db.conn.commit()
 	return True
+
+def remove_kill(kill_id):
+	with db.cursor() as c:
+		entities = {}
+		for entity_type in entity_types:
+			entities[entity_type] = set()
+
+		rows = db.query(c, '''
+			SELECT victim, character_id, alliance_id, corporation_id
+			FROM kill_characters
+			WHERE kill_id = %s
+			''', kill_id
+		)
+		for row in rows:
+			if row['victim']:
+				victim = row
+			else:
+				for entity_type in entity_types:
+					entities[entity_type].add(row[entity_type + '_id'])
+
+		cost = db.get(c, 'SELECT cost FROM kill_costs WHERE kill_id = %s', kill_id)['cost']
+		parambatch = []
+		for entity_type in entity_types:
+			sql = 'UPDATE {}s SET killed = killed - %s WHERE {}_id IN ({})'.format(
+					entity_type, entity_type, ','.join(map(str, entities[entity_type])))
+			db.execute(c, sql, cost)
+
+			sql = 'UPDATE {}s SET lost = lost - %s WHERE {}_id = %s'.format(entity_type, entity_type)
+			db.execute(c, sql, cost, victim[entity_type + '_id'])
+
+		for table in ['kill_characters', 'kill_costs', 'items', 'kills']:
+			sql = 'DELETE FROM {} WHERE kill_id = %s'.format(table)
+			db.execute(c, sql, kill_id)
+		db.conn.commit()
 
 def search(q):
 	like_str = '{}%'.format(q.lower())
