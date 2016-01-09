@@ -38,7 +38,7 @@ CREATE TABLE "kill_characters" (
 CREATE INDEX ON "kill_characters" ("kill_id");
 CREATE INDEX "character_id_kill_id" ON "kill_characters" ("character_id", "kill_id");
 CREATE INDEX "alliance_id_kill_id" ON "kill_characters" ("alliance_id", "kill_id");
-CREATE INDEX "corporation_id_kill_id" ON "kill_characters" ("corporation_id", "kill_id");
+CREATE INDEX "corporation_id_victim_kill_id" ON "kill_characters" ("corporation_id", "victim", "kill_id");
 CREATE INDEX "ship_type_id_victim_kill_id" ON "kill_characters" ("ship_type_id", "victim", "kill_id");
 
 CREATE TABLE "items" (
