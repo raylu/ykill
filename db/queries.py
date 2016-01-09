@@ -25,10 +25,11 @@ def insert_kill(c, kill):
 		victim['damageTaken'], None, None, None,
 	)]
 	for attacker in kill['attackers']:
+		final_blow = bool(int(attacker['finalBlow'])) # the stomp service sometimes hands us finalBlow: '0'
 		parambatch.append((
 			kill['killID'], False, attacker['characterID'], attacker['characterName'], attacker['shipTypeID'],
 			attacker['allianceID'], attacker['allianceName'], attacker['corporationID'], attacker['corporationName'], attacker['factionID'], attacker['factionName'],
-			attacker['damageDone'], bool(attacker['finalBlow']), attacker['securityStatus'], attacker['weaponTypeID'],
+			attacker['damageDone'], final_blow, attacker['securityStatus'], attacker['weaponTypeID'],
 		))
 	c.executemany('''
 		INSERT INTO kill_characters (

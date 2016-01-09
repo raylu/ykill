@@ -6,8 +6,11 @@ import sys
 import time
 import traceback
 
-import config
 import daemon
+if len(sys.argv) == 2 and sys.argv[1] == '-d':
+	daemon.daemonize() # need to do this before importing db
+
+import config
 import db
 import db.queries
 import log
@@ -37,9 +40,6 @@ class KillListener:
 
 conn = stomp.Connection([('stomp.eve-kill.net', 61613)])
 conn.set_listener('', KillListener())
-
-if len(sys.argv) == 2 and sys.argv[1] == '-d':
-	daemon.daemonize()
 
 def exit():
 	if conn.is_connected():
