@@ -21,6 +21,8 @@ class WebConfig(Config):
 class DBConfig(Config):
 	attrs = frozenset([
 		'dsn',
+		'stomp_username',
+		'stomp_password',
 	])
 
 __doc = yaml.load(open('config.yaml', 'r'))

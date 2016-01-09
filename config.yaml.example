@@ -7,5 +7,7 @@ web:
 
 db:
     dsn: 'dbname=ykill user=ykill'
+    stomp_username: null
+    stomp_password: null
 
 # vim: set et ft=yaml:
