@@ -43,7 +43,7 @@ def insert_kill(c, kill):
 	)
 
 	parambatch = []
-	for item in kill['items']:
+	for item in kill.get('items', []): # stomp sometimes doesn't have items
 		parambatch.append((kill['killID'], item['typeID'], item['flag'],
 			item['qtyDropped'], item['qtyDestroyed'], item['singleton']))
 	c.executemany('''
