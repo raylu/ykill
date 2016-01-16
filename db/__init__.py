@@ -9,7 +9,11 @@ def cursor():
 	return conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
 def execute(cursor, sql, *values):
-	cursor.execute(sql, values)
+	try:
+		cursor.execute(sql, values)
+	except psycopg2.Error:
+		conn.rollback()
+		raise
 
 def query(cursor, sql, *values):
 	execute(cursor, sql, *values)

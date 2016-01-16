@@ -12,8 +12,8 @@ entity_types = ['alliance', 'corporation', 'character']
 
 def insert_kill(c, kill):
 	try:
-		db.execute(c, 'INSERT INTO kills (kill_id, solar_system_id, kill_time) VALUES(%s, %s, %s)',
-				kill['killID'], kill['solarSystemID'], kill['killTime'])
+		c.execute('INSERT INTO kills (kill_id, solar_system_id, kill_time) VALUES(%s, %s, %s)',
+				(kill['killID'], kill['solarSystemID'], kill['killTime']))
 	except psycopg2.IntegrityError as e:
 		if e.pgcode == psycopg2.errorcodes.UNIQUE_VIOLATION:
 			db.conn.rollback()

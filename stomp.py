@@ -29,6 +29,7 @@ class KillListener:
 				log.write('stomp inserted {} kills'.format(self.inserted))
 		except Exception as e:
 			log.write('stomp error: {}, {}\n{}'.format(headers, message, traceback.format_exc()))
+			exit()
 
 	def on_error(self, headers, message):
 		log.write('stomp error: {}, {}'.format(headers, message))
