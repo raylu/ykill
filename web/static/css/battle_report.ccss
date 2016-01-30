@@ -28,6 +28,22 @@ table.summary:
 		padding-right: 20%
 		text-align: right
 
+	tr:nth-of-type(3):
+		td:nth-child(1):
+			padding-left: 350px
+
+.headers:
+	background-color: #222
+	text-align: right
+
+	& > div:
+		display: inline-block
+
+	.cost:
+		margin-right: 16px
+	.damage:
+		padding-right: 8px
+
 .faction:
 	width: 100%
 
@@ -48,7 +64,7 @@ table.summary:
 
 
 	.portraits:
-		width: 130px
+		width: 98px
 		overflow: visible
 		> div:
 			display: inline-block
@@ -57,7 +73,7 @@ table.summary:
 				display: block
 
 	.text:
-		max-width: 310px
+		width: 242px
 		white-space: nowrap
 		overflow: hidden
 		text-overflow: ellipsis
@@ -66,7 +82,12 @@ table.summary:
 		width: 100px
 		margin-left: auto
 		text-align: right
+
+	.damage:
+		width: 100px
+		margin-left: auto
 		padding-right: 8px
+		text-align: right
 
 #faction3:
 	display: none

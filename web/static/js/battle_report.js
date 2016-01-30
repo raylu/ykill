@@ -27,7 +27,6 @@ window.addEvent('domready', function() {
 						ykill.portrait(char['ship_type_id'], char['ship_name'], 'Type', 32),
 						new Element('div', {'class': 'tooltip', 'html': char['ship_name']})
 					),
-					ykill.portrait(char['character_id'], char['character_name'], 'Character', 32),
 					new Element('div').adopt(
 						ykill.portrait(char['corporation_id'], char['corporation_name'], 'Corporation', 32),
 						new Element('div', {'class': 'tooltip', 'html': char['corporation_name']})
@@ -62,6 +61,11 @@ window.addEvent('domready', function() {
 					}
 					row.grab(cost_div);
 				}
+
+				var damage_div = new Element('div', {'class': 'damage'});
+				if (char['damage_dealt'])
+					damage_div.appendText(ykill.format_number(char['damage_dealt']));
+				row.grab(damage_div);
 
 				faction_div.grab(row);
 
