@@ -3,6 +3,7 @@
 import atexit
 import json
 import sys
+import time
 import traceback
 
 import tornado.gen
@@ -14,9 +15,10 @@ import db
 import db.queries
 import log
 
+conn = None
+
 @tornado.gen.coroutine
 def main():
-	conn = yield tornado.websocket.websocket_connect('wss://ws.eve-kill.net/kills', connect_timeout=5)
 	if len(sys.argv) == 2 and sys.argv[1] == '-d':
 		daemon.daemonize()
 
@@ -25,6 +27,13 @@ def main():
 		log.close()
 	atexit.register(exit)
 
+	while True:
+		run()
+		time.sleep(15)
+
+@tornado.gen.coroutine
+def run():
+	conn = yield tornado.websocket.websocket_connect('wss://ws.eve-kill.net/kills', connect_timeout=5)
 	msg = yield conn.read_message()
 	assert(isinstance(json.loads(msg), list)) # server info line
 
