@@ -91,7 +91,7 @@ table.summary:
 
 #faction3:
 	display: none
-	width: 440px
+	width: 540px
 	margin: 25px auto
 
 	div.heading:
