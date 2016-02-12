@@ -39,9 +39,10 @@ def handle_package(package):
 				if entity + 'ID' not in char:
 					char[entity + 'ID'] = 0
 					char[entity + 'Name'] = ''
-		# make sure weaponTypeID is present (missing for NPCs)
+		# make sure weapon and ship are present
 		for char in kill['attackers']:
 			char.setdefault('weaponTypeID', 0)
+			char.setdefault('shipTypeID', 0)
 
 		with db.cursor() as c:
 			db.queries.insert_kill(c, kill)
