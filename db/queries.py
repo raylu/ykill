@@ -572,9 +572,11 @@ def top_cost():
 			JOIN kill_costs ON kill_costs.kill_id = kills.kill_id
 			JOIN kill_characters ON kill_characters.kill_id = kills.kill_id
 			JOIN "invTypes" ON "typeID" = ship_type_id
-			WHERE victim = TRUE AND kills.kill_id > %s
+			WHERE victim = TRUE AND kills.kill_id IN (
+				SELECT kill_id FROM kill_costs WHERE kill_id > %s
+				ORDER BY cost DESC LIMIT 25
+			)
 			ORDER BY cost DESC
-			LIMIT 25
 			''', last_kill['kill_id'] - 2500)
 		# joining "mapSolarSystems" on the initial query causes filesort on large dbs for some reason
 		# do a manual join
