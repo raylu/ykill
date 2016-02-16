@@ -95,6 +95,15 @@ CREATE TABLE "wh_systems" (
 	"static2" varchar(5) NULL
 );
 
+ALTER TABLE "invGroups" ADD PRIMARY KEY ("groupID");
+ALTER TABLE "invTypes" ADD PRIMARY KEY ("typeID");
+ALTER TABLE "invTypes" ADD FOREIGN KEY ("groupID") REFERENCES "invGroups";
+ALTER TABLE "mapRegions" ADD PRIMARY KEY ("regionID");
+ALTER TABLE "mapSolarSystems" ADD PRIMARY KEY ("solarSystemID");
+ALTER TABLE "mapSolarSystems" ADD FOREIGN KEY ("regionID") REFERENCES "mapRegions";
+ALTER TABLE "dgmTypeEffects" ADD UNIQUE ("typeID", "effectID");
+ALTER TABLE "dgmTypeAttributes" ADD UNIQUE ("typeID", "attributeID");
+
 INSERT INTO "wh_systems" VALUES
 (31000005, 12, NULL, NULL, NULL),
 (31000007, 1, NULL, 'null', NULL),
