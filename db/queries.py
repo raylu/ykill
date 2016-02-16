@@ -179,14 +179,8 @@ def kill_list(entity_type, entity_id, list_type, page):
 				stats = db.get(c, sql, entity_id)
 			except db.NoRowsException:
 				return None
-		# the combination of DISTINCT and and ORDER BY means we can't join kills or we get filesort
+		# the combination of DISTINCT and and ORDER BY means we can't join kills or we get seq scans
 		# get kill_ids from chars, then get kill data on those ids
-		if list_type == 'kills':
-			extra_cond = 'AND victim = FALSE'
-		elif list_type == 'losses':
-			extra_cond = 'AND victim = TRUE'
-		elif list_type is None:
-			extra_cond = ''
 		page_size = 50
 		if entity_type == 'time':
 			sql = 'SELECT kill_id FROM kills WHERE kill_time BETWEEN %s AND %s ORDER BY kill_id DESC LIMIT %s OFFSET %s'
@@ -196,6 +190,12 @@ def kill_list(entity_type, entity_id, list_type, page):
 			if entity_type == 'system':
 				sql = 'SELECT kill_id FROM kills WHERE solar_system_id = %s ORDER BY kill_id DESC LIMIT %s OFFSET %s'
 			else:
+				if list_type == 'kills':
+					extra_cond = 'AND victim = FALSE'
+				elif list_type == 'losses':
+					extra_cond = 'AND victim = TRUE'
+				elif list_type is None:
+					extra_cond = ''
 				if entity_type == 'ship':
 					entity_type = 'ship_type'
 				sql = '''
@@ -213,7 +213,7 @@ def kill_list(entity_type, entity_id, list_type, page):
 				class AS wh_class, static1, static2
 			FROM kills
 			JOIN kill_costs ON kill_costs.kill_id = kills.kill_id
-			LEFT JOIN wh_systems ON solar_system_id = id
+			LEFT JOIN wh_systems ON solar_system_id = wh_systems.id
 			JOIN "mapSolarSystems" ON solar_system_id = "solarSystemID"
 			JOIN "mapRegions" ON "mapSolarSystems"."regionID" = "mapRegions"."regionID"
 			WHERE kills.kill_id IN ({})
@@ -227,6 +227,7 @@ def kill_list(entity_type, entity_id, list_type, page):
 			JOIN "invTypes" ON ship_type_id = "typeID"
 			WHERE kill_id IN ({})
 			'''.format(','.join(map(str, kill_ids))))
+
 	characters = defaultdict(dict)
 	for kill_id in kill_ids:
 		characters[kill_id]['attackers'] = 1 # count final_blow now
@@ -238,6 +239,7 @@ def kill_list(entity_type, entity_id, list_type, page):
 			characters[kill_id]['final_blow'] = char
 		else:
 			characters[kill_id]['attackers'] += 1
+
 	if entity_type == 'ship_type':
 		stats['killed'] = stats['lost'] = 0
 	kills.sort(key=operator.itemgetter('kill_id'), reverse=True)
