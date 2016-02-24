@@ -69,19 +69,27 @@ def insert_kill(c, kill):
 	db.execute(c, 'INSERT INTO kill_costs (kill_id, cost) VALUES(%s, %s)', kill['killID'], cost)
 
 	for entity_type in entity_types:
-		entity_dict = defaultdict(lambda: {'name': None, 'killed': 0, 'lost': 0})
+		entity_dict = defaultdict(lambda: {
+			'name': None, 'killed': 0, 'lost': 0,
+			'victim': False, 'attacker': False,
+		})
+		# set lost
 		victim_id = victim[entity_type + 'ID']
 		entity = entity_dict[victim_id]
 		entity['name'] = victim[entity_type + 'Name']
 		entity['lost'] = cost
+		entity['victim'] = True
+		# set killed
 		for attacker in kill['attackers']:
 			entity_id = attacker[entity_type + 'ID']
 			if entity_id != 0:
 				entity = entity_dict[entity_id]
 				entity['name'] = attacker[entity_type + 'Name']
+				entity['attacker'] = True
 				if attacker[entity_type + 'ID'] != victim_id:
 					entity['killed'] += cost / len(kill['attackers'])
 
+		parambatch = []
 		for entity_id, info in entity_dict.items():
 			sql = '''
 				UPDATE {}s
@@ -93,6 +101,19 @@ def insert_kill(c, kill):
 				sql = 'INSERT INTO {}s ({}_id, {}_name, killed, lost) VALUES(%s, %s, %s, %s)'.format(
 						entity_type, entity_type, entity_type)
 				c.execute(sql, (entity_id, info['name'], info['killed'], info['lost']))
+
+			if entity_type != 'character':
+				if entity['attacker']:
+					parambatch.append((kill['killID'], entity_id, False))
+				if entity['victim']:
+					parambatch.append((kill['killID'], entity_id, True))
+
+		if entity_type != 'character':
+			sql = '''
+				INSERT INTO kill_{}s (kill_id, {}_id, victim)
+				VALUES(%s, %s, %s)
+				'''.format(entity_type, entity_type)
+			c.executemany(sql, parambatch)
 
 	db.conn.commit()
 	return True
@@ -199,10 +220,10 @@ def kill_list(entity_type, entity_id, list_type, page):
 				if entity_type == 'ship':
 					entity_type = 'ship_type'
 				sql = '''
-					SELECT DISTINCT kill_id FROM kill_characters
+					SELECT kill_id FROM kill_{}s
 					WHERE {}_id = %s {}
 					ORDER BY kill_id DESC LIMIT %s OFFSET %s
-					'''.format(entity_type, extra_cond)
+					'''.format(entity_type, entity_type, extra_cond)
 			kills = db.query(c, sql, entity_id, page_size, (page - 1) * page_size)
 		if len(kills) == 0:
 			return None

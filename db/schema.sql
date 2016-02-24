@@ -6,6 +6,8 @@ DROP TABLE IF EXISTS "kills";
 DROP TABLE IF EXISTS "alliances";
 DROP TABLE IF EXISTS "corporations";
 DROP TABLE IF EXISTS "characters";
+DROP TABLE IF EXISTS "kill_alliances";
+DROP TABLE IF EXISTS "kill_corporations";
 DROP TABLE IF EXISTS "wh_systems";
 
 CREATE TABLE "kills" (
@@ -86,6 +88,22 @@ CREATE TABLE "characters" (
 	"lost" bigint NOT NULL
 );
 CREATE INDEX "character_name" ON "characters" (LOWER("character_name"));
+
+CREATE TABLE "kill_alliances" (
+	"id" serial PRIMARY KEY,
+	"kill_id" integer NOT NULL REFERENCES "kills" ("kill_id"),
+	"alliance_id" integer NOT NULL REFERENCES "alliances" ("alliance_id"),
+	"victim" boolean NOT NULL
+);
+CREATE UNIQUE INDEX "alliance_kill_victim" ON "kill_alliances" ("alliance_id", "kill_id", "victim");
+
+CREATE TABLE "kill_corporations" (
+	"id" serial PRIMARY KEY,
+	"kill_id" integer NOT NULL REFERENCES "kills" ("kill_id"),
+	"corporation_id" integer NOT NULL REFERENCES "corporations" ("corporation_id"),
+	"victim" boolean NOT NULL
+);
+CREATE UNIQUE INDEX "corporation_kill_victim" ON "kill_corporations" ("corporation_id", "kill_id", "victim");
 
 CREATE TABLE "wh_systems" (
 	"id" serial PRIMARY KEY,
