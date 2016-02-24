@@ -80,7 +80,7 @@ def insert_kill(c, kill):
 				entity = entity_dict[entity_id]
 				entity['name'] = attacker[entity_type + 'Name']
 				if attacker[entity_type + 'ID'] != victim_id:
-					entity['killed'] = cost
+					entity['killed'] += cost / len(kill['attackers'])
 
 		for entity_id, info in entity_dict.items():
 			sql = '''
