@@ -17,7 +17,8 @@ def fill_for_kill(c, kill):
 	for row in char_rows:
 		if row['victim']:
 			corp_params.append((row['kill_id'], row['corporation_id'], True))
-			alliance_params.append((row['kill_id'], row['alliance_id'], True))
+			if row['alliance_id'] != 0:
+				alliance_params.append((row['kill_id'], row['alliance_id'], True))
 		else:
 			if row['corporation_id'] != 0:
 				corporations.add(row['corporation_id'])

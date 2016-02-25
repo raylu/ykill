@@ -102,7 +102,7 @@ def insert_kill(c, kill):
 						entity_type, entity_type, entity_type)
 				c.execute(sql, (entity_id, info['name'], info['killed'], info['lost']))
 
-			if entity_type != 'character':
+			if entity_id != 0 and entity_type != 'character':
 				if entity['attacker']:
 					parambatch.append((kill['killID'], entity_id, False))
 				if entity['victim']:
