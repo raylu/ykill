@@ -208,22 +208,26 @@ def kill_list(entity_type, entity_id, list_type, page):
 			start, end = entity_id
 			kills = db.query(c, sql, start, end, page_size, (page - 1) * page_size)
 		else:
+			if list_type == 'kills':
+				extra_cond = 'AND victim = FALSE'
+			elif list_type == 'losses':
+				extra_cond = 'AND victim = TRUE'
+			elif list_type is None:
+				extra_cond = ''
+
 			if entity_type == 'system':
-				sql = 'SELECT kill_id FROM kills WHERE solar_system_id = %s ORDER BY kill_id DESC LIMIT %s OFFSET %s'
+				sql = 'SELECT kill_id FROM kills WHERE solar_system_id = %s'
+			elif entity_type == 'ship':
+				if list_type is None:
+					# psql query planner won't use our index otherwise
+					extra_cond = 'AND victim IN (TRUE, FALSE)'
+				sql = 'SELECT kill_id FROM kill_characters WHERE ship_type_id = %s {}'.format(extra_cond)
 			else:
-				if list_type == 'kills':
-					extra_cond = 'AND victim = FALSE'
-				elif list_type == 'losses':
-					extra_cond = 'AND victim = TRUE'
-				elif list_type is None:
-					extra_cond = ''
-				if entity_type == 'ship':
-					entity_type = 'ship_type'
 				sql = '''
 					SELECT kill_id FROM kill_{}s
 					WHERE {}_id = %s {}
-					ORDER BY kill_id DESC LIMIT %s OFFSET %s
 					'''.format(entity_type, entity_type, extra_cond)
+			sql += '\nORDER BY kill_id DESC LIMIT %s OFFSET %s'
 			kills = db.query(c, sql, entity_id, page_size, (page - 1) * page_size)
 		if len(kills) == 0:
 			return None
