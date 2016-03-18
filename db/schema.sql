@@ -1,13 +1,13 @@
 DROP TABLE IF EXISTS "kill_characters";
+DROP TABLE IF EXISTS "kill_alliances";
+DROP TABLE IF EXISTS "kill_corporations";
 DROP TABLE IF EXISTS "items";
 DROP TABLE IF EXISTS "item_costs";
 DROP TABLE IF EXISTS "kill_costs";
-DROP TABLE IF EXISTS "kills";
+DROP TABLE IF EXISTS "characters";
 DROP TABLE IF EXISTS "alliances";
 DROP TABLE IF EXISTS "corporations";
-DROP TABLE IF EXISTS "characters";
-DROP TABLE IF EXISTS "kill_alliances";
-DROP TABLE IF EXISTS "kill_corporations";
+DROP TABLE IF EXISTS "kills";
 DROP TABLE IF EXISTS "wh_systems";
 
 CREATE TABLE "kills" (
