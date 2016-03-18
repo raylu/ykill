@@ -21,6 +21,7 @@ def insert_kill(c, kill):
 		raise
 
 	victim = kill['victim']
+	pc_attackers = 0
 	parambatch = [(
 		kill['killID'], True, victim['characterID'], victim['characterName'], victim['shipTypeID'],
 		victim['allianceID'], victim['allianceName'], victim['corporationID'], victim['corporationName'], victim['factionID'], victim['factionName'],
@@ -33,6 +34,8 @@ def insert_kill(c, kill):
 			attacker['allianceID'], attacker['allianceName'], attacker['corporationID'], attacker['corporationName'], attacker['factionID'], attacker['factionName'],
 			attacker['damageDone'], final_blow, attacker['securityStatus'], attacker['weaponTypeID'],
 		))
+		if attacker['characterID'] != 0:
+			pc_attackers += 1
 	c.executemany('''
 		INSERT INTO kill_characters (
 			kill_id, victim, character_id, character_name, ship_type_id,
@@ -87,7 +90,11 @@ def insert_kill(c, kill):
 				entity['name'] = attacker[entity_type + 'Name']
 				entity['attacker'] = True
 				if attacker[entity_type + 'ID'] != victim_id:
-					entity['killed'] += cost / len(kill['attackers'])
+					try:
+						entity['killed'] += cost / pc_attackers
+					except ZeroDivisionError: # NPC-only kill
+						assert attacker['characterID'] == 0
+						entity['killed'] += cost
 
 		parambatch = []
 		for entity_id, info in entity_dict.items():
