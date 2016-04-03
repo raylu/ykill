@@ -27,12 +27,14 @@
 			}).get();
 		},
 
+		'imageserver': 'https://imageserver.eveonline.com',
+
 		'portrait': function(id, text, img_dir, size) {
 			var extension = 'png';
 			if (img_dir == 'Character')
 				extension = 'jpg';
 			var img = new Element('img', {
-				'src': 'https://imageserver.eveonline.com/' + img_dir + '/' + id + '_' + size + '.' + extension,
+				'src': ykill.imageserver + '/' + img_dir + '/' + id + '_' + size + '.' + extension,
 				'alt': text,
 				'width': size,
 				'height': size,
