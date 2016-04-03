@@ -78,5 +78,8 @@ def main():
 			handle_package(data['package'])
 		except KeyboardInterrupt:
 			break
+		except (ValueError, requests.exceptions.RequestException):
+			log.write('error; waiting 5 minutes')
+			time.sleep(300)
 		log.flush()
 main()
