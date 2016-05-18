@@ -79,7 +79,7 @@ def main():
 		except KeyboardInterrupt:
 			break
 		except (ValueError, requests.exceptions.RequestException):
-			log.write('error; waiting 5 minutes')
+			log.write('redisq error; waiting 5 minutes\n%s' % traceback.format_exc())
 			time.sleep(300)
 		log.flush()
 main()
