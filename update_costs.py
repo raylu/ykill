@@ -9,7 +9,7 @@ import db
 
 rs = requests.session()
 def get_prices():
-	r = rs.get('https://public-crest.eveonline.com/market/prices/')
+	r = rs.get('https://crest-tq.eveonline.com/market/prices/')
 	items = r.json()['items']
 	for item in items:
 		# averagePrice updates faster but some items (AT ships) don't have one
