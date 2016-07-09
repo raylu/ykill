@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import sys
+import time
 import traceback
 
 import daemon
@@ -49,7 +50,7 @@ def handle_package(package):
 		inserted += 1
 		if inserted % 500 == 0:
 			log.write('redisq inserted %s kills' % inserted)
-	except Exception as e:
+	except:
 		log.write('redisq error: %s\n%s' % (package, traceback.format_exc()))
 		log.close()
 		sys.exit()
